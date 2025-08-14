@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-api/articker.module-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/module-api/articker.module-api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-api/articker.module-api.test.iml" filepath="$PROJECT_DIR$/.idea/modules/module-api/articker.module-api.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-data/articker.module-data.main.iml" filepath="$PROJECT_DIR$/.idea/modules/module-data/articker.module-data.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-data/articker.module-data.test.iml" filepath="$PROJECT_DIR$/.idea/modules/module-data/articker.module-data.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-general/articker.module-general.main.iml" filepath="$PROJECT_DIR$/.idea/modules/module-general/articker.module-general.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-general/articker.module-general.test.iml" filepath="$PROJECT_DIR$/.idea/modules/module-general/articker.module-general.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-infra/articker.module-infra.main.iml" filepath="$PROJECT_DIR$/.idea/modules/module-infra/articker.module-infra.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module-infra/articker.module-infra.test.iml" filepath="$PROJECT_DIR$/.idea/modules/module-infra/articker.module-infra.test.iml" />
+    </modules>
+  </component>
+</project>
