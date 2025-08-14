@@ -1,1 +1,6 @@
 rootProject.name = 'articker'
+
+include 'module-api'
+include 'module-data'
+include 'module-general'
+include 'module-infra'
