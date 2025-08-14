@@ -5,18 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6b45378-04fa-450e-95bd-5a1d3d675b99" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/module-data/src/main/kotlin/finn/moduledata/DemoTable.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/HELP.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/finn/articker/ArtickerApplication.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/finn/articker/ArtickerApplicationTests.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/finn/articker/TestArtickerApplication.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/finn/articker/TestcontainersConfiguration.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +134,7 @@
     "Spring Boot.ArtickerApplication.executor": "Run",
     "Spring Boot.ModuleApiApplication (1).executor": "Run",
     "Spring Boot.ModuleApiApplication.executor": "Run",
-    "git-widget-placeholder": "issue-2",
+    "git-widget-placeholder": "#3 on issue-2",
     "last_opened_file_path": "/Users/conda/Documents/GitHub/finn-project/be-server/project-data/src/main/resources",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -308,7 +304,8 @@
       <workItem from="1755188397335" duration="11000" />
       <workItem from="1755188415459" duration="727000" />
       <workItem from="1755189152153" duration="205000" />
-      <workItem from="1755189366021" duration="1351000" />
+      <workItem from="1755189366021" duration="1591000" />
+      <workItem from="1755191056314" duration="210000" />
     </task>
     <servers />
   </component>
