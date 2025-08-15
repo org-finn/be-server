@@ -1,6 +1,6 @@
 package finn.api.response
 
-enum class ResponseCode(val code: String, val defaultMessage: String) {
+enum class ResponseCode(val code: String, defaultMessage: String) {
     // 200 OK
     OK("200 OK", "요청을 성공적으로 처리하였습니다."),
 
