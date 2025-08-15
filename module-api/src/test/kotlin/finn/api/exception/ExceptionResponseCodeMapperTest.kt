@@ -1,50 +1,40 @@
 package finn.api.exception
 
 import finn.api.response.ResponseCode
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
-import java.util.stream.Stream
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.datatest.withData
+import io.kotest.matchers.shouldBe
 
-internal class ExceptionResponseCodeMapperTest {
+internal class ExceptionResponseCodeMapperTest : BehaviorSpec({
 
-    private val mapper = ExceptionResponseCodeMapper
+    val mapper = ExceptionResponseCodeMapper
 
+    // 테스트에 사용할 커스텀 예외 클래스들
     class NotFoundUserException : Exception()
     class UserConflictException : Exception()
-    class badRequestParameterException : Exception() // 일부러 소문자로 시작하여 대소문자 무시 테스트
-    class CustomDomainException : Exception()     // 매칭되지 않는 케이스
+    class badRequestParameterException : Exception()
+    class CustomDomainException : Exception()
 
-    companion object {
-        @JvmStatic // JUnit이 이 메서드를 찾을 수 있도록 @JvmStatic을 붙여줍니다.
-        fun provideExceptionAndExpectedCode(): Stream<Arguments> {
-            return Stream.of(
-                // 1. 성공 케이스
-                Arguments.of(NotFoundUserException(), ResponseCode.NOT_FOUND),
-                Arguments.of(UserConflictException(), ResponseCode.CONFLICT),
-                Arguments.of(badRequestParameterException(), ResponseCode.BAD_REQUEST),
+    Given("다양한 종류의 예외가 주어졌을 때") {
+        withData(
+            // 테스트 케이스의 이름을 동적으로 생성
+            nameFn = { (exception, _) -> "예외 타입: ${exception::class.simpleName}" },
 
-                // 2. 실패 (기본값) 케이스
-                Arguments.of(CustomDomainException(), ResponseCode.INTERNAL_SERVER_ERROR),
-                Arguments.of(IllegalArgumentException(), ResponseCode.INTERNAL_SERVER_ERROR),
-
-                // 3. 엣지 케이스 (존재하지 않는 익명 클래스)
-                Arguments.of(object : Exception() {}, ResponseCode.INTERNAL_SERVER_ERROR)
-            )
+            // 테스트 데이터 목록 (입력값 to 기대값)
+            NotFoundUserException() to ResponseCode.NOT_FOUND,
+            UserConflictException() to ResponseCode.CONFLICT,
+            badRequestParameterException() to ResponseCode.BAD_REQUEST,
+            CustomDomainException() to ResponseCode.INTERNAL_SERVER_ERROR,
+            IllegalArgumentException() to ResponseCode.INTERNAL_SERVER_ERROR,
+            object : Exception() {} to ResponseCode.INTERNAL_SERVER_ERROR
+        ) { (exception, expectedCode) -> // Pair를 구조 분해하여 사용
+            When("Mapper를 통해 ResponseCode로 변환하면") {
+                val actualCode = mapper.mapResponseCode(exception)
+                Then("예상하는 ResponseCode가 반환되어야 한다") {
+                    actualCode shouldBe expectedCode
+                }
+            }
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("provideExceptionAndExpectedCode")
-    fun mapped_by_exception_class_name(
-        exception: Exception,
-        expectedCode: ResponseCode
-    ) {
-        // when: 매퍼를 통해 예외를 ResponseCode로 변환
-        val actualCode = mapper.mapResponseCode(exception)
-
-        // then: 예상한 ResponseCode와 실제 변환된 코드가 일치하는지 검증
-        assertEquals(expectedCode, actualCode)
-    }
-}
+})
