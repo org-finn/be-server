@@ -1,7 +1,5 @@
 package finn.common.exception
 
-import finn.common.apiResponse.ResponseCode
-
 abstract class CommonException(
     val responseCode: ResponseCode,
     message: String?,
