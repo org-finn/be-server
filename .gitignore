@@ -228,8 +228,8 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Gradle ###
-.gradle
-**/build/
+./gradle/**
+build/
 !src/**/build/
 
 # Ignore Gradle GUI config
@@ -258,6 +258,7 @@ gradle-app.setting
 
 # .idea
 .idea/
+.idea/**
 
 # env
 .env
