@@ -1,6 +1,6 @@
 package finn.api.response
 
-enum class ResponseCode(val code: String, defaultMessage: String) {
+enum class ResponseCode(val code: String, val defaultMessage: String) {
     // 200 OK
     OK("200 OK", "요청을 성공적으로 처리하였습니다."),
 
@@ -23,7 +23,7 @@ enum class ResponseCode(val code: String, defaultMessage: String) {
     CONFLICT("409 CONFLICT", "이미 사용 중인 값입니다."),
 
     // 500 INTERNAL_SERVER_ERROR
-    SERVER_ERROR("500 INTERNAL SERVER ERROR", "서버 내부 오류가 발생했습니다."),
+    INTERNAL_SERVER_ERROR("500 INTERNAL SERVER ERROR", "서버 내부 오류가 발생했습니다."),
 
     // 503 SERVICE_UNAVAILABLE
     SERVICE_UNAVAILABLE(
