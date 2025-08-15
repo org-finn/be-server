@@ -1,7 +1,7 @@
 package finn.common.exception
 
 abstract class CommonException(
-    message: String?,
+    message: String,
     cause: Throwable?
 ) : RuntimeException(message, cause) {
 

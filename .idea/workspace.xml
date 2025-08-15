@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6b45378-04fa-450e-95bd-5a1d3d675b99" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/module-api/src/test/kotlin/finn/api/exception/ExceptionResponseCodeMapperTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +50,12 @@
         </task>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="articker" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>
@@ -62,7 +68,9 @@
         <option value="Class" />
         <option value="Kotlin File" />
         <option value="Kotlin Object" />
+        <option value="Kotlin Enum" />
         <option value="Kotlin Class" />
+        <option value="Kotlin JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -109,6 +117,7 @@
     "Gradle.be-server [clean].executor": "Run",
     "Gradle.be-server [dependencies].executor": "Run",
     "Gradle.module-api [dependencies].executor": "Run",
+    "Gradle.module-persistence [dependencies].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
@@ -120,7 +129,9 @@
     "Spring Boot.ArtickerApplication.executor": "Run",
     "Spring Boot.ModuleApiApplication (1).executor": "Run",
     "Spring Boot.ModuleApiApplication.executor": "Run",
-    "git-widget-placeholder": "issue-2",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "git-widget-placeholder": "issue-6",
     "last_opened_file_path": "/Users/conda/Documents/GitHub/finn-project/be-server/project-data/src/main/resources",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -143,6 +154,15 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/module-api" />
     </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="finn.api.exception" />
+    </key>
+    <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="finn.api.response" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="configurationTypes">
@@ -154,7 +174,31 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ModuleApiApplication">
+  <component name="RunManager" selected="Gradle.ExceptionResponseCodeMapperTest">
+    <configuration name="ExceptionResponseCodeMapperTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":module-api:test" />
+            <option value="--tests" />
+            <option value="&quot;finn.api.exception.ExceptionResponseCodeMapperTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="Tests in 'articker.module-api.test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -167,28 +211,6 @@
         <option name="taskNames">
           <list>
             <option value=":module-api:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="Tests in 'articker.module-general.test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":module-general:test" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -221,10 +243,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="module-api [dependencies]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="module-persistence [dependencies]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/module-api" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module-persistence" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -254,18 +276,12 @@
       <option name="filePath" />
       <method v="2" />
     </configuration>
-    <configuration name="ModuleApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
-      <option name="envFilePaths">
-        <option value="$PROJECT_DIR$/module-api/.env-dev" />
-      </option>
+    <configuration name="ModuleApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true">
       <module name="articker.module-api.main" />
-      <selectedOptions>
-        <option name="environmentVariables" />
-      </selectedOptions>
-      <option name="SPRING_BOOT_MAIN_CLASS" value="finn.moduleapi.ModuleApiApplication" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="finn.api.ModuleApiApplication" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="finn.moduleapi.*" />
+          <option name="PATTERN" value="finn.api.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -274,19 +290,19 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Gradle.ExceptionResponseCodeMapperTest" />
+      <item itemvalue="Gradle.module-persistence [dependencies]" />
       <item itemvalue="Gradle.Tests in 'articker.module-api.test'" />
-      <item itemvalue="Gradle.Tests in 'articker.module-general.test'" />
       <item itemvalue="Gradle.be-server [clean]" />
-      <item itemvalue="Gradle.module-api [dependencies]" />
       <item itemvalue="Spring Boot.ModuleApiApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.ExceptionResponseCodeMapperTest" />
         <item itemvalue="Spring Boot.ModuleApiApplication" />
+        <item itemvalue="Gradle.module-persistence [dependencies]" />
         <item itemvalue="Gradle.be-server [clean]" />
         <item itemvalue="Gradle.Tests in 'articker.module-api.test'" />
-        <item itemvalue="Gradle.Tests in 'articker.module-general.test'" />
-        <item itemvalue="Gradle.module-api [dependencies]" />
       </list>
     </recent_temporary>
   </component>
@@ -318,6 +334,9 @@
       <workItem from="1755191056314" duration="3515000" />
       <workItem from="1755243035837" duration="426000" />
       <workItem from="1755243469704" duration="1028000" />
+      <workItem from="1755244555565" duration="4920000" />
+      <workItem from="1755250050123" duration="385000" />
+      <workItem from="1755250442809" duration="2565000" />
     </task>
     <servers />
   </component>
