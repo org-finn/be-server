@@ -7,7 +7,7 @@ plugins {
 
 group = 'finn'
 version = '0.0.1-SNAPSHOT'
-description = 'module-data'
+description = 'module-persistence'
 
 java {
     toolchain {
@@ -20,7 +20,11 @@ repositories {
 }
 
 dependencies {
-    implementation project(':module-general')
+
+    implementation project(':module-domain')
+
+    // Caffeine(Local Cache)
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
     // Exposed Core & JDBC Driver
     implementation("org.jetbrains.exposed:exposed-core:0.51.1")
@@ -31,11 +35,11 @@ dependencies {
     // Exposed Spring Boot Starter
     implementation("org.jetbrains.exposed:exposed-spring-boot-starter:0.51.1")
 
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Test Container
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+
 }
 
 kotlin {

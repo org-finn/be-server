@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6b45378-04fa-450e-95bd-5a1d3d675b99" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +28,12 @@
     <projectState path="$PROJECT_DIR$/module-infra">
       <ProjectState />
     </projectState>
+    <projectState path="$PROJECT_DIR$/module-persistance">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/module-persistence">
+      <ProjectState />
+    </projectState>
     <projectState path="$PROJECT_DIR$/project-apii">
       <ProjectState />
     </projectState>
@@ -50,23 +49,7 @@
         </task>
         <projects_view>
           <tree_state>
-            <expand>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="articker" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="articker" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="articker" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-            </expand>
+            <expand />
             <select />
           </tree_state>
         </projects_view>
@@ -119,7 +102,10 @@
     "Gradle.Build module-data.executor": "Run",
     "Gradle.Build module-general.executor": "Run",
     "Gradle.Build module-infra.executor": "Run",
+    "Gradle.Build module-persistence.executor": "Run",
     "Gradle.Build project-apii.executor": "Run",
+    "Gradle.Tests in 'articker.module-api.test'.executor": "Run",
+    "Gradle.Tests in 'articker.module-general.test'.executor": "Run",
     "Gradle.be-server [clean].executor": "Run",
     "Gradle.be-server [dependencies].executor": "Run",
     "Gradle.module-api [dependencies].executor": "Run",
@@ -134,7 +120,7 @@
     "Spring Boot.ArtickerApplication.executor": "Run",
     "Spring Boot.ModuleApiApplication (1).executor": "Run",
     "Spring Boot.ModuleApiApplication.executor": "Run",
-    "git-widget-placeholder": "#3 on issue-2",
+    "git-widget-placeholder": "issue-2",
     "last_opened_file_path": "/Users/conda/Documents/GitHub/finn-project/be-server/project-data/src/main/resources",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -145,7 +131,7 @@
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "run.configurations.included.in.services": "true",
-    "settings.editor.selected.configurable": "actions.on.save",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -168,7 +154,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.Tests in 'articker.module-api.test'">
+  <component name="RunManager" selected="Spring Boot.ModuleApiApplication">
     <configuration name="Tests in 'articker.module-api.test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -296,10 +282,10 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.Tests in 'articker.module-api.test'" />
-        <item itemvalue="Gradle.Tests in 'articker.module-general.test'" />
         <item itemvalue="Spring Boot.ModuleApiApplication" />
         <item itemvalue="Gradle.be-server [clean]" />
+        <item itemvalue="Gradle.Tests in 'articker.module-api.test'" />
+        <item itemvalue="Gradle.Tests in 'articker.module-general.test'" />
         <item itemvalue="Gradle.module-api [dependencies]" />
       </list>
     </recent_temporary>
@@ -329,7 +315,9 @@
       <workItem from="1755188415459" duration="727000" />
       <workItem from="1755189152153" duration="205000" />
       <workItem from="1755189366021" duration="1591000" />
-      <workItem from="1755191056314" duration="210000" />
+      <workItem from="1755191056314" duration="3515000" />
+      <workItem from="1755243035837" duration="426000" />
+      <workItem from="1755243469704" duration="1028000" />
     </task>
     <servers />
   </component>

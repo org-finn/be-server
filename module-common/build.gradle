@@ -7,17 +7,11 @@ plugins {
 
 group = 'finn'
 version = '0.0.1-SNAPSHOT'
-description = 'module-api'
+description = 'module-common'
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
     }
 }
 
@@ -26,13 +20,6 @@ repositories {
 }
 
 dependencies {
-    implementation project(':module-common')
-    implementation project(':module-domain')
-
-    runtimeOnly("org.postgresql:postgresql")
-
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 }
 
 kotlin {
@@ -46,11 +33,11 @@ tasks.named('test') {
 }
 
 bootJar {
-    enabled = true
+    enabled = false
 }
 
 jar {
-    enabled = false
+    enabled = true
 }
 
 tasks.register("prepareKotlinBuildScriptModel"){}

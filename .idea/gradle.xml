@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
@@ -10,9 +9,24 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/module-api" />
-            <option value="$PROJECT_DIR$/module-data" />
-            <option value="$PROJECT_DIR$/module-general" />
-            <option value="$PROJECT_DIR$/module-infra" />
+            <option value="$PROJECT_DIR$/module-common" />
+            <option value="$PROJECT_DIR$/module-domain" />
+            <option value="$PROJECT_DIR$/module-external" />
+            <option value="$PROJECT_DIR$/module-persistence" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/module-persistence" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/module-api" />
+            <option value="$PROJECT_DIR$/module-common" />
+            <option value="$PROJECT_DIR$/module-domain" />
+            <option value="$PROJECT_DIR$/module-external" />
+            <option value="$PROJECT_DIR$/module-persistence" />
           </set>
         </option>
       </GradleProjectSettings>
