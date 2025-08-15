@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d6b45378-04fa-450e-95bd-5a1d3d675b99" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/module-persistence/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/module-persistence/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -318,7 +317,7 @@
       <workItem from="1755189366021" duration="1591000" />
       <workItem from="1755191056314" duration="3515000" />
       <workItem from="1755243035837" duration="426000" />
-      <workItem from="1755243469704" duration="413000" />
+      <workItem from="1755243469704" duration="1028000" />
     </task>
     <servers />
   </component>
