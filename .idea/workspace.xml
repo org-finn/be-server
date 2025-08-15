@@ -5,14 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6b45378-04fa-450e-95bd-5a1d3d675b99" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module-api/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/module-api/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module-data/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/module-data/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module-data/src/main/kotlin/finn/moduledata/DemoTable.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/module-general/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/module-general/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module-infra/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/module-infra/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,6 +120,8 @@
     "Gradle.Build module-general.executor": "Run",
     "Gradle.Build module-infra.executor": "Run",
     "Gradle.Build project-apii.executor": "Run",
+    "Gradle.Tests in 'articker.module-api.test'.executor": "Run",
+    "Gradle.Tests in 'articker.module-general.test'.executor": "Run",
     "Gradle.be-server [clean].executor": "Run",
     "Gradle.be-server [dependencies].executor": "Run",
     "Gradle.module-api [dependencies].executor": "Run",
@@ -168,7 +170,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.Tests in 'articker.module-api.test'">
+  <component name="RunManager" selected="Spring Boot.ModuleApiApplication">
     <configuration name="Tests in 'articker.module-api.test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -296,9 +298,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.ModuleApiApplication" />
         <item itemvalue="Gradle.Tests in 'articker.module-api.test'" />
         <item itemvalue="Gradle.Tests in 'articker.module-general.test'" />
-        <item itemvalue="Spring Boot.ModuleApiApplication" />
         <item itemvalue="Gradle.be-server [clean]" />
         <item itemvalue="Gradle.module-api [dependencies]" />
       </list>
@@ -329,7 +331,7 @@
       <workItem from="1755188415459" duration="727000" />
       <workItem from="1755189152153" duration="205000" />
       <workItem from="1755189366021" duration="1591000" />
-      <workItem from="1755191056314" duration="210000" />
+      <workItem from="1755191056314" duration="2038000" />
     </task>
     <servers />
   </component>
