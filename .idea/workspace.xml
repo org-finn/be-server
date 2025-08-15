@@ -5,24 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6b45378-04fa-450e-95bd-5a1d3d675b99" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/module-api/src/main/kotlin/finn/api/exception/ExceptionResponseCodeMapper.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/module-api/src/main/kotlin/finn/api/exception/GlobalExceptionHandler.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/module-common/src/main/kotlin/finn/common/logger/LoggerCreator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.0.0/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.0.0/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.0.0/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.0.0/executionHistory/executionHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.0.0/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.0.0/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.0.0/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.0.0/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.0.0/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.0.0/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.0.0/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.0.0/fileHashes/resourceHashesCache.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/module-api/src/test/kotlin/finn/api/exception/ExceptionResponseCodeMapperTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/module-api/src/main/kotlin/finn/api/response/ResponseCode.kt" beforeDir="false" afterPath="$PROJECT_DIR$/module-api/src/main/kotlin/finn/api/response/ResponseCode.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/module-common/src/main/kotlin/finn/common/exception/CommonException.kt" beforeDir="false" afterPath="$PROJECT_DIR$/module-common/src/main/kotlin/finn/common/exception/CommonException.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,6 +70,7 @@
         <option value="Kotlin Object" />
         <option value="Kotlin Enum" />
         <option value="Kotlin Class" />
+        <option value="Kotlin JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -118,47 +103,49 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.Build be-server.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build module-api.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build module-data.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build module-general.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build module-infra.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build module-persistence.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build project-apii.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Tests in 'articker.module-api.test'.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Tests in 'articker.module-general.test'.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.be-server [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.be-server [dependencies].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.module-api [dependencies].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.module-persistence [dependencies].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ArtickerApiApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.ArtickerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.ModuleApiApplication (1).executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.ModuleApiApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;issue-6&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/conda/Documents/GitHub/finn-project/be-server/project-data/src/main/resources&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.Build be-server.executor": "Run",
+    "Gradle.Build module-api.executor": "Run",
+    "Gradle.Build module-data.executor": "Run",
+    "Gradle.Build module-general.executor": "Run",
+    "Gradle.Build module-infra.executor": "Run",
+    "Gradle.Build module-persistence.executor": "Run",
+    "Gradle.Build project-apii.executor": "Run",
+    "Gradle.Tests in 'articker.module-api.test'.executor": "Run",
+    "Gradle.Tests in 'articker.module-general.test'.executor": "Run",
+    "Gradle.be-server [clean].executor": "Run",
+    "Gradle.be-server [dependencies].executor": "Run",
+    "Gradle.module-api [dependencies].executor": "Run",
+    "Gradle.module-persistence [dependencies].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ArtickerApiApplication.executor": "Run",
+    "Spring Boot.ArtickerApplication.executor": "Run",
+    "Spring Boot.ModuleApiApplication (1).executor": "Run",
+    "Spring Boot.ModuleApiApplication.executor": "Run",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "git-widget-placeholder": "issue-6",
+    "last_opened_file_path": "/Users/conda/Documents/GitHub/finn-project/be-server/project-data/src/main/resources",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/project-data/src/main/resources" />
@@ -166,6 +153,12 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/module-api" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="finn.api.exception" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
       <recent name="finn.api.response" />
@@ -181,7 +174,31 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ModuleApiApplication">
+  <component name="RunManager" selected="Gradle.ExceptionResponseCodeMapperTest">
+    <configuration name="ExceptionResponseCodeMapperTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":module-api:test" />
+            <option value="--tests" />
+            <option value="&quot;finn.api.exception.ExceptionResponseCodeMapperTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="Tests in 'articker.module-api.test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -194,28 +211,6 @@
         <option name="taskNames">
           <list>
             <option value=":module-api:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="Tests in 'articker.module-general.test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":module-general:test" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -295,19 +290,19 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Gradle.ExceptionResponseCodeMapperTest" />
       <item itemvalue="Gradle.module-persistence [dependencies]" />
       <item itemvalue="Gradle.Tests in 'articker.module-api.test'" />
-      <item itemvalue="Gradle.Tests in 'articker.module-general.test'" />
       <item itemvalue="Gradle.be-server [clean]" />
       <item itemvalue="Spring Boot.ModuleApiApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.ExceptionResponseCodeMapperTest" />
         <item itemvalue="Spring Boot.ModuleApiApplication" />
         <item itemvalue="Gradle.module-persistence [dependencies]" />
         <item itemvalue="Gradle.be-server [clean]" />
         <item itemvalue="Gradle.Tests in 'articker.module-api.test'" />
-        <item itemvalue="Gradle.Tests in 'articker.module-general.test'" />
       </list>
     </recent_temporary>
   </component>
@@ -341,7 +336,7 @@
       <workItem from="1755243469704" duration="1028000" />
       <workItem from="1755244555565" duration="4920000" />
       <workItem from="1755250050123" duration="385000" />
-      <workItem from="1755250442809" duration="2017000" />
+      <workItem from="1755250442809" duration="2565000" />
     </task>
     <servers />
   </component>

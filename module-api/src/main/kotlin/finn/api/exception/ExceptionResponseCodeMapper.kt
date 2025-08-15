@@ -9,7 +9,8 @@ object ExceptionResponseCodeMapper {
         val className = e::class.simpleName ?: ResponseCode.INTERNAL_SERVER_ERROR.toString()
 
         return ResponseCode.entries.firstOrNull { code ->
-            className.contains(code.name, true)
+            val keyword = code.name.replace("_", "") // 언더스코어 표기 무시
+            className.contains(keyword, true)
         } ?: ResponseCode.INTERNAL_SERVER_ERROR
     }
 }
