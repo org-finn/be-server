@@ -7,7 +7,7 @@ plugins {
 
 group = 'finn'
 version = '0.0.1-SNAPSHOT'
-description = 'module-data'
+description = 'module-persistence'
 
 java {
     toolchain {
@@ -20,7 +20,8 @@ repositories {
 }
 
 dependencies {
-    implementation project(':module-general')
+
+    implementation project(':module-domain')
 
     // Exposed Core & JDBC Driver
     implementation("org.jetbrains.exposed:exposed-core:0.51.1")
@@ -35,20 +36,13 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+
 }
 
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll '-Xjsr305=strict'
     }
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
 }
 
 tasks.named('test') {

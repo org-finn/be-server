@@ -7,7 +7,7 @@ plugins {
 
 group = 'finn'
 version = '0.0.1-SNAPSHOT'
-description = 'module-infra'
+description = 'module-external'
 
 java {
     toolchain {
