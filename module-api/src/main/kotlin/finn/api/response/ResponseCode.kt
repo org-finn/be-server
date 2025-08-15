@@ -1,4 +1,4 @@
-package finn.common.exception
+package finn.api.response
 
 enum class ResponseCode(val code: String, val defaultMessage: String) {
     // 200 OK
