@@ -1,4 +1,4 @@
-package finn.api.response
+package finn.moduleApi.response
 
 enum class ResponseCode(val code: String, val defaultMessage: String) {
     // 200 OK

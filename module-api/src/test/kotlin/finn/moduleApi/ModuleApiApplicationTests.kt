@@ -1,4 +1,4 @@
-package finn.api
+package finn.moduleApi
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

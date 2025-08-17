@@ -256,6 +256,9 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,intellij,kotlin,gradle,linux,java
 
+# IDEA
+.idea
+
 # env
 .env
 .env-dev

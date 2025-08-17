@@ -1,6 +1,6 @@
-package finn.api.exception
+package finn.moduleApi.exception
 
-import finn.api.response.ResponseCode
+import finn.moduleApi.response.ResponseCode
 import org.springframework.stereotype.Component
 
 @Component

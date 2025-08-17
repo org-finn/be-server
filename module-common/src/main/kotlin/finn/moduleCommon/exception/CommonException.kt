@@ -1,4 +1,4 @@
-package finn.common.exception
+package finn.moduleCommon.exception
 
 abstract class CommonException(
     message: String,

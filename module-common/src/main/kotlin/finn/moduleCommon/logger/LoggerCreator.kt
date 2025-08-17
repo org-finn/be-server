@@ -1,4 +1,4 @@
-package finn.common.logger
+package finn.moduleCommon.logger
 
 import org.slf4j.LoggerFactory
 
