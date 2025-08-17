@@ -5,8 +5,8 @@ import finn.api.response.ResponseCode
 import finn.common.exception.CommonException
 import finn.common.logger.LoggerCreator
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
@@ -14,23 +14,23 @@ class GlobalExceptionHandler(private val exceptionResponseCodeMapper: ExceptionR
     companion object : LoggerCreator()
 
     @ExceptionHandler(CommonException::class)
-    fun handleCommonEx(e: CommonException): ResponseEntity<ErrorResponse> {
+    @ResponseStatus(HttpStatus.OK)
+    fun handleCommonEx(e: CommonException): ErrorResponse {
         printException(e)
         val responseCode = exceptionResponseCodeMapper.mapResponseCode(e)
         val errorResponse = ErrorResponse(responseCode.code, responseCode.defaultMessage)
 
-        return ResponseEntity.status(HttpStatus.OK)
-            .body(errorResponse)
+        return errorResponse
     }
 
     @ExceptionHandler(Exception::class)
-    fun handleEx(e: Exception): ResponseEntity<ErrorResponse> {
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handleEx(e: Exception): ErrorResponse {
         printException(e)
         val responseCode = ResponseCode.INTERNAL_SERVER_ERROR
         val errorResponse = ErrorResponse(responseCode.code, responseCode.defaultMessage)
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(errorResponse)
+        return errorResponse
     }
 
     private fun printException(e: Exception) {
