@@ -27,7 +27,7 @@ class GlobalExceptionHandler(private val exceptionResponseCodeMapper: ExceptionR
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handleEx(e: Exception): ErrorResponse {
         printException(e)
-        val responseCode = ResponseCode.INTERNAL_SERVER_ERROR
+        val responseCode = ResponseCode.SERVER_ERROR
         val errorResponse = ErrorResponse(responseCode.code, responseCode.defaultMessage)
 
         return errorResponse

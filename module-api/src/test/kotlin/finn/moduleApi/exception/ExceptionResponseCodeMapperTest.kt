@@ -24,9 +24,9 @@ internal class ExceptionResponseCodeMapperTest : BehaviorSpec({
             NotFoundUserException() to ResponseCode.NOT_FOUND,
             UserConflictException() to ResponseCode.CONFLICT,
             badRequestParameterException() to ResponseCode.BAD_REQUEST,
-            CustomDomainException() to ResponseCode.INTERNAL_SERVER_ERROR,
-            IllegalArgumentException() to ResponseCode.INTERNAL_SERVER_ERROR,
-            object : Exception() {} to ResponseCode.INTERNAL_SERVER_ERROR
+            CustomDomainException() to ResponseCode.SERVER_ERROR,
+            IllegalArgumentException() to ResponseCode.SERVER_ERROR,
+            object : Exception() {} to ResponseCode.SERVER_ERROR
         ) { (exception, expectedCode) -> // Pair를 구조 분해하여 사용
             When("Mapper를 통해 ResponseCode로 변환하면") {
                 val actualCode = mapper.mapResponseCode(exception)
