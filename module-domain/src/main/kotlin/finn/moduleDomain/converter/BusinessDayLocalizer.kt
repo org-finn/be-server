@@ -6,7 +6,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-object BusinessDayConverter {
+object BusinessDayLocalizer {
     fun getTradingHours(): String {
         val usEasternZone = ZoneId.of("America/New_York")
         val koreaZone = ZoneId.of("Asia/Seoul")

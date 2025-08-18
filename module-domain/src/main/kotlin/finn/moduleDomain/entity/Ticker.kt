@@ -1,23 +1,21 @@
 package finn.moduleDomain.entity
 
-import finn.moduleDomain.exception.BadRequestDomainPolicyViolationException
 import java.util.*
 
-data class Ticker(
+class Ticker private constructor(
     val id: UUID,
     val tickerCode: String,
     val shortCompanyName: String,
     val fullCompanyName: String
 ) {
-    fun checkKeywordValid(keyword: String) {
-        if (keyword.isBlank() || keyword.length < 2) {
-            throw BadRequestDomainPolicyViolationException("키워드는 2글자 이상만 요청할 수 있습니다.")
+    companion object {
+        fun create(
+            id: UUID,
+            tickerCode: String,
+            shortCompanyName: String,
+            fullCompanyName: String
+        ): Ticker {
+            return Ticker(id, tickerCode, shortCompanyName, fullCompanyName)
         }
-    }
-
-    fun isMatchInSearchCondition(keyword: String): Boolean {
-        checkKeywordValid(keyword)
-        return shortCompanyName.lowercase(Locale.getDefault())
-            .startsWith(keyword.lowercase(Locale.getDefault()))
     }
 }
