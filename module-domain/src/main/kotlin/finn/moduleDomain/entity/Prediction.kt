@@ -1,5 +1,6 @@
 package finn.moduleDomain.entity
 
+import finn.moduleDomain.calculator.SentimentScoreCalculator
 import java.time.LocalDateTime
 import java.util.*
 
@@ -20,7 +21,8 @@ class Prediction private constructor(
             tickerId: UUID, tickerCode: String, shortCompanyName: String,
             positiveNewsCount: Int, negativeNewsCount: Int,
             neutralNewsCount: Int, sentimentScore: Int,
-            predictionDate: LocalDateTime
+            predictionDate: LocalDateTime, collectedDate: LocalDateTime,
+            todayScores: List<Int>, calculator: SentimentScoreCalculator
         ): Prediction {
             return Prediction(
                 tickerId,
@@ -29,9 +31,27 @@ class Prediction private constructor(
                 positiveNewsCount,
                 negativeNewsCount,
                 neutralNewsCount,
-                sentimentScore,
+                getSentimentScore(
+                    tickerCode, collectedDate, todayScores,
+                    positiveNewsCount, neutralNewsCount, negativeNewsCount, calculator
+                ),
                 getStrategyFromScore(sentimentScore),
                 predictionDate
+            )
+        }
+
+        fun getSentimentScore(
+            tickerCode: String,
+            collectedDate: LocalDateTime,
+            todayScores: List<Int>,
+            positiveNewsCount: Int,
+            neutralNewsCount: Int,
+            negativeNewsCount: Int,
+            calculator: SentimentScoreCalculator
+        ): Int {
+            return calculator.calculateScore(
+                tickerCode, collectedDate, todayScores,
+                positiveNewsCount, neutralNewsCount, negativeNewsCount
             )
         }
 

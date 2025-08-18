@@ -11,8 +11,9 @@ class SentimentScoreCalculator {
      * 긍정 뉴스 개수(1), 중립 뉴스 개수(0), 부정 뉴스 개수(-1) -> 평균 값을 0~100 사이의 값으로 정규화
      * 오늘의 n분치 예측 데이터(윈도우 크기 한정)를 들고와서, 가중평균을 최종적으로 리턴
      */
+
     fun calculateScore(
-        stockCode: String,
+        tickerCode: String,
         collectedDate: LocalDateTime,
         todayScores: List<Int>,
         positiveNewsCount: Int,
@@ -24,7 +25,7 @@ class SentimentScoreCalculator {
 
         // 뉴스가 없는 경우, 기존 점수들의 평균을 반환 (기존 점수도 없으면 중립 50점)
         if (totalNewsCount == 0) {
-            log.warn("${collectedDate.toString()}에 수집된 $stockCode 뉴스 데이터가 0개입니다.")
+            log.warn("${collectedDate.toString()}에 수집된 $tickerCode 뉴스 데이터가 0개입니다.")
             return if (todayScores.isEmpty()) 50 else todayScores.average().roundToInt()
         }
 
