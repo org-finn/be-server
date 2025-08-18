@@ -11,8 +11,8 @@ object SearchKeywordMatcher {
             .startsWith(keyword.lowercase(Locale.getDefault()))
     }
 
-    private fun checkKeywordValid(keyword: String) {
-        if (keyword.isBlank() || keyword.length < 2) {
+    fun checkKeywordValid(keyword: String?) {
+        if (keyword.isNullOrBlank() || keyword.length < 2) {
             throw BadRequestDomainPolicyViolationException("키워드는 2글자 이상만 요청할 수 있습니다.")
         }
     }

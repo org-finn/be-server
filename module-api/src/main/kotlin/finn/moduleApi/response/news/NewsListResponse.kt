@@ -3,7 +3,6 @@ package finn.moduleApi.response.news
 import java.util.*
 
 data class NewsListResponse(
-    val total: Int,
     val newsList: List<NewsDataResponse>,
     val pageNumber: Int,
     val hasNext: Boolean

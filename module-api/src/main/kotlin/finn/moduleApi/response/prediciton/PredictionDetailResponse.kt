@@ -12,7 +12,7 @@ data class PredictionDetailResponse(
     val sentiment: Int,
     val newsCount: Int,
     val sentimentScore: Int,
-    val detailData: List<PredictionDetailResponse>
+    val detailData: PredictionDetailDataResponse
 ) {
     data class PredictionDetailDataResponse(
         val priceDate: String,
@@ -26,7 +26,7 @@ data class PredictionDetailResponse(
         data class NewsDataResponse(
             val newsId: UUID,
             val headline: String,
-            val sentiment: Int,
+            val sentiment: String,
             val reasoning: String? = null
         )
     }
