@@ -23,7 +23,7 @@ enum class ResponseCode(val code: String, val defaultMessage: String) {
     CONFLICT("409 CONFLICT", "이미 사용 중인 값입니다."),
 
     // 500 INTERNAL_SERVER_ERROR
-    INTERNAL_SERVER_ERROR("500 INTERNAL SERVER ERROR", "서버 내부 오류가 발생했습니다."),
+    SERVER_ERROR("500 INTERNAL SERVER ERROR", "서버 내부 오류가 발생했습니다."),
 
     // 503 SERVICE_UNAVAILABLE
     SERVICE_UNAVAILABLE(
