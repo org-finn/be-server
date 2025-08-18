@@ -4,7 +4,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
 
-class DailyTickerPrice private constructor(
+class TickerPrice private constructor(
     val open: BigDecimal,
     val close: BigDecimal,
     val high: BigDecimal,
@@ -24,8 +24,8 @@ class DailyTickerPrice private constructor(
             priceDate: LocalDate,
             tickerId: UUID,
             tickerCode: String
-        ): DailyTickerPrice {
-            return DailyTickerPrice(open, close, high, low, volume, priceDate, tickerId, tickerCode)
+        ): TickerPrice {
+            return TickerPrice(open, close, high, low, volume, priceDate, tickerId, tickerCode)
         }
     }
 }
