@@ -20,8 +20,11 @@ repositories {
 }
 
 dependencies {
-
+    implementation project(":module-common")
     implementation project(':module-domain')
+
+    // Spring AOP
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
     // Caffeine(Local Cache)
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'

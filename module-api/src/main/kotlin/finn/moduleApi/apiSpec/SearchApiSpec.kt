@@ -31,6 +31,6 @@ interface SearchApiSpec {
             description = "검색 키워드 (2글자 이상)",
             required = true,
             example = "Ap"
-        ) @RequestParam keyword: String
+        ) @RequestParam keyword: String?
     ): SuccessResponse<TickerSearchPreviewListResponse>
 }

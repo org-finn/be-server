@@ -46,12 +46,4 @@ class News private constructor(
         }
     }
 
-    fun convertSentimentToInt(): Int {
-        if (sentiment == "positive") {
-            return 1 // 긍정
-        } else if (sentiment == "negative") {
-            return -1 // 부정
-        }
-        return 0 // 중립
-    }
 }
