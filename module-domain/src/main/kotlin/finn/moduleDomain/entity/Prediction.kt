@@ -1,6 +1,7 @@
 package finn.moduleDomain.entity
 
 import finn.moduleDomain.calculator.SentimentScoreCalculator
+import finn.moduleDomain.exception.BadRequestDomainPolicyViolationException
 import java.time.LocalDateTime
 import java.util.*
 
@@ -20,23 +21,25 @@ class Prediction private constructor(
         fun create(
             tickerId: UUID, tickerCode: String, shortCompanyName: String,
             positiveNewsCount: Int, negativeNewsCount: Int,
-            neutralNewsCount: Int, sentimentScore: Int,
-            predictionDate: LocalDateTime, collectedDate: LocalDateTime,
+            neutralNewsCount: Int, predictionDate: LocalDateTime, collectedDate: LocalDateTime,
             todayScores: List<Int>, calculator: SentimentScoreCalculator
         ): Prediction {
+            val calculatedScore = getSentimentScore(
+                tickerCode, collectedDate, todayScores,
+                positiveNewsCount, neutralNewsCount, negativeNewsCount, calculator
+            )
+            val strategy = getStrategyFromScore(calculatedScore)
+
             return Prediction(
-                tickerId,
-                tickerCode,
-                shortCompanyName,
-                positiveNewsCount,
-                negativeNewsCount,
-                neutralNewsCount,
-                getSentimentScore(
-                    tickerCode, collectedDate, todayScores,
-                    positiveNewsCount, neutralNewsCount, negativeNewsCount, calculator
-                ),
-                getStrategyFromScore(sentimentScore),
-                predictionDate
+                tickerId = tickerId,
+                tickerCode = tickerCode,
+                shortCompanyName = shortCompanyName,
+                positiveNewsCount = positiveNewsCount,
+                negativeNewsCount = negativeNewsCount,
+                neutralNewsCount = neutralNewsCount,
+                sentimentScore = calculatedScore,
+                predictionStrategy = strategy,
+                predictionDate = predictionDate
             )
         }
 
@@ -58,7 +61,7 @@ class Prediction private constructor(
         fun getStrategyFromScore(sentimentScore: Int): PredictionStrategy {
             return PredictionStrategy.entries.firstOrNull { strategy ->
                 sentimentScore > strategy.left && sentimentScore <= strategy.right
-            } ?: throw IllegalArgumentException("유효하지 않은 sentimentScore: $sentimentScore")
+            } ?: throw BadRequestDomainPolicyViolationException("유효하지 않은 sentimentScore: $sentimentScore")
         }
     }
 
