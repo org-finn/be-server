@@ -1,6 +1,6 @@
-package finn.moduleApi.repository
+package finn.moduleDomain.repository
 
-import finn.moduleApi.queryDto.TickerSearchQueryDto
+import finn.moduleDomain.queryDto.TickerSearchQueryDto
 
 interface TickerRepository {
 

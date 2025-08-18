@@ -1,4 +1,4 @@
-package finn.moduleApi.queryDto
+package finn.moduleDomain.queryDto
 
 import finn.moduleDomain.entity.Prediction
 import java.math.BigDecimal

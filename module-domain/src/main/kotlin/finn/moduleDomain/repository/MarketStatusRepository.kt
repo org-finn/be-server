@@ -1,4 +1,4 @@
-package finn.moduleApi.repository
+package finn.moduleDomain.repository
 
 import finn.moduleDomain.entity.MarketStatus
 import java.time.LocalDate

@@ -1,8 +1,8 @@
 package finn.moduleApi.service
 
-import finn.moduleApi.repository.MarketStatusRepository
 import finn.moduleDomain.converter.BusinessDayLocalizer
 import finn.moduleDomain.entity.MarketStatus
+import finn.moduleDomain.repository.MarketStatusRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks

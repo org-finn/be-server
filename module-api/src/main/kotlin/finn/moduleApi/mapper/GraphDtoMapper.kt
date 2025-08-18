@@ -1,8 +1,8 @@
 package finn.moduleApi.mapper
 
-import finn.moduleApi.queryDto.TickerGraphQueryDto
 import finn.moduleApi.response.graph.TickerGraphResponse
 import finn.moduleApi.response.graph.TickerGraphResponse.TickerGraphDataResponse
+import finn.moduleDomain.queryDto.TickerGraphQueryDto
 
 object GraphDtoMapper {
 

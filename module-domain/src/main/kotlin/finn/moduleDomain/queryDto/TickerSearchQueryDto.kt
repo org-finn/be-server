@@ -1,4 +1,4 @@
-package finn.moduleApi.queryDto
+package finn.moduleDomain.queryDto
 
 import java.util.*
 

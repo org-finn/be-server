@@ -1,6 +1,6 @@
-package finn.moduleApi.repository
+package finn.moduleDomain.repository
 
-import finn.moduleApi.queryDto.TickerGraphQueryDto
+import finn.moduleDomain.queryDto.TickerGraphQueryDto
 import java.util.*
 
 interface GraphRepository {

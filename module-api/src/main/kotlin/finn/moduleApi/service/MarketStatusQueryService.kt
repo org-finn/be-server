@@ -1,8 +1,8 @@
 package finn.moduleApi.service
 
-import finn.moduleApi.repository.MarketStatusRepository
 import finn.moduleDomain.converter.BusinessDayLocalizer
 import finn.moduleDomain.entity.MarketStatus
+import finn.moduleDomain.repository.MarketStatusRepository
 import org.springframework.stereotype.Service
 import java.time.Clock
 import java.time.LocalDate

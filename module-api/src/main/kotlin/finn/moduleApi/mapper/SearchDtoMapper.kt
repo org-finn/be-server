@@ -1,8 +1,8 @@
 package finn.moduleApi.mapper
 
-import finn.moduleApi.queryDto.TickerSearchQueryDto
 import finn.moduleApi.response.search.TickerSearchPreviewListResponse
 import finn.moduleApi.response.search.TickerSearchPreviewListResponse.TickerSearchPreviewResponse
+import finn.moduleDomain.queryDto.TickerSearchQueryDto
 
 object SearchDtoMapper {
 

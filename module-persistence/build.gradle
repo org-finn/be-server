@@ -22,7 +22,6 @@ repositories {
 dependencies {
     implementation project(":module-common")
     implementation project(':module-domain')
-    implementation project(':module-api')
 
     // Spring AOP
     implementation("org.springframework.boot:spring-boot-starter-aop")

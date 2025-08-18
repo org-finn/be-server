@@ -1,8 +1,8 @@
 package finn.moduleApi.mapper
 
-import finn.moduleApi.paging.PageResponse
 import finn.moduleApi.response.news.NewsListResponse
 import finn.moduleDomain.entity.News
+import finn.moduleDomain.paging.PageResponse
 
 object NewsDtoMapper {
 

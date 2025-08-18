@@ -1,13 +1,13 @@
 package finn.moduleApi.mapper
 
-import finn.moduleApi.paging.PageResponse
-import finn.moduleApi.queryDto.NewsDataQueryDto
-import finn.moduleApi.queryDto.PredictionDetailQueryDto
 import finn.moduleApi.response.prediciton.PredictionDetailResponse
 import finn.moduleApi.response.prediciton.PredictionDetailResponse.PredictionDetailDataResponse
 import finn.moduleApi.response.prediciton.PredictionDetailResponse.PredictionDetailDataResponse.NewsDataResponse
 import finn.moduleApi.response.prediciton.PredictionListResponse
 import finn.moduleDomain.entity.Prediction
+import finn.moduleDomain.paging.PageResponse
+import finn.moduleDomain.queryDto.NewsDataQueryDto
+import finn.moduleDomain.queryDto.PredictionDetailQueryDto
 
 object PredictionDtoMapper {
 

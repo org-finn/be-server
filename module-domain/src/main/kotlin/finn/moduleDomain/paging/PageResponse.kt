@@ -1,4 +1,4 @@
-package finn.moduleApi.paging
+package finn.moduleDomain.paging
 
 data class PageResponse<T>(
     val content: List<T>,

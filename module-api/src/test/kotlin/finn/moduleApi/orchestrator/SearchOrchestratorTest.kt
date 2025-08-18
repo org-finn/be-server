@@ -1,11 +1,11 @@
 package finn.moduleApi.orchestrator
 
 import finn.moduleApi.mapper.SearchDtoMapper
-import finn.moduleApi.queryDto.TickerSearchQueryDto
 import finn.moduleApi.response.search.TickerSearchPreviewListResponse
 import finn.moduleApi.response.search.TickerSearchPreviewListResponse.TickerSearchPreviewResponse
 import finn.moduleApi.service.TickerQueryService
 import finn.moduleDomain.exception.BadRequestDomainPolicyViolationException
+import finn.moduleDomain.queryDto.TickerSearchQueryDto
 import finn.moduleDomain.validator.SearchKeywordMatcher
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec

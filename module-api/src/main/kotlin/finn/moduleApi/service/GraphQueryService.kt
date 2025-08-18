@@ -1,7 +1,7 @@
 package finn.moduleApi.service
 
-import finn.moduleApi.queryDto.TickerGraphQueryDto
-import finn.moduleApi.repository.GraphRepository
+import finn.moduleDomain.queryDto.TickerGraphQueryDto
+import finn.moduleDomain.repository.GraphRepository
 import org.springframework.stereotype.Service
 import java.util.*
 
