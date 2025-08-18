@@ -20,7 +20,7 @@ class MarketStatus private constructor(
         }
 
         fun getWeekendMarketStatus(date: LocalDate): MarketStatus {
-            return MarketStatus(date, getClosedDayTradingHours(), "주말")
+            return MarketStatus(date, getClosedDayTradingHours(), "Weekend")
         }
 
         fun getFullOpenedMarketStatus(
@@ -33,5 +33,9 @@ class MarketStatus private constructor(
         fun getClosedDayTradingHours(): String {
             return "휴장"
         }
+    }
+
+    fun checkIsClosedDay() : Boolean {
+        return tradingHours == getClosedDayTradingHours()
     }
 }

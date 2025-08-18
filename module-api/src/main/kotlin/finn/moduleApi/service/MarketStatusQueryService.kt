@@ -4,15 +4,17 @@ import finn.moduleApi.repository.MarketStatusRepository
 import finn.moduleDomain.converter.BusinessDayLocalizer
 import finn.moduleDomain.entity.MarketStatus
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.time.LocalDate
 
 @Service
 class MarketStatusQueryService(
-    private val marketStatusRepository: MarketStatusRepository
+    private val marketStatusRepository: MarketStatusRepository,
+    private val clock: Clock
 ) {
 
     fun getTodayMarketStatus(): MarketStatus {
-        val today = LocalDate.now()
+        val today = LocalDate.now(clock)
 
         // 1. 주말인 경우
         if (MarketStatus.isWeekend(today)) {

@@ -14,7 +14,7 @@ class MarketStatusOrchestrator(
     fun getTodayMarketStatus(): TodayMarketStatusResponse {
         val marketStatus = marketStatusQueryService.getTodayMarketStatus()
         return TodayMarketStatusResponse(
-            if (marketStatus.tradingHours == "휴장") true else false,
+            marketStatus.checkIsClosedDay(),
             marketStatus.tradingHours,
             marketStatus.eventName
         )
