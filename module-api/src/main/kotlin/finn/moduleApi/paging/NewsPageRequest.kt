@@ -2,11 +2,11 @@ package finn.moduleApi.paging
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-data class NewsPageRequest(
+data class NewsPageRequest (
     @field:Schema(description = "페이지 번호", defaultValue = "0")
-    val page: Int = 0,
+    override val page: Int = 0,
     @field:Schema(description = "페이지 당 데이터 개수", defaultValue = "10")
-    val size: Int = 10,
+    override val size: Int = 10,
     @field:Schema(
         description = "필터링 기준",
         defaultValue = "all",
@@ -19,4 +19,4 @@ data class NewsPageRequest(
         allowableValues = ["recent"]
     )
     val sort: String
-)
+): PageRequest
