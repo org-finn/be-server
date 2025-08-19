@@ -11,6 +11,7 @@ develocity {
 
 rootProject.name = 'articker'
 
+include 'module-app'
 include 'module-api'
 include 'module-domain'
 include 'module-common'

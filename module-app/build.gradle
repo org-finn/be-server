@@ -7,7 +7,7 @@ plugins {
 
 group = 'finn'
 version = '0.0.1-SNAPSHOT'
-description = 'module-common'
+description = 'module-app'
 
 java {
     toolchain {
@@ -20,9 +20,11 @@ repositories {
 }
 
 dependencies {
-
-    // Logging(공개 설정)
-    api('io.github.oshai:kotlin-logging-jvm:7.0.3')
+    implementation(project(":module-api"))
+    implementation(project(":module-domain"))
+    implementation(project(":module-persistence"))
+    implementation(project(":module-common"))
+    implementation(project(":module-external"))
 }
 
 kotlin {
@@ -36,11 +38,11 @@ tasks.named('test') {
 }
 
 bootJar {
-    enabled = false
+    enabled = true
 }
 
 jar {
-    enabled = true
+    enabled = false
 }
 
 tasks.register("prepareKotlinBuildScriptModel"){}
