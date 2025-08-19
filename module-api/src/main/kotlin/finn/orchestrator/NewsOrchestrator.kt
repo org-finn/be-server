@@ -4,11 +4,11 @@ import finn.mapper.toDto
 import finn.paging.NewsPageRequest
 import finn.response.news.NewsListResponse
 import finn.service.NewsQueryService
-import finn.transaction.Transactional
+import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
 
 @Service
-@Transactional(readOnly = true)
+@ExposedTransactional(readOnly = true)
 class NewsOrchestrator(
     private val newsQueryService: NewsQueryService
 ) {

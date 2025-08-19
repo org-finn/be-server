@@ -8,12 +8,12 @@ import finn.response.prediciton.PredictionListResponse
 import finn.service.GraphQueryService
 import finn.service.NewsQueryService
 import finn.service.PredictionQueryService
-import finn.transaction.Transactional
+import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-@Transactional(readOnly = true)
+@ExposedTransactional(readOnly = true)
 class PredictionOrchestrator(
     private val predictionQueryService: PredictionQueryService,
     private val newsQueryService: NewsQueryService,

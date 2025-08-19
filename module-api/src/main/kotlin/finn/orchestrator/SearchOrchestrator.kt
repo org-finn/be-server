@@ -3,12 +3,12 @@ package finn.orchestrator
 import finn.mapper.toDto
 import finn.response.search.TickerSearchPreviewListResponse
 import finn.service.TickerQueryService
-import finn.transaction.Transactional
+import finn.transaction.ExposedTransactional
 import finn.validator.checkKeywordValid
 import org.springframework.stereotype.Service
 
 @Service
-@Transactional(readOnly = true)
+@ExposedTransactional(readOnly = true)
 class SearchOrchestrator(
     private val tickerQueryService: TickerQueryService
 ) {

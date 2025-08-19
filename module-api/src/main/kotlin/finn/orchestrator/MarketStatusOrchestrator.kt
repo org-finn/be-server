@@ -2,11 +2,11 @@ package finn.orchestrator
 
 import finn.response.marketstatus.TodayMarketStatusResponse
 import finn.service.MarketStatusQueryService
-import finn.transaction.Transactional
+import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
 
 @Service
-@Transactional(readOnly = true)
+@ExposedTransactional(readOnly = true)
 class MarketStatusOrchestrator(
     private val marketStatusQueryService: MarketStatusQueryService
 ) {
