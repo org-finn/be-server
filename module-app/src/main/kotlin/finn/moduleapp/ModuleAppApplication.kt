@@ -1,11 +1,11 @@
-package finn.moduleApi
+package finn.moduleapp
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class ModuleApiApplication
+class ModuleAppApplication
 
 fun main(args: Array<String>) {
-    runApplication<ModuleApiApplication>(*args)
+    runApplication<ModuleAppApplication>(*args)
 }
