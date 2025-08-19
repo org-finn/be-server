@@ -5,7 +5,6 @@ import finn.response.ErrorResponse
 import finn.response.SuccessResponse
 import finn.response.news.NewsListResponse
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 
 @Tag(name = "뉴스 조회 API", description = "뉴스 데이터 조회 관련 API")
 @RequestMapping("/api/v1/news")
@@ -34,19 +32,6 @@ interface NewsApiSpec {
     )
     @GetMapping
     fun getNewsList(
-        @Parameter(
-            description = "정렬 기준",
-            schema = Schema(type = "string", defaultValue = "recent")
-        ) @RequestParam(defaultValue = "recent") sort: String,
-        @Parameter(
-            description = "필터링 옵션",
-            schema = Schema(
-                type = "string",
-                defaultValue = "all",
-                allowableValues = ["all", "positive", "negative"]
-            )
-        ) @RequestParam(defaultValue = "all") filter: String,
-
         @ParameterObject pageRequest: NewsPageRequest
     ): SuccessResponse<NewsListResponse>
 }

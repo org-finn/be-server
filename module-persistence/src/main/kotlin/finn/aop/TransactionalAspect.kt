@@ -1,9 +1,10 @@
 package finn.aop
 
-import finn.transaction.Transactional
+import finn.transaction.ExposedTransactional
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
+import org.aspectj.lang.reflect.MethodSignature
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.transactions.transactionManager
@@ -14,12 +15,16 @@ import java.sql.Connection
 @Component
 class TransactionalAspect {
 
-    @Around("@annotation(transactional)")
-    fun manageTransaction(
-        joinPoint: ProceedingJoinPoint,
-        transactional: Transactional
-    ): Any? {
-        val isReadOnly = transactional.readOnly
+    @Around("@within(finn.transaction.ExposedTransactional) || @annotation(finn.transaction.ExposedTransactional)")
+    fun manageTransaction(joinPoint: ProceedingJoinPoint): Any? {
+        val signature = joinPoint.signature as MethodSignature
+        val method = signature.method
+
+        // 메서드에 붙은 어노테이션을 먼저 찾고, 없으면 클래스에 붙은 어노테이션을 찾습니다.
+        val transactionalAnnotation = method.getAnnotation(ExposedTransactional::class.java)
+            ?: joinPoint.target::class.java.getAnnotation(ExposedTransactional::class.java)
+
+        val isReadOnly = transactionalAnnotation?.readOnly ?: false
 
         // 1. 현재 데이터베이스의 기본 격리 수준을 가져옵니다.
         val isolation =
