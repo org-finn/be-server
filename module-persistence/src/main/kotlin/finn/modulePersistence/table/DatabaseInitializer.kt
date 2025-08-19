@@ -13,7 +13,14 @@ class DatabaseInitializer : ApplicationRunner {
     override fun run(args: ApplicationArguments?) {
         // 정의한 모든 Table 객체를 나열합니다.
         val tables =
-            arrayOf(Ticker, News, Prediction, TickerPrice, NIntervalChangeRate, MarketStatus)
+            arrayOf(
+                TickerTable,
+                NewsTable,
+                PredictionTable,
+                TickerPriceTable,
+                NIntervalChangeRateTable,
+                MarketStatusTable
+            )
 
         // transaction 블록 안에서 테이블 생성을 시도합니다.
         transaction {

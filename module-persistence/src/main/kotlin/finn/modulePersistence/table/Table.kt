@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 
 // Ticker 테이블
-object Ticker : Table("ticker") {
+object TickerTable : Table("ticker") {
     val id = uuid("id").autoGenerate()
     val code = varchar("code", 20).uniqueIndex()
     val fullCompanyName = varchar("full_company_name", 100)
@@ -17,7 +17,7 @@ object Ticker : Table("ticker") {
 }
 
 // News 테이블
-object News : Table("news") {
+object NewsTable : Table("news") {
     val id = uuid("id").autoGenerate()
     val publishedDate = date("published_date")
     val title = varchar("title", 255)
@@ -39,7 +39,7 @@ object News : Table("news") {
 }
 
 // Predictions 테이블
-object Prediction : Table("predictions") {
+object PredictionTable : Table("predictions") {
     val id = uuid("id").autoGenerate()
     val predictionDate = date("prediction_date")
     val positiveNewsCount = long("positive_news_count")
@@ -55,7 +55,7 @@ object Prediction : Table("predictions") {
 }
 
 // TickerPrices 테이블
-object TickerPrice : Table("ticker_prices") {
+object TickerPriceTable : Table("ticker_prices") {
     val id = uuid("id").autoGenerate()
     val priceDate = date("price_date")
     val open = decimal("open", 10, 4).nullable()
@@ -76,7 +76,7 @@ object TickerPrice : Table("ticker_prices") {
 }
 
 // NIntervalChangeRates 테이블
-object NIntervalChangeRate : Table("n_interval_change_rates") {
+object NIntervalChangeRateTable : Table("n_interval_change_rates") {
     val id = uuid("id").autoGenerate()
     val interval = integer("interval")
     val priceDate = date("price_date")
@@ -89,7 +89,7 @@ object NIntervalChangeRate : Table("n_interval_change_rates") {
 }
 
 // MarketStatus 테이블
-object MarketStatus : Table("market_status") {
+object MarketStatusTable : Table("market_status") {
     val id = long("id").autoIncrement()
     val date = date("date").uniqueIndex()
     val tradingHours = varchar("trading_hours", 20).nullable()
