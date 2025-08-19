@@ -1,27 +1,22 @@
 package finn.moduleApi.orchestrator
 
-import finn.moduleApi.mapper.SearchDtoMapper
-import finn.moduleApi.response.search.TickerSearchPreviewListResponse
-import finn.moduleApi.response.search.TickerSearchPreviewListResponse.TickerSearchPreviewResponse
+import finn.moduleApi.mapper.toDto
 import finn.moduleApi.service.TickerQueryService
 import finn.moduleDomain.exception.BadRequestDomainPolicyViolationException
 import finn.moduleDomain.queryDto.TickerSearchQueryDto
-import finn.moduleDomain.validator.SearchKeywordMatcher
+import finn.moduleDomain.validator.checkKeywordValid
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.verify
 import java.util.*
 
 internal class SearchOrchestratorTest : BehaviorSpec({
     // 1. 의존성 Mocking
     val tickerQueryService = mockk<TickerQueryService>()
-    mockkObject(SearchKeywordMatcher)
-    mockkObject(SearchDtoMapper)
 
     // 테스트 대상 클래스 인스턴스 생성
     val searchOrchestrator = SearchOrchestrator(tickerQueryService)
@@ -38,20 +33,10 @@ internal class SearchOrchestratorTest : BehaviorSpec({
         // 2. queryResult를 List<TickerSearchQueryDto> 타입으로 변경합니다.
         val queryResult = listOf(mockDto)
 
-        val expectedResponse = TickerSearchPreviewListResponse(
-            listOf(
-                TickerSearchPreviewResponse(
-                    mockDto.getTickerId(),
-                    mockDto.getTickerCode(),
-                    mockDto.getShortCompanyName(),
-                    mockDto.getFullCompanyName()
-                )
-            )
-        )
+        val expectedResponse = toDto(queryResult)
 
         // 3. Mock 객체들의 동작을 List 타입에 맞게 정의합니다.
         every { tickerQueryService.getTickerSearchList(keyword) } returns queryResult // List를 반환
-        every { SearchDtoMapper.toDto(queryResult) } returns expectedResponse        // List를 인자로 받음
 
         When("getTickerSearchPreviewList를 호출하면") {
             val response = searchOrchestrator.getTickerSearchPreviewList(keyword)
@@ -59,9 +44,9 @@ internal class SearchOrchestratorTest : BehaviorSpec({
             Then("모든 의존성이 순서대로 호출되고, 최종 DTO가 반환되어야 한다") {
                 // 4. 호출 검증 부분도 List를 사용하는지 확인합니다.
                 verify {
-                    SearchKeywordMatcher.checkKeywordValid(keyword)
+                    checkKeywordValid(keyword)
                     tickerQueryService.getTickerSearchList(keyword)
-                    SearchDtoMapper.toDto(queryResult)
+                    toDto(queryResult)
                 }
                 response shouldBe expectedResponse
             }

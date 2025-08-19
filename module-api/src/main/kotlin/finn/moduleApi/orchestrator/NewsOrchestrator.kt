@@ -1,6 +1,6 @@
 package finn.moduleApi.orchestrator
 
-import finn.moduleApi.mapper.NewsDtoMapper
+import finn.moduleApi.mapper.toDto
 import finn.moduleApi.paging.NewsPageRequest
 import finn.moduleApi.response.news.NewsListResponse
 import finn.moduleApi.service.NewsQueryService
@@ -15,6 +15,6 @@ class NewsOrchestrator(
 
     fun getRecentNewsList(pageRequest: NewsPageRequest): NewsListResponse {
         val newsList = newsQueryService.getNewsDataList(pageRequest)
-        return NewsDtoMapper.toDto(newsList)
+        return toDto(newsList)
     }
 }

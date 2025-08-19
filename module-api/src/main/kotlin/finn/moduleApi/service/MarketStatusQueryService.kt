@@ -1,6 +1,5 @@
 package finn.moduleApi.service
 
-import finn.moduleDomain.converter.BusinessDayLocalizer
 import finn.moduleDomain.entity.MarketStatus
 import finn.moduleDomain.repository.MarketStatusRepository
 import org.springframework.stereotype.Service
@@ -26,7 +25,7 @@ class MarketStatusQueryService(
         if (marketStatus != null) {
             return marketStatus
         }
-        return MarketStatus.getFullOpenedMarketStatus(today, BusinessDayLocalizer)
+        return MarketStatus.getFullOpenedMarketStatus(today)
     }
 
 }

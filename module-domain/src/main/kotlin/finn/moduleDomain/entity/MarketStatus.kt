@@ -1,6 +1,6 @@
 package finn.moduleDomain.entity
 
-import finn.moduleDomain.converter.BusinessDayLocalizer
+import finn.moduleDomain.converter.getTradingHours
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -25,9 +25,8 @@ class MarketStatus private constructor(
 
         fun getFullOpenedMarketStatus(
             date: LocalDate,
-            localizer: BusinessDayLocalizer
         ): MarketStatus {
-            return MarketStatus(date, localizer.getTradingHours(), null)
+            return MarketStatus(date, getTradingHours(), null)
         }
 
         fun getClosedDayTradingHours(): String {

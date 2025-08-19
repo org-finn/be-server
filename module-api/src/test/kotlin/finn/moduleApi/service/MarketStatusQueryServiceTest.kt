@@ -1,6 +1,5 @@
 package finn.moduleApi.service
 
-import finn.moduleDomain.converter.BusinessDayLocalizer
 import finn.moduleDomain.entity.MarketStatus
 import finn.moduleDomain.repository.MarketStatusRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -80,8 +79,7 @@ internal class MarketStatusQueryServiceTest : BehaviorSpec({
         every { marketStatusRepository.getOptionalMarketStatus(businessDay) } returns null
         every {
             MarketStatus.getFullOpenedMarketStatus(
-                businessDay,
-                BusinessDayLocalizer
+                businessDay
             )
         } returns openStatus
 

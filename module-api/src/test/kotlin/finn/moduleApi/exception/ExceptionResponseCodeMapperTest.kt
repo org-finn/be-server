@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 
 internal class ExceptionResponseCodeMapperTest : BehaviorSpec({
 
-    val mapper = ExceptionResponseCodeMapper
 
     // 테스트에 사용할 커스텀 예외 클래스들
     class NotFoundUserException : Exception()
@@ -29,7 +28,7 @@ internal class ExceptionResponseCodeMapperTest : BehaviorSpec({
             object : Exception() {} to ResponseCode.SERVER_ERROR
         ) { (exception, expectedCode) -> // Pair를 구조 분해하여 사용
             When("Mapper를 통해 ResponseCode로 변환하면") {
-                val actualCode = mapper.mapResponseCode(exception)
+                val actualCode = mapResponseCode(exception)
                 Then("예상하는 ResponseCode가 반환되어야 한다") {
                     actualCode shouldBe expectedCode
                 }

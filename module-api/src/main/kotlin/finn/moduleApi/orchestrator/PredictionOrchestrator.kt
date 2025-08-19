@@ -1,7 +1,6 @@
 package finn.moduleApi.orchestrator
 
-import finn.moduleApi.mapper.GraphDtoMapper
-import finn.moduleApi.mapper.PredictionDtoMapper
+import finn.moduleApi.mapper.toDto
 import finn.moduleApi.paging.PredictionPageRequest
 import finn.moduleApi.response.graph.TickerGraphResponse
 import finn.moduleApi.response.prediciton.PredictionDetailResponse
@@ -23,17 +22,17 @@ class PredictionOrchestrator(
 
     fun getRecentPredictionList(pageRequest: PredictionPageRequest): PredictionListResponse {
         val predictionList = predictionQueryService.getPredictionList(pageRequest)
-        return PredictionDtoMapper.toDto(predictionList)
+        return toDto(predictionList)
     }
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailResponse {
         val predictionDetail = predictionQueryService.getPredictionDetail(tickerId)
         val newsList = newsQueryService.getNewsDataForPredictionDetail(tickerId)
-        return PredictionDtoMapper.toDto(predictionDetail, newsList)
+        return toDto(predictionDetail, newsList)
     }
 
     fun getTickerGraphData(tickerId: UUID, period: String): TickerGraphResponse {
         val graphData = graphQueryService.getTickerGraphData(tickerId, period)
-        return GraphDtoMapper.toDto(period, graphData)
+        return toDto(period, graphData)
     }
 }

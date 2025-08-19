@@ -9,57 +9,55 @@ import finn.moduleDomain.paging.PageResponse
 import finn.moduleDomain.queryDto.NewsDataQueryDto
 import finn.moduleDomain.queryDto.PredictionDetailQueryDto
 
-object PredictionDtoMapper {
 
-    fun toDto(predictionList: PageResponse<Prediction>): PredictionListResponse {
-        val predictionDate = predictionList.content.firstOrNull()?.predictionDate
-        val predictionDtoList = predictionList.content
-            .map { it ->
-                PredictionListResponse.PredictionDataResponse(
-                    it.tickerId,
-                    it.shortCompanyName,
-                    it.tickerCode,
-                    it.predictionStrategy.strategy,
-                    it.getSentiment(),
-                    it.getNewsCountAlongWithStrategy()
-                )
-            }.toList()
-        return PredictionListResponse(
-            predictionDate.toString(),
-            predictionDtoList,
-            predictionList.page,
-            predictionList.hasNext
-        )
-    }
-
-    fun toDto(
-        predictionDetail: PredictionDetailQueryDto,
-        newsDataList: List<NewsDataQueryDto>
-    ): PredictionDetailResponse {
-        val prediction = predictionDetail.getPrediction()
-        val news = newsDataList.map { it ->
-            NewsDataResponse(it.getNewsId(), it.getHeadline(), it.getSentiment(), it.getReasoning())
+fun toDto(predictionList: PageResponse<Prediction>): PredictionListResponse {
+    val predictionDate = predictionList.content.firstOrNull()?.predictionDate
+    val predictionDtoList = predictionList.content
+        .map { it ->
+            PredictionListResponse.PredictionDataResponse(
+                it.tickerId,
+                it.shortCompanyName,
+                it.tickerCode,
+                it.predictionStrategy.strategy,
+                it.getSentiment(),
+                it.getNewsCountAlongWithStrategy()
+            )
         }.toList()
+    return PredictionListResponse(
+        predictionDate.toString(),
+        predictionDtoList,
+        predictionList.page,
+        predictionList.hasNext
+    )
+}
 
-        val predictionDetail = PredictionDetailDataResponse(
-            predictionDetail.getPriceDate().toString(),
-            predictionDetail.getOpen(),
-            predictionDetail.getClose(),
-            predictionDetail.getHigh(),
-            predictionDetail.getLow(),
-            predictionDetail.getVolume(),
-            news
-        )
-        return PredictionDetailResponse(
-            prediction.predictionDate.toString(),
-            prediction.tickerId,
-            prediction.shortCompanyName,
-            prediction.tickerCode,
-            prediction.predictionStrategy.strategy,
-            prediction.getSentiment(),
-            prediction.getNewsCountAlongWithStrategy(),
-            prediction.sentimentScore,
-            predictionDetail
-        )
-    }
+fun toDto(
+    predictionDetail: PredictionDetailQueryDto,
+    newsDataList: List<NewsDataQueryDto>
+): PredictionDetailResponse {
+    val prediction = predictionDetail.getPrediction()
+    val news = newsDataList.map { it ->
+        NewsDataResponse(it.getNewsId(), it.getHeadline(), it.getSentiment(), it.getReasoning())
+    }.toList()
+
+    val predictionDetail = PredictionDetailDataResponse(
+        predictionDetail.getPriceDate().toString(),
+        predictionDetail.getOpen(),
+        predictionDetail.getClose(),
+        predictionDetail.getHigh(),
+        predictionDetail.getLow(),
+        predictionDetail.getVolume(),
+        news
+    )
+    return PredictionDetailResponse(
+        prediction.predictionDate.toString(),
+        prediction.tickerId,
+        prediction.shortCompanyName,
+        prediction.tickerCode,
+        prediction.predictionStrategy.strategy,
+        prediction.getSentiment(),
+        prediction.getNewsCountAlongWithStrategy(),
+        prediction.sentimentScore,
+        predictionDetail
+    )
 }

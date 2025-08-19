@@ -3,21 +3,25 @@ package finn.moduleApi.exception
 import finn.moduleApi.response.ErrorResponse
 import finn.moduleApi.response.ResponseCode
 import finn.moduleCommon.exception.CommonException
-import finn.moduleCommon.logger.LoggerCreator
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
+
 @RestControllerAdvice
-class GlobalExceptionHandler(private val exceptionResponseCodeMapper: ExceptionResponseCodeMapper) {
-    companion object : LoggerCreator()
+class GlobalExceptionHandler() {
+    companion object {
+        private val log = KotlinLogging.logger {}
+    }
+
 
     @ExceptionHandler(CommonException::class)
     @ResponseStatus(HttpStatus.OK)
     fun handleCommonEx(e: CommonException): ErrorResponse {
         printException(e)
-        val responseCode = exceptionResponseCodeMapper.mapResponseCode(e)
+        val responseCode = mapResponseCode(e)
         val errorResponse = ErrorResponse(responseCode.code, responseCode.defaultMessage)
 
         return errorResponse

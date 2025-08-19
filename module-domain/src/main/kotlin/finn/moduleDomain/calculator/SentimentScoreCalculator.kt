@@ -1,11 +1,13 @@
 package finn.moduleDomain.calculator
 
-import finn.moduleCommon.logger.LoggerCreator
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.time.LocalDateTime
 import kotlin.math.roundToInt
 
 class SentimentScoreCalculator {
-    companion object : LoggerCreator()
+    companion object {
+        private val log = KotlinLogging.logger {}
+    }
 
     /**
      * 긍정 뉴스 개수(1), 중립 뉴스 개수(0), 부정 뉴스 개수(-1) -> 평균 값을 0~100 사이의 값으로 정규화

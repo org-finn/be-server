@@ -20,6 +20,9 @@ repositories {
 }
 
 dependencies {
+
+    // Logging(공개 설정)
+    api('io.github.oshai:kotlin-logging-jvm:7.0.3')
 }
 
 kotlin {
