@@ -1,8 +1,8 @@
-package finn.modulePersistence.repository.facade
+package finn.modulePersistence.repository.impl
 
 import finn.moduleDomain.entity.MarketStatus
 import finn.moduleDomain.repository.MarketStatusRepository
-import finn.modulePersistence.repository.db.MarketStatusExposedRepository
+import finn.modulePersistence.repository.exposed.MarketStatusExposedRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 

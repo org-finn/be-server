@@ -1,8 +1,8 @@
-package finn.modulePersistence.repository.facade
+package finn.modulePersistence.repository.impl
 
 import finn.moduleDomain.queryDto.TickerGraphQueryDto
 import finn.moduleDomain.repository.GraphRepository
-import finn.modulePersistence.repository.db.GraphExposedRepository
+import finn.modulePersistence.repository.exposed.GraphExposedRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 

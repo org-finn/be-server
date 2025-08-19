@@ -1,10 +1,10 @@
-package finn.modulePersistence.repository.facade
+package finn.modulePersistence.repository.impl
 
 import finn.moduleDomain.entity.News
 import finn.moduleDomain.paging.PageResponse
 import finn.moduleDomain.queryDto.NewsDataQueryDto
 import finn.moduleDomain.repository.NewsRepository
-import finn.modulePersistence.repository.db.NewsExposedRepository
+import finn.modulePersistence.repository.exposed.NewsExposedRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 

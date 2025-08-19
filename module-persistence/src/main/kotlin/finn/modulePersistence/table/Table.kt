@@ -1,24 +1,20 @@
 package finn.modulePersistence.table
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 
-// Ticker 테이블
-object TickerTable : Table("ticker") {
-    val id = uuid("id").autoGenerate()
+// Table 객체 정의
+object TickerTable : UUIDTable("ticker") {
     val code = varchar("code", 20).uniqueIndex()
     val fullCompanyName = varchar("full_company_name", 100)
     val country = varchar("country", 100)
     val shortCompanyName = varchar("short_company_name", 100).nullable()
     val category = varchar("category", 50).nullable()
     val createdAt = date("created_at")
-
-    override val primaryKey = PrimaryKey(id)
 }
 
-// News 테이블
-object NewsTable : Table("news") {
-    val id = uuid("id").autoGenerate()
+object NewsTable : UUIDTable("news") {
     val publishedDate = date("published_date")
     val title = varchar("title", 255)
     val description = varchar("description", 255)
@@ -34,13 +30,9 @@ object NewsTable : Table("news") {
     val tickerId = uuid("ticker_id")
     val tickerCode = varchar("ticker_code", 20)
     val createdAt = date("created_at")
-
-    override val primaryKey = PrimaryKey(id)
 }
 
-// Predictions 테이블
-object PredictionTable : Table("predictions") {
-    val id = uuid("id").autoGenerate()
+object PredictionTable : UUIDTable("predictions") {
     val predictionDate = date("prediction_date")
     val positiveNewsCount = long("positive_news_count")
     val negativeNewsCount = long("negative_news_count")
@@ -50,13 +42,9 @@ object PredictionTable : Table("predictions") {
     val shortCompanyName = varchar("short_company_name", 100)
     val tickerId = uuid("ticker_id")
     val createdAt = date("created_at")
-
-    override val primaryKey = PrimaryKey(id)
 }
 
-// TickerPrices 테이블
-object TickerPriceTable : Table("ticker_prices") {
-    val id = uuid("id").autoGenerate()
+object TickerPriceTable : UUIDTable("ticker_prices") {
     val priceDate = date("price_date")
     val open = decimal("open", 10, 4).nullable()
     val high = decimal("high", 10, 4).nullable()
@@ -67,33 +55,23 @@ object TickerPriceTable : Table("ticker_prices") {
     val tickerId = uuid("ticker_id")
     val createdAt = date("created_at")
 
-    override val primaryKey = PrimaryKey(id)
-
     init {
-        uniqueIndex("ticker_prices_ticker_id_price_date_unique_key",
-            tickerId, priceDate)
+        uniqueIndex("ticker_prices_ticker_id_price_date_unique_key", tickerId, priceDate)
     }
 }
 
-// NIntervalChangeRates 테이블
-object NIntervalChangeRateTable : Table("n_interval_change_rates") {
-    val id = uuid("id").autoGenerate()
+object NIntervalChangeRateTable : UUIDTable("n_interval_change_rates") {
     val interval = integer("interval")
     val priceDate = date("price_date")
     val changeRate = decimal("change_rate", 5, 2)
     val tickerCode = varchar("ticker_code", 20)
     val tickerId = uuid("ticker_id")
     val createdAt = date("created_at")
-
-    override val primaryKey = PrimaryKey(id)
 }
 
 // MarketStatus 테이블
-object MarketStatusTable : Table("market_status") {
-    val id = long("id").autoIncrement()
+object MarketStatusTable : LongIdTable("market_status") {
     val date = date("date").uniqueIndex()
     val tradingHours = varchar("trading_hours", 20).nullable()
     val eventName = varchar("event_name", 50).nullable()
-
-    override val primaryKey = PrimaryKey(id)
 }

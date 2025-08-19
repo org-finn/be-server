@@ -1,10 +1,10 @@
-package finn.modulePersistence.repository.facade
+package finn.modulePersistence.repository.impl
 
 import finn.moduleDomain.entity.Prediction
 import finn.moduleDomain.paging.PageResponse
 import finn.moduleDomain.queryDto.PredictionDetailQueryDto
 import finn.moduleDomain.repository.PredictionRepository
-import finn.modulePersistence.repository.db.PredictionExposedRepository
+import finn.modulePersistence.repository.exposed.PredictionExposedRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
