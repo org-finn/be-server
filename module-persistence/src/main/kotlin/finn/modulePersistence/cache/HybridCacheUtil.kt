@@ -1,6 +1,6 @@
-package finn.modulePersistence.repository.cache
+package finn.modulePersistence.cache
 
-import finn.modulePersistence.repository.cache.local.LocalCacheUtil
+import finn.modulePersistence.cache.local.LocalCacheUtil
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 

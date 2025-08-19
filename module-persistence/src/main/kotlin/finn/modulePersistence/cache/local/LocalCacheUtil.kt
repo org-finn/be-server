@@ -1,7 +1,7 @@
-package finn.modulePersistence.repository.cache.local
+package finn.modulePersistence.cache.local
 
 import com.github.benmanes.caffeine.cache.Cache
-import finn.modulePersistence.repository.cache.CacheUtil
+import finn.modulePersistence.cache.CacheUtil
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 

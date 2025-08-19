@@ -1,4 +1,4 @@
-package finn.modulePersistence.repository.cache.local
+package finn.modulePersistence.cache.local
 
 class CacheEntry<T>(
     val value: T,

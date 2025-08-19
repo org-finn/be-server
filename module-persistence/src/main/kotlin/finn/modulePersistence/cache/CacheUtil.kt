@@ -1,4 +1,4 @@
-package finn.modulePersistence.repository.cache
+package finn.modulePersistence.cache
 
 interface CacheUtil {
     fun <T> get(key: String, classType: Class<T>): T?
