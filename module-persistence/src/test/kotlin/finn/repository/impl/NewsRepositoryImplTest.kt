@@ -3,9 +3,11 @@ package finn.repository.impl
 import finn.TestApplication
 import finn.entity.NewsExposed
 import finn.entity.TickerExposed
+import finn.exception.ServerErrorCriticalDataPollutedException
 import finn.repository.NewsRepository
 import finn.table.NewsTable
 import finn.table.TickerTable
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -127,7 +129,7 @@ internal class NewsRepositoryImplTest(
                     page = 0,
                     size = 10,
                     filter = "positive",
-                    sort = "latest"
+                    sort = "recent"
                 )
             }
 
@@ -144,7 +146,7 @@ internal class NewsRepositoryImplTest(
                     page = 0,
                     size = 10,
                     filter = "negative",
-                    sort = "latest"
+                    sort = "recent"
                 )
             }
 
@@ -157,12 +159,30 @@ internal class NewsRepositoryImplTest(
 
         When("filter가 'all'이고 size가 3일 때") {
             val result = transaction {
-                newsRepository.getNewsList(page = 0, size = 3, filter = "all", sort = "latest")
+                newsRepository.getNewsList(page = 0, size = 3, filter = "all", sort = "recent")
             }
             Then("전체 뉴스 중 최신 3개를 반환하고, 다음 페이지가 있음을 알려줘야 한다") {
                 result.content shouldHaveSize 3
                 result.hasNext shouldBe true
                 result.content[0].title shouldBe "가장 최신 긍정 뉴스"
+            }
+        }
+
+        When("filter가 지원하지 않는 옵션일 때") {
+            val invalidFilter = "unsupported_option"
+
+            Then("ServerErrorCriticalDataPollutedException 예외가 발생해야 한다") {
+                // shouldThrow 블록 안에서 예외가 발생하면 테스트 성공
+                shouldThrow<ServerErrorCriticalDataPollutedException> {
+                    transaction {
+                        newsRepository.getNewsList(
+                            page = 0,
+                            size = 10,
+                            filter = invalidFilter,
+                            sort = "recent"
+                        )
+                    }
+                }
             }
         }
     }

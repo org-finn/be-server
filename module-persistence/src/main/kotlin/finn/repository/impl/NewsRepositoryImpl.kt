@@ -1,6 +1,7 @@
 package finn.repository.impl
 
 import finn.entity.News
+import finn.exception.ServerErrorCriticalDataPollutedException
 import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.NewsDataQueryDto
@@ -24,9 +25,13 @@ class NewsRepositoryImpl(
         sort: String
     ): PageResponse<News> {
         val newsExposedList = when (filter) {
+            "all" -> newsQueryRepository.findAllNewsList(page, size)
+
             "positive" -> newsQueryRepository.findAllPositiveNewsList(page, size)
+
             "negative" -> newsQueryRepository.findAllNegativeNewsList(page, size)
-            else -> newsQueryRepository.findAllNewsList(page, size)
+
+            else -> throw ServerErrorCriticalDataPollutedException("filter: $filter, 지원하지 않는 옵션입니다.")
         }
         return PageResponse(newsExposedList.content.map { it ->
             toDomain(it)
