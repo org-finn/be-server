@@ -6,7 +6,6 @@ import finn.queryDto.NewsDataQueryDto
 import finn.table.NewsTable
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
 import java.util.*
 
@@ -52,11 +51,10 @@ class NewsQueryRepository {
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        val query = NewsTable.selectAll()
+        val results = NewsExposed.all()
             .orderBy(NewsTable.publishedDate to SortOrder.DESC)
-            .limit(n = itemsToFetch, offset = offset)
-
-        val results = NewsExposed.wrapRows(query).toList()
+            .limit(itemsToFetch, offset)
+            .toList()
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -76,12 +74,10 @@ class NewsQueryRepository {
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        val query = NewsTable.selectAll()
-            .where(NewsTable.sentiment eq "positive")
+        val results = NewsExposed.find(NewsTable.sentiment eq "positive")
             .orderBy(NewsTable.publishedDate to SortOrder.DESC)
-            .limit(n = itemsToFetch, offset = offset)
-
-        val results = NewsExposed.wrapRows(query).toList()
+            .limit(itemsToFetch, offset)
+            .toList()
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -101,12 +97,10 @@ class NewsQueryRepository {
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        val query = NewsTable.selectAll()
-            .where(NewsTable.sentiment eq "negative")
+        val results = NewsExposed.find(NewsTable.sentiment eq "negative")
             .orderBy(NewsTable.publishedDate to SortOrder.DESC)
-            .limit(n = itemsToFetch, offset = offset)
-
-        val results = NewsExposed.wrapRows(query).toList()
+            .limit(itemsToFetch, offset)
+            .toList()
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
