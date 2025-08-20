@@ -1,4 +1,4 @@
-package finn.repository.exposed
+package finn.repository.query
 
 import finn.queryDto.TickerSearchQueryDto
 import finn.table.TickerTable
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-class TickerExposedRepository {
+class TickerQueryRepository {
 
     private data class TickerSearchQueryDtoImpl(
         val tickerId: UUID,

@@ -2,14 +2,14 @@ package finn.repository.impl
 
 import finn.queryDto.TickerGraphQueryDto
 import finn.repository.GraphRepository
-import finn.repository.exposed.GraphExposedRepository
+import finn.repository.query.GraphQueryRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.util.*
 
 @Repository
 class GraphRepositoryImpl(
-    private val graphExposedRepository: GraphExposedRepository
+    private val graphQueryRepository: GraphQueryRepository
 ) : GraphRepository {
     override fun getTickerGraph(
         tickerId: UUID,
@@ -18,7 +18,7 @@ class GraphRepositoryImpl(
         interval: Int,
         minimumCount: Long
     ): List<TickerGraphQueryDto> {
-        return graphExposedRepository.findByInterval(
+        return graphQueryRepository.findByInterval(
             tickerId,
             startDate,
             endDate,

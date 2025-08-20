@@ -5,13 +5,13 @@ import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.repository.PredictionRepository
-import finn.repository.exposed.PredictionExposedRepository
+import finn.repository.query.PredictionQueryRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 class PredictionRepositoryImpl(
-    private val predictionExposedRepository: PredictionExposedRepository
+    private val predictionQueryRepository: PredictionQueryRepository
 ) : PredictionRepository {
     override fun getPredictionList(
         page: Int,
@@ -19,17 +19,17 @@ class PredictionRepositoryImpl(
         sort: String
     ): PageResponse<Prediction> {
         val predictionExposedList = when (sort) {
-            "upward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
+            "upward" -> predictionQueryRepository.findALlPredictionBySentimentScore(
                 page,
                 size,
                 false
             )
-            "downward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
+            "downward" -> predictionQueryRepository.findALlPredictionBySentimentScore(
                 page,
                 size,
                 true
             )
-            else -> predictionExposedRepository.findALlPredictionByPopular(page, size)
+            else -> predictionQueryRepository.findALlPredictionByPopular(page, size)
         }
         return PageResponse(predictionExposedList.content.map { it ->
             toDomain(it)
@@ -37,6 +37,6 @@ class PredictionRepositoryImpl(
     }
 
     override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
-        return  predictionExposedRepository.findPredictionWithPriceInfoById(tickerId)
+        return  predictionQueryRepository.findPredictionWithPriceInfoById(tickerId)
     }
 }

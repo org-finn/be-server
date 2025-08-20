@@ -1,4 +1,4 @@
-package finn.repository.exposed
+package finn.repository.query
 
 import finn.entity.Prediction
 import finn.entity.PredictionExposed
@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Repository
-class PredictionExposedRepository {
+class PredictionQueryRepository {
 
     fun findALlPredictionByPopular(page: Int, size: Int): PageResponse<PredictionExposed> {
 
