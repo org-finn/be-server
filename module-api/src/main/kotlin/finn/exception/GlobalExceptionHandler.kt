@@ -1,7 +1,6 @@
 package finn.exception
 
 import finn.response.ErrorResponse
-import finn.response.ResponseCode
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -20,7 +19,7 @@ class GlobalExceptionHandler() {
     @ResponseStatus(HttpStatus.OK)
     fun handleCommonEx(e: CommonException): ErrorResponse {
         printException(e)
-        val responseCode = mapResponseCode(e)
+        val responseCode = e.code
         val errorResponse = ErrorResponse(responseCode.code, responseCode.defaultMessage)
 
         return errorResponse

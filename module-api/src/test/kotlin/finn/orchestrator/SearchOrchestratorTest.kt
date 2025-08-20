@@ -1,6 +1,6 @@
 package finn.orchestrator
 
-import finn.exception.BadRequestDomainPolicyViolationException
+import finn.exception.DomainPolicyViolationException
 import finn.mapper.toDto
 import finn.queryDto.TickerSearchQueryDto
 import finn.service.TickerQueryService
@@ -62,7 +62,7 @@ internal class SearchOrchestratorTest : BehaviorSpec({
         ) { invalidKeyword ->
             When("getTickerSearchPreviewList를 호출하면") {
                 Then("BadRequestDomainPolicyViolationException 예외가 발생해야 한다") {
-                    shouldThrow<BadRequestDomainPolicyViolationException> {
+                    shouldThrow<DomainPolicyViolationException> {
                         searchOrchestrator.getTickerSearchPreviewList(invalidKeyword)
                     }
                 }

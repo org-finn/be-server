@@ -1,7 +1,7 @@
 package finn.entity
 
 import finn.calculator.SentimentScoreCalculator
-import finn.exception.BadRequestDomainPolicyViolationException
+import finn.exception.DomainPolicyViolationException
 import java.time.LocalDateTime
 import java.util.*
 
@@ -64,7 +64,7 @@ class Prediction private constructor(
             return PredictionStrategy.entries.firstOrNull { strategy ->
                 sentimentScore > strategy.left && sentimentScore <= strategy.right
             }
-                ?: throw BadRequestDomainPolicyViolationException("유효하지 않은 sentimentScore: $sentimentScore")
+                ?: throw DomainPolicyViolationException("유효하지 않은 sentimentScore: $sentimentScore")
         }
 
         fun getSentiment(predictionStrategy: PredictionStrategy): Int {
