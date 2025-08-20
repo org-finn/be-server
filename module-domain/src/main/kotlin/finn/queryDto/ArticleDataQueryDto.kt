@@ -2,9 +2,9 @@ package finn.queryDto
 
 import java.util.*
 
-interface NewsDataQueryDto {
+interface ArticleDataQueryDto {
 
-    fun newsId(): UUID
+    fun articleId(): UUID
 
     fun headline(): String
 

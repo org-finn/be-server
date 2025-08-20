@@ -1,7 +1,7 @@
 package finn.mapper
 
 import finn.paging.PageResponse
-import finn.queryDto.NewsDataQueryDto
+import finn.queryDto.ArticleDataQueryDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.response.prediciton.PredictionDetailResponse
@@ -20,7 +20,7 @@ fun toDto(predictionList: PageResponse<PredictionQueryDto>): PredictionListRespo
                 it.tickerCode(),
                 it.predictionStrategy(),
                 it.sentiment(),
-                it.newsCount()
+                it.articleCount()
             )
         }.toList()
 
@@ -34,11 +34,11 @@ fun toDto(predictionList: PageResponse<PredictionQueryDto>): PredictionListRespo
 
 fun toDto(
     predictionDetail: PredictionDetailQueryDto,
-    newsDataList: List<NewsDataQueryDto>
+    ArticleDataList: List<ArticleDataQueryDto>
 ): PredictionDetailResponse {
-    val news = newsDataList.map { it ->
-        PredictionDetailResponse.PredictionDetailDataResponse.NewsDataResponse(
-            it.newsId(),
+    val Article = ArticleDataList.map { it ->
+        PredictionDetailResponse.PredictionDetailDataResponse.ArticleDataResponse(
+            it.articleId(),
             it.headline(),
             it.sentiment(),
             it.reasoning()
@@ -52,7 +52,7 @@ fun toDto(
         predictionDetail.high(),
         predictionDetail.low(),
         predictionDetail.volume(),
-        news
+        Article
     )
     return PredictionDetailResponse(
         predictionDate = predictionDetail.predictionDate().toString(),
@@ -61,7 +61,7 @@ fun toDto(
         tickerCode = predictionDetail.tickerCode(),
         predictionStrategy = predictionDetail.predictionStrategy(),
         sentiment = predictionDetail.sentiment(),
-        newsCount = predictionDetail.newsCount(),
+        articleCount = predictionDetail.articleCount(),
         sentimentScore = predictionDetail.sentimentScore(),
         detailData = predictionDetailData
     )

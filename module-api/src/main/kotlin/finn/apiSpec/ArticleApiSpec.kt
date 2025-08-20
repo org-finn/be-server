@@ -1,9 +1,9 @@
 package finn.apiSpec
 
-import finn.paging.NewsPageRequest
+import finn.paging.ArticlePageRequest
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
-import finn.response.news.NewsListResponse
+import finn.response.article.ArticleListResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Tag(name = "뉴스 조회 API", description = "뉴스 데이터 조회 관련 API")
-@RequestMapping("/api/v1/news")
-interface NewsApiSpec {
+@RequestMapping("/api/v1/article")
+interface ArticleApiSpec {
     @Operation(
         summary = "뉴스 리스트 조회", description = "필터와 정렬 옵션을 적용하여 뉴스 리스트를 조회합니다."
     )
@@ -31,7 +31,7 @@ interface NewsApiSpec {
         )]
     )
     @GetMapping
-    fun getNewsList(
-        @ParameterObject pageRequest: NewsPageRequest
-    ): SuccessResponse<NewsListResponse>
+    fun getArticleList(
+        @ParameterObject pageRequest: ArticlePageRequest
+    ): SuccessResponse<ArticleListResponse>
 }

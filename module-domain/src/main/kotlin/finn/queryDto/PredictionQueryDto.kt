@@ -16,5 +16,5 @@ interface PredictionQueryDto {
 
     fun sentiment(): Int
 
-    fun newsCount(): Long
+    fun articleCount(): Long
 }

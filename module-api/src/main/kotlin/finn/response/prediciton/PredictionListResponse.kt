@@ -14,6 +14,6 @@ data class PredictionListResponse(
         val tickerCode: String,
         val predictionStrategy: String,
         val sentiment: Int,
-        val newsCount: Long
+        val articleCount: Long
     )
 }

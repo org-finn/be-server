@@ -9,9 +9,9 @@ class Prediction private constructor(
     val tickerId: UUID,
     val tickerCode: String,
     val shortCompanyName: String,
-    val positiveNewsCount: Long,
-    val negativeNewsCount: Long,
-    val neutralNewsCount: Long,
+    val positiveArticleCount: Long,
+    val negativeArticleCount: Long,
+    val neutralArticleCount: Long,
     val sentimentScore: Int,
     val sentiment: Int,
     val predictionStrategy: PredictionStrategy,
@@ -21,13 +21,13 @@ class Prediction private constructor(
     companion object {
         fun create(
             tickerId: UUID, tickerCode: String, shortCompanyName: String,
-            positiveNewsCount: Long, negativeNewsCount: Long,
-            neutralNewsCount: Long, predictionDate: LocalDateTime, collectedDate: LocalDateTime,
+            positiveArticleCount: Long, negativeArticleCount: Long,
+            neutralArticleCount: Long, predictionDate: LocalDateTime, collectedDate: LocalDateTime,
             todayScores: List<Int>, calculator: SentimentScoreCalculator
         ): Prediction {
             val calculatedScore = getSentimentScore(
                 tickerCode, collectedDate, todayScores,
-                positiveNewsCount, neutralNewsCount, negativeNewsCount, calculator
+                positiveArticleCount, neutralArticleCount, negativeArticleCount, calculator
             )
             val strategy = getStrategyFromScore(calculatedScore)
 
@@ -35,9 +35,9 @@ class Prediction private constructor(
                 tickerId = tickerId,
                 tickerCode = tickerCode,
                 shortCompanyName = shortCompanyName,
-                positiveNewsCount = positiveNewsCount,
-                negativeNewsCount = negativeNewsCount,
-                neutralNewsCount = neutralNewsCount,
+                positiveArticleCount = positiveArticleCount,
+                negativeArticleCount = negativeArticleCount,
+                neutralArticleCount = neutralArticleCount,
                 sentimentScore = calculatedScore,
                 predictionStrategy = strategy,
                 sentiment = getSentiment(strategy),
@@ -49,14 +49,14 @@ class Prediction private constructor(
             tickerCode: String,
             collectedDate: LocalDateTime,
             todayScores: List<Int>,
-            positiveNewsCount: Long,
-            neutralNewsCount: Long,
-            negativeNewsCount: Long,
+            positiveArticleCount: Long,
+            neutralArticleCount: Long,
+            negativeArticleCount: Long,
             calculator: SentimentScoreCalculator
         ): Int {
             return calculator.calculateScore(
                 tickerCode, collectedDate, todayScores,
-                positiveNewsCount, neutralNewsCount, negativeNewsCount
+                positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
         }
 
@@ -76,11 +76,11 @@ class Prediction private constructor(
         }
     }
 
-    fun getNewsCountAlongWithStrategy(): Long {
+    fun getArticleCountAlongWithStrategy(): Long {
         return when (predictionStrategy) {
-            PredictionStrategy.STRONG_BUY, PredictionStrategy.WEEK_BUY -> positiveNewsCount
-            PredictionStrategy.NEUTRAL -> neutralNewsCount
-            PredictionStrategy.STRONG_SELL, PredictionStrategy.WEEK_SELL -> negativeNewsCount
+            PredictionStrategy.STRONG_BUY, PredictionStrategy.WEEK_BUY -> positiveArticleCount
+            PredictionStrategy.NEUTRAL -> neutralArticleCount
+            PredictionStrategy.STRONG_SELL, PredictionStrategy.WEEK_SELL -> negativeArticleCount
         }
     }
 }

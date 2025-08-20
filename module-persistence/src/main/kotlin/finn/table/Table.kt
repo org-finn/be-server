@@ -16,11 +16,11 @@ object TickerTable : UUIDTable("ticker") {
     val createdAt = datetime("created_at")
 }
 
-    object NewsTable : UUIDTable("news") {
+    object ArticleTable : UUIDTable("article") {
         val publishedDate = datetime("published_date")
         val title = varchar("title", 255)
         val description = varchar("description", 255)
-        val newsUrl = text("news_url").uniqueIndex()
+        val articleUrl = text("article_url").uniqueIndex()
         val thumbnailUrl = text("thumbnail_url").nullable()
         val viewCount = long("view_count").default(0L)
         val likeCount = long("like_count").default(0L)
@@ -36,9 +36,9 @@ object TickerTable : UUIDTable("ticker") {
 
 object PredictionTable : UUIDTable("predictions") {
     val predictionDate = datetime("prediction_date")
-    val positiveNewsCount = long("positive_news_count")
-    val negativeNewsCount = long("negative_news_count")
-    val neutralNewsCount = long("neutral_news_count")
+    val positiveArticleCount = long("positive_Article_count")
+    val negativeArticleCount = long("negative_Article_count")
+    val neutralArticleCount = long("neutral_Article_count")
     val sentiment = integer("sentiment")
     val strategy = varchar("strategy", 50)
     val score = integer("score")

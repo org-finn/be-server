@@ -49,9 +49,9 @@ internal class PredictionRepositoryImplTest(
                 it[predictionDate] = latestDate
                 it[score] = 70
                 it[tickerId] = ticker1Id.value
-                it[positiveNewsCount] = 10L
-                it[negativeNewsCount] = 3L
-                it[neutralNewsCount] = 5L
+                it[positiveArticleCount] = 10L
+                it[negativeArticleCount] = 3L
+                it[neutralArticleCount] = 5L
                 it[sentiment] = 1 // 긍정을 나타내는 예시값
                 it[strategy] = "WEEK_BUY" // 70점에 해당하는 예시 전략
                 it[tickerCode] = "AAAA"
@@ -62,9 +62,9 @@ internal class PredictionRepositoryImplTest(
                 it[predictionDate] = latestDate
                 it[score] = 90
                 it[tickerId] = ticker2Id.value
-                it[positiveNewsCount] = 15L
-                it[negativeNewsCount] = 1L
-                it[neutralNewsCount] = 2L
+                it[positiveArticleCount] = 15L
+                it[negativeArticleCount] = 1L
+                it[neutralArticleCount] = 2L
                 it[sentiment] = 1 // 긍정을 나타내는 예시값
                 it[strategy] = "STRONG_BUY" // 90점에 해당하는 예시 전략
                 it[tickerCode] = "BBBB"

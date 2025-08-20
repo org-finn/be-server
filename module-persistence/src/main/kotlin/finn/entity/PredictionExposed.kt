@@ -10,9 +10,9 @@ class PredictionExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<PredictionExposed>(PredictionTable)
 
     var predictionDate by PredictionTable.predictionDate
-    var positiveNewsCount by PredictionTable.positiveNewsCount
-    var negativeNewsCount by PredictionTable.negativeNewsCount
-    var neutralNewsCount by PredictionTable.neutralNewsCount
+    var positiveArticleCount by PredictionTable.positiveArticleCount
+    var negativeArticleCount by PredictionTable.negativeArticleCount
+    var neutralArticleCount by PredictionTable.neutralArticleCount
     val sentiment by PredictionTable.sentiment
     val strategy by PredictionTable.strategy
     var score by PredictionTable.score

@@ -46,9 +46,9 @@ internal class PredictionTest : BehaviorSpec({
                 tickerId = testTickerId,
                 tickerCode = testTickerCode,
                 shortCompanyName = testCompanyName,
-                positiveNewsCount = positiveCount,
-                negativeNewsCount = negativeCount,
-                neutralNewsCount = neutralCount,
+                positiveArticleCount = positiveCount,
+                negativeArticleCount = negativeCount,
+                neutralArticleCount = neutralCount,
                 predictionDate = testDate,
                 collectedDate = testDate,
                 todayScores = todayScores,
@@ -89,10 +89,10 @@ internal class PredictionTest : BehaviorSpec({
     }
 
     /**
-     * 3. getNewsCountAlongWithStrategy 인스턴스 메서드 테스트
+     * 3. getArticleCountAlongWithStrategy 인스턴스 메서드 테스트
      */
     Given("생성된 Prediction 객체의 투자 전략에 따라") {
-        When("전략이 STRONG_BUY일 때 getNewsCountAlongWithStrategy를 호출하면") {
+        When("전략이 STRONG_BUY일 때 getArticleCountAlongWithStrategy를 호출하면") {
             // STRONG_BUY 전략(81~100점)을 갖도록 90점을 반환하는 mock 설정
             every {
                 mockCalculator.calculateScore(
@@ -106,9 +106,9 @@ internal class PredictionTest : BehaviorSpec({
             } returns 90
             val prediction = Prediction.create(
                 // ... 다른 파라미터들
-                positiveNewsCount = 15,
-                negativeNewsCount = 1,
-                neutralNewsCount = 3,
+                positiveArticleCount = 15,
+                negativeArticleCount = 1,
+                neutralArticleCount = 3,
                 // 아래 파라미터들은 테스트에 영향을 주지 않으므로 간단히 채움
                 tickerId = testTickerId,
                 tickerCode = testTickerCode,
@@ -119,12 +119,12 @@ internal class PredictionTest : BehaviorSpec({
                 calculator = mockCalculator
             )
 
-            Then("긍정 뉴스 개수(positiveNewsCount)를 반환해야 한다") {
-                prediction.getNewsCountAlongWithStrategy() shouldBe 15
+            Then("긍정 뉴스 개수(positiveArticleCount)를 반환해야 한다") {
+                prediction.getArticleCountAlongWithStrategy() shouldBe 15
             }
         }
 
-        When("전략이 NEUTRAL일 때 getNewsCountAlongWithStrategy를 호출하면") {
+        When("전략이 NEUTRAL일 때 getArticleCountAlongWithStrategy를 호출하면") {
             // NEUTRAL 전략(41~60점)을 갖도록 50점을 반환하는 mock 설정
             every {
                 mockCalculator.calculateScore(
@@ -137,9 +137,9 @@ internal class PredictionTest : BehaviorSpec({
                 )
             } returns 50
             val prediction = Prediction.create(
-                positiveNewsCount = 5,
-                negativeNewsCount = 5,
-                neutralNewsCount = 10,
+                positiveArticleCount = 5,
+                negativeArticleCount = 5,
+                neutralArticleCount = 10,
                 tickerId = testTickerId,
                 tickerCode = testTickerCode,
                 shortCompanyName = testCompanyName,
@@ -148,8 +148,8 @@ internal class PredictionTest : BehaviorSpec({
                 todayScores = emptyList(),
                 calculator = mockCalculator
             )
-            Then("중립 뉴스 개수(neutralNewsCount)를 반환해야 한다") {
-                prediction.getNewsCountAlongWithStrategy() shouldBe 10
+            Then("중립 뉴스 개수(neutralArticleCount)를 반환해야 한다") {
+                prediction.getArticleCountAlongWithStrategy() shouldBe 10
             }
         }
     }

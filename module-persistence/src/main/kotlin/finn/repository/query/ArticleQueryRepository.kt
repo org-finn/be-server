@@ -1,58 +1,58 @@
 package finn.repository.query
 
-import finn.entity.NewsExposed
+import finn.entity.ArticleExposed
 import finn.paging.PageResponse
-import finn.queryDto.NewsDataQueryDto
-import finn.table.NewsTable
+import finn.queryDto.ArticleDataQueryDto
+import finn.table.ArticleTable
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-class NewsQueryRepository {
+class ArticleQueryRepository {
 
-    private data class NewsDataQueryDtoImpl(
-        val newsId: UUID,
+    private data class ArticleDataQueryDtoImpl(
+        val articleId: UUID,
         val headline: String,
         val sentiment: String,
         val reasoning: String?
-    ) : NewsDataQueryDto {
-        override fun newsId(): UUID = this.newsId
+    ) : ArticleDataQueryDto {
+        override fun articleId(): UUID = this.articleId
         override fun headline(): String = this.headline
         override fun sentiment(): String = this.sentiment
         override fun reasoning(): String? = this.reasoning
     }
 
-    fun findNewsListByTickerId(tickerId: UUID): List<NewsDataQueryDto> {
-        return NewsTable.select(
-            NewsTable.id,
-            NewsTable.title,
-            NewsTable.sentiment,
-            NewsTable.reasoning
-        ).where(NewsTable.tickerId eq tickerId)
-            .orderBy(NewsTable.publishedDate to SortOrder.DESC)
+    fun findArticleListByTickerId(tickerId: UUID): List<ArticleDataQueryDto> {
+        return ArticleTable.select(
+            ArticleTable.id,
+            ArticleTable.title,
+            ArticleTable.sentiment,
+            ArticleTable.reasoning
+        ).where(ArticleTable.tickerId eq tickerId)
+            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
             .limit(3)
             .map { row ->
-                NewsDataQueryDtoImpl(
-                    newsId = row[NewsTable.id].value,
-                    headline = row[NewsTable.title],
-                    sentiment = row[NewsTable.sentiment],
-                    reasoning = row[NewsTable.reasoning]
+                ArticleDataQueryDtoImpl(
+                    articleId = row[ArticleTable.id].value,
+                    headline = row[ArticleTable.title],
+                    sentiment = row[ArticleTable.sentiment],
+                    reasoning = row[ArticleTable.reasoning]
                 )
             }
     }
 
-    fun findAllNewsList(
+    fun findAllArticleList(
         page: Int,
         size: Int
-    ): PageResponse<NewsExposed> {
+    ): PageResponse<ArticleExposed> {
         val limit = size
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        val results = NewsExposed.all()
-            .orderBy(NewsTable.publishedDate to SortOrder.DESC)
+        val results = ArticleExposed.all()
+            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
             .limit(itemsToFetch, offset)
             .toList()
         val hasNext = results.size > limit
@@ -66,16 +66,16 @@ class NewsQueryRepository {
         )
     }
 
-    fun findAllPositiveNewsList(
+    fun findAllPositiveArticleList(
         page: Int,
         size: Int
-    ): PageResponse<NewsExposed> {
+    ): PageResponse<ArticleExposed> {
         val limit = size
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        val results = NewsExposed.find(NewsTable.sentiment eq "positive")
-            .orderBy(NewsTable.publishedDate to SortOrder.DESC)
+        val results = ArticleExposed.find(ArticleTable.sentiment eq "positive")
+            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
             .limit(itemsToFetch, offset)
             .toList()
         val hasNext = results.size > limit
@@ -89,16 +89,16 @@ class NewsQueryRepository {
         )
     }
 
-    fun findAllNegativeNewsList(
+    fun findAllNegativeArticleList(
         page: Int,
         size: Int
-    ): PageResponse<NewsExposed> {
+    ): PageResponse<ArticleExposed> {
         val limit = size
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        val results = NewsExposed.find(NewsTable.sentiment eq "negative")
-            .orderBy(NewsTable.publishedDate to SortOrder.DESC)
+        val results = ArticleExposed.find(ArticleTable.sentiment eq "negative")
+            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
             .limit(itemsToFetch, offset)
             .toList()
         val hasNext = results.size > limit

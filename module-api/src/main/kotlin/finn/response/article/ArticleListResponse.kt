@@ -1,14 +1,14 @@
-package finn.response.news
+package finn.response.article
 
 import java.util.*
 
-data class NewsListResponse(
-    val newsList: List<NewsDataResponse>,
+data class ArticleListResponse(
+    val articleList: List<ArticleDataResponse>,
     val pageNumber: Int,
     val hasNext: Boolean
 ) {
-    data class NewsDataResponse(
-        val newsId: UUID,
+    data class ArticleDataResponse(
+        val articleId: UUID,
         val title: String,
         val description: String,
         val shortCompanyName: String,

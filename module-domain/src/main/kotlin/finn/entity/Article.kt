@@ -3,7 +3,7 @@ package finn.entity
 import java.time.LocalDateTime
 import java.util.*
 
-class News private constructor(
+class Article private constructor(
     val id: UUID,
     val title: String,
     val description: String,
@@ -29,8 +29,8 @@ class News private constructor(
             sentiment: String,
             reasoning: String?,
             tickerId: UUID
-        ): News {
-            return News(
+        ): Article {
+            return Article(
                 id,
                 title,
                 description,
