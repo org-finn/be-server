@@ -1,7 +1,7 @@
 package finn.repository.impl
 
 import finn.TestApplication
-import finn.exception.ServerErrorCriticalDataPollutedException
+import finn.exception.CriticalDataPollutedException
 import finn.repository.PredictionRepository
 import finn.table.PredictionTable
 import finn.table.TickerTable
@@ -114,7 +114,7 @@ internal class PredictionRepositoryImplTest(
 
             Then("ServerErrorCriticalDataPollutedException 예외가 발생해야 한다") {
                 // shouldThrow 블록 안에서 예외가 발생하면 테스트 성공
-                shouldThrow<ServerErrorCriticalDataPollutedException> {
+                shouldThrow<CriticalDataPollutedException> {
                     transaction {
                         predictionRepository.getPredictionList(
                             page = 0,

@@ -1,7 +1,7 @@
 package finn.entity
 
 import finn.calculator.SentimentScoreCalculator
-import finn.exception.BadRequestDomainPolicyViolationException
+import finn.exception.DomainPolicyViolationException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.datatest.withData
@@ -81,7 +81,7 @@ internal class PredictionTest : BehaviorSpec({
 
         When("유효하지 않은 점수(-10)를 전달하면") {
             Then("예외가 발생해야 한다") {
-                shouldThrow<BadRequestDomainPolicyViolationException> {
+                shouldThrow<DomainPolicyViolationException> {
                     Prediction.getStrategyFromScore(-10)
                 }
             }

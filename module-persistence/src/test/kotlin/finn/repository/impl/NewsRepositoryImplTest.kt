@@ -3,7 +3,7 @@ package finn.repository.impl
 import finn.TestApplication
 import finn.entity.NewsExposed
 import finn.entity.TickerExposed
-import finn.exception.ServerErrorCriticalDataPollutedException
+import finn.exception.CriticalDataPollutedException
 import finn.repository.NewsRepository
 import finn.table.NewsTable
 import finn.table.TickerTable
@@ -173,7 +173,7 @@ internal class NewsRepositoryImplTest(
 
             Then("ServerErrorCriticalDataPollutedException 예외가 발생해야 한다") {
                 // shouldThrow 블록 안에서 예외가 발생하면 테스트 성공
-                shouldThrow<ServerErrorCriticalDataPollutedException> {
+                shouldThrow<CriticalDataPollutedException> {
                     transaction {
                         newsRepository.getNewsList(
                             page = 0,

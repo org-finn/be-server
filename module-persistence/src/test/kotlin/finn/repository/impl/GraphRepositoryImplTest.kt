@@ -1,7 +1,7 @@
 package finn.repository.impl
 
 import finn.TestApplication
-import finn.exception.ServerErrorCriticalDataOmittedException
+import finn.exception.CriticalDataOmittedException
 import finn.repository.GraphRepository
 import finn.table.NIntervalChangeRateTable
 import finn.table.TickerPriceTable
@@ -69,7 +69,7 @@ internal class GraphRepositoryImplTest(
 
         When("getTickerGraph를 호출하면") {
             Then("ServerErrorCriticalDataOmittedException 예외가 발생해야 한다") {
-                shouldThrow<ServerErrorCriticalDataOmittedException> {
+                shouldThrow<CriticalDataOmittedException> {
                     transaction {
                         graphRepository.getTickerGraph(tickerId, startDate, endDate, 7, 10)
                     }

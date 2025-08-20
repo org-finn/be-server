@@ -5,6 +5,8 @@ abstract class CommonException(
     cause: Throwable?
 ) : RuntimeException(message, cause) {
 
+    abstract val code: ResponseCode
+
     constructor(message: String) : this(
         message, null
     )

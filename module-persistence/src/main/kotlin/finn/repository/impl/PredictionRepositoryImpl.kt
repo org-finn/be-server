@@ -1,6 +1,6 @@
 package finn.repository.impl
 
-import finn.exception.ServerErrorCriticalDataPollutedException
+import finn.exception.CriticalDataPollutedException
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -36,7 +36,7 @@ class PredictionRepositoryImpl(
                 true
             )
 
-            else -> throw ServerErrorCriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
+            else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
         }
         return PageResponse(predictionExposedList.content, page, size, predictionExposedList.hasNext)
     }

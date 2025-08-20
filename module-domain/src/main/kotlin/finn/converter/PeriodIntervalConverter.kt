@@ -1,6 +1,6 @@
 package finn.converter
 
-import finn.exception.BadRequestDomainPolicyViolationException
+import finn.exception.DomainPolicyViolationException
 import java.time.LocalDate
 
 fun getInterval(period: String): Int {
@@ -8,7 +8,7 @@ fun getInterval(period: String): Int {
         "2W", "1M" -> 1
         "6M" -> 3
         "1Y" -> 7
-        else -> throw BadRequestDomainPolicyViolationException("지원하지 않는 주기입니다.")
+        else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
     }
 }
 
@@ -18,7 +18,7 @@ fun getStartDate(period: String, endDate: LocalDate): LocalDate {
         "1M" -> endDate.minusMonths(1)
         "6M" -> endDate.minusMonths(6)
         "1Y" -> endDate.minusYears(1)
-        else -> throw BadRequestDomainPolicyViolationException("지원하지 않는 주기입니다.")
+        else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
     }
 }
 
@@ -27,7 +27,7 @@ fun getMinimumCount(period: String): Long {
         "2W", "1M" -> 1L
         "6M" -> 10L
         "1Y" -> 20L
-        else -> throw BadRequestDomainPolicyViolationException("지원하지 않는 주기입니다.")
+        else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
     }
 }
 
@@ -35,6 +35,6 @@ fun isCachingPeriod(period: String): Boolean {
     return when (period) {
         "2W" -> true
         "1M", "6M", "1Y" -> false
-        else -> throw BadRequestDomainPolicyViolationException("지원하지 않는 주기입니다.")
+        else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
     }
 }

@@ -1,6 +1,6 @@
 package finn.repository.query
 
-import finn.exception.ServerErrorCriticalDataOmittedException
+import finn.exception.CriticalDataOmittedException
 import finn.queryDto.TickerGraphQueryDto
 import finn.table.NIntervalChangeRateTable
 import finn.table.TickerPriceTable
@@ -49,7 +49,7 @@ class GraphQueryRepository {
 
         // 데이터가 전혀 없는 경우 예외 처리
         if (count == 0L || maxDate == null) {
-            throw ServerErrorCriticalDataOmittedException("치명적 오류: 조회 범위 내에 데이터가 존재하지 않습니다.")
+            throw CriticalDataOmittedException("치명적 오류: 조회 범위 내에 데이터가 존재하지 않습니다.")
         }
 
         // A. 데이터 개수가 minimum_count 보다 적으면, interval 단위를 무시하고 전체 데이터 반환

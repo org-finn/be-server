@@ -1,6 +1,6 @@
 package finn.repository.query
 
-import finn.exception.ServerErrorCriticalDataOmittedException
+import finn.exception.CriticalDataOmittedException
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -43,7 +43,7 @@ class PredictionQueryRepository {
             .select(maxDateExpression)
             .firstOrNull()
             ?.get(maxDateExpression)
-            ?: throw ServerErrorCriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
 
         val limit = size
         val offset = (page * limit).toLong()
@@ -99,7 +99,7 @@ class PredictionQueryRepository {
             .select(maxDateExpression)
             .firstOrNull()
             ?.get(maxDateExpression)
-            ?: throw ServerErrorCriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
 
         val sortOrder = if (isDownward) SortOrder.DESC else SortOrder.ASC
 
@@ -179,7 +179,7 @@ class PredictionQueryRepository {
             .select(maxDateExpression)
             .firstOrNull()
             ?.get(maxDateExpression)
-            ?: throw ServerErrorCriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
 
         return PredictionTable
             .join(
@@ -221,6 +221,6 @@ class PredictionQueryRepository {
                     volume = row[TickerPriceTable.volume]
                 )
             }.singleOrNull()
-            ?: throw ServerErrorCriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
+            ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 }
