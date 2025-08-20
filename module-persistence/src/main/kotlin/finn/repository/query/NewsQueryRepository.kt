@@ -1,4 +1,4 @@
-package finn.repository.exposed
+package finn.repository.query
 
 import finn.entity.NewsExposed
 import finn.paging.PageResponse
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-class NewsExposedRepository {
+class NewsQueryRepository {
 
     private data class NewsDataQueryDtoImpl(
         val newsId: UUID,

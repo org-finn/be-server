@@ -1,11 +1,12 @@
 package finn.repository.impl
 
 import finn.TestApplication
+import finn.exception.ServerErrorCriticalDataPollutedException
 import finn.repository.PredictionRepository
 import finn.table.PredictionTable
 import finn.table.TickerTable
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldBeSortedWith
 import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
@@ -81,8 +82,8 @@ internal class PredictionRepositoryImplTest(
 
             Then("시가총액(marketCap)이 높은 순으로 정렬되어야 한다") {
                 result.content.size shouldBe 2
-                result.content[0].tickerCode shouldBe "BBBB" // marketCap 2000
-                result.content[1].tickerCode shouldBe "AAAA" // marketCap 1000
+                result.content[0].tickerCode() shouldBe "BBBB" // marketCap 2000
+                result.content[1].tickerCode() shouldBe "AAAA" // marketCap 1000
             }
         }
 
@@ -92,9 +93,8 @@ internal class PredictionRepositoryImplTest(
             }
 
             Then("점수(score)가 낮은 순(오름차순)으로 정렬되어야 한다") {
-                result.content shouldBeSortedWith(compareBy { it.sentimentScore })
-                result.content[0].sentimentScore shouldBe 70
-                result.content[1].sentimentScore shouldBe 90
+                result.content[0].tickerCode() shouldBe "AAAA"
+                result.content[1].tickerCode() shouldBe "BBBB"
             }
         }
 
@@ -104,9 +104,25 @@ internal class PredictionRepositoryImplTest(
             }
 
             Then("점수(score)가 높은 순(내림차순)으로 정렬되어야 한다") {
-                result.content shouldBeSortedWith(compareByDescending { it.sentimentScore })
-                result.content[0].sentimentScore shouldBe 90
-                result.content[1].sentimentScore shouldBe 70
+                result.content[0].tickerCode() shouldBe "BBBB"
+                result.content[1].tickerCode() shouldBe "AAAA"
+            }
+        }
+
+        When("sort가 지원하지 않는 옵션일 때") {
+            val invalidSort = "unsupported_option"
+
+            Then("ServerErrorCriticalDataPollutedException 예외가 발생해야 한다") {
+                // shouldThrow 블록 안에서 예외가 발생하면 테스트 성공
+                shouldThrow<ServerErrorCriticalDataPollutedException> {
+                    transaction {
+                        predictionRepository.getPredictionList(
+                            page = 0,
+                            size = 10,
+                            sort = invalidSort
+                        )
+                    }
+                }
             }
         }
     }

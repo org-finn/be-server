@@ -1,42 +1,47 @@
 package finn.repository.impl
 
-import finn.entity.Prediction
-import finn.mapper.toDomain
+import finn.exception.ServerErrorCriticalDataPollutedException
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
+import finn.queryDto.PredictionQueryDto
 import finn.repository.PredictionRepository
-import finn.repository.exposed.PredictionExposedRepository
+import finn.repository.query.PredictionQueryRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 class PredictionRepositoryImpl(
-    private val predictionExposedRepository: PredictionExposedRepository
+    private val predictionQueryRepository: PredictionQueryRepository
 ) : PredictionRepository {
     override fun getPredictionList(
         page: Int,
         size: Int,
         sort: String
-    ): PageResponse<Prediction> {
+    ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = when (sort) {
-            "upward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
+            "popular" -> predictionQueryRepository.findALlPredictionByPopular(
+                page,
+                size
+            )
+
+            "upward" -> predictionQueryRepository.findALlPredictionBySentimentScore(
                 page,
                 size,
                 false
             )
-            "downward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
+
+            "downward" -> predictionQueryRepository.findALlPredictionBySentimentScore(
                 page,
                 size,
                 true
             )
-            else -> predictionExposedRepository.findALlPredictionByPopular(page, size)
+
+            else -> throw ServerErrorCriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
         }
-        return PageResponse(predictionExposedList.content.map { it ->
-            toDomain(it)
-        }.toList(), page, size, predictionExposedList.hasNext)
+        return PageResponse(predictionExposedList.content, page, size, predictionExposedList.hasNext)
     }
 
     override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
-        return  predictionExposedRepository.findPredictionWithPriceInfoById(tickerId)
+        return predictionQueryRepository.findPredictionWithPriceInfoById(tickerId)
     }
 }
