@@ -1,10 +1,9 @@
 package finn.repository.impl
 
-import finn.entity.Prediction
 import finn.exception.ServerErrorCriticalDataPollutedException
-import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
+import finn.queryDto.PredictionQueryDto
 import finn.repository.PredictionRepository
 import finn.repository.query.PredictionQueryRepository
 import org.springframework.stereotype.Repository
@@ -18,7 +17,7 @@ class PredictionRepositoryImpl(
         page: Int,
         size: Int,
         sort: String
-    ): PageResponse<Prediction> {
+    ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = when (sort) {
             "popular" -> predictionQueryRepository.findALlPredictionByPopular(
                 page,
@@ -39,9 +38,7 @@ class PredictionRepositoryImpl(
 
             else -> throw ServerErrorCriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
         }
-        return PageResponse(predictionExposedList.content.map { it ->
-            toDomain(it)
-        }.toList(), page, size, predictionExposedList.hasNext)
+        return PageResponse(predictionExposedList.content, page, size, predictionExposedList.hasNext)
     }
 
     override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {

@@ -1,11 +1,9 @@
 package finn.repository.query
 
-import finn.entity.Prediction
-import finn.entity.PredictionExposed
 import finn.exception.ServerErrorCriticalDataOmittedException
-import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
+import finn.queryDto.PredictionQueryDto
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
@@ -14,12 +12,31 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Repository
 class PredictionQueryRepository {
 
-    fun findALlPredictionByPopular(page: Int, size: Int): PageResponse<PredictionExposed> {
+    private data class PredictionQueryDtoImpl(
+        val predictionDate: LocalDateTime,
+        val tickerId: UUID,
+        val shortCompanyName: String,
+        val tickerCode: String,
+        val predictionStrategy: String,
+        val sentiment: Int,
+        val newsCount: Long
+    ) : PredictionQueryDto {
+        override fun predictionDate(): LocalDateTime = this.predictionDate
+        override fun tickerId(): UUID = this.tickerId
+        override fun shortCompanyName(): String = this.shortCompanyName
+        override fun tickerCode(): String = this.tickerCode
+        override fun predictionStrategy(): String = this.predictionStrategy
+        override fun sentiment(): Int = this.sentiment
+        override fun newsCount(): Long = this.newsCount
+    }
+
+    fun findALlPredictionByPopular(page: Int, size: Int): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -43,7 +60,23 @@ class PredictionQueryRepository {
             .orderBy(TickerTable.marketCap to SortOrder.DESC)
             .limit(n = itemsToFetch, offset = offset)
 
-        val results = PredictionExposed.wrapRows(query).toList()
+        val results = query.map { row ->
+            val newsCount = when (row[PredictionTable.sentiment]) {
+                1 -> row[PredictionTable.positiveNewsCount]
+                -1 -> row[PredictionTable.negativeNewsCount]
+                else -> row[PredictionTable.neutralNewsCount] // 0
+            }
+
+            PredictionQueryDtoImpl(
+                predictionDate = row[PredictionTable.predictionDate],
+                tickerId = row[PredictionTable.tickerId],
+                shortCompanyName = row[PredictionTable.shortCompanyName],
+                tickerCode = row[PredictionTable.tickerCode],
+                predictionStrategy = row[PredictionTable.strategy],
+                sentiment = row[PredictionTable.sentiment],
+                newsCount = newsCount
+            )
+        }
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -59,7 +92,7 @@ class PredictionQueryRepository {
         page: Int,
         size: Int,
         isDownward: Boolean
-    ): PageResponse<PredictionExposed> {
+    ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -80,7 +113,23 @@ class PredictionQueryRepository {
             .orderBy(PredictionTable.score to sortOrder)
             .limit(n = itemsToFetch, offset = offset)
 
-        val results = PredictionExposed.wrapRows(query).toList()
+        val results = query.map { row ->
+            val newsCount = when (row[PredictionTable.sentiment]) {
+                1 -> row[PredictionTable.positiveNewsCount]
+                -1 -> row[PredictionTable.negativeNewsCount]
+                else -> row[PredictionTable.neutralNewsCount] // 0
+            }
+
+            PredictionQueryDtoImpl(
+                predictionDate = row[PredictionTable.predictionDate],
+                tickerId = row[PredictionTable.tickerId],
+                shortCompanyName = row[PredictionTable.shortCompanyName],
+                tickerCode = row[PredictionTable.tickerCode],
+                predictionStrategy = row[PredictionTable.strategy],
+                sentiment = row[PredictionTable.sentiment],
+                newsCount = newsCount
+            )
+        }
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -93,7 +142,14 @@ class PredictionQueryRepository {
     }
 
     private data class PredictionDetailQueryDtoImpl(
-        val prediction: Prediction,
+        val predictionDate: LocalDateTime,
+        val tickerId: UUID,
+        val shortCompanyName: String,
+        val tickerCode: String,
+        val predictionStrategy: String,
+        val sentiment: Int,
+        val newsCount: Long,
+        val sentimentScore: Int,
         val priceDate: LocalDate,
         val open: BigDecimal,
         val close: BigDecimal,
@@ -101,7 +157,14 @@ class PredictionQueryRepository {
         val low: BigDecimal,
         val volume: Long
     ) : PredictionDetailQueryDto {
-        override fun prediction(): Prediction = this.prediction
+        override fun predictionDate(): LocalDateTime = this.predictionDate
+        override fun tickerId(): UUID = this.tickerId
+        override fun shortCompanyName(): String = this.shortCompanyName
+        override fun tickerCode(): String = this.tickerCode
+        override fun predictionStrategy(): String = this.predictionStrategy
+        override fun sentiment(): Int = this.sentiment
+        override fun newsCount(): Long = this.newsCount
+        override fun sentimentScore(): Int = this.sentimentScore
         override fun priceDate(): LocalDate = this.priceDate
         override fun open(): BigDecimal = this.open
         override fun close(): BigDecimal = this.close
@@ -136,8 +199,20 @@ class PredictionQueryRepository {
                 PredictionTable.predictionDate eq latestDate
                 PredictionTable.tickerId eq tickerId
             }.map { row ->
+                val newsCount = when (row[PredictionTable.sentiment]) {
+                    1 -> row[PredictionTable.positiveNewsCount]
+                    -1 -> row[PredictionTable.negativeNewsCount]
+                    else -> row[PredictionTable.neutralNewsCount] // 0
+                }
                 PredictionDetailQueryDtoImpl(
-                    prediction = toDomain(PredictionExposed.wrapRow(row)),
+                    predictionDate = row[PredictionTable.predictionDate],
+                    tickerId = row[PredictionTable.tickerId],
+                    shortCompanyName = row[PredictionTable.shortCompanyName],
+                    tickerCode = row[PredictionTable.tickerCode],
+                    predictionStrategy = row[PredictionTable.strategy],
+                    sentiment = row[PredictionTable.sentiment],
+                    newsCount = newsCount,
+                    sentimentScore = row[PredictionTable.score],
                     priceDate = row[TickerPriceTable.priceDate],
                     open = row[TickerPriceTable.open],
                     close = row[TickerPriceTable.close],

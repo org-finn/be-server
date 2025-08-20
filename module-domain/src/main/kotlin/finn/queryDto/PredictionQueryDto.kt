@@ -1,11 +1,9 @@
 package finn.queryDto
 
-import java.math.BigDecimal
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-interface PredictionDetailQueryDto {
+interface PredictionQueryDto {
     fun predictionDate(): LocalDateTime
 
     fun tickerId(): UUID
@@ -19,19 +17,4 @@ interface PredictionDetailQueryDto {
     fun sentiment(): Int
 
     fun newsCount(): Long
-
-    fun sentimentScore(): Int
-
-    fun priceDate(): LocalDate
-
-    fun open(): BigDecimal
-
-    fun close(): BigDecimal
-
-    fun high(): BigDecimal
-
-    fun low(): BigDecimal
-
-    fun volume(): Long
-
 }

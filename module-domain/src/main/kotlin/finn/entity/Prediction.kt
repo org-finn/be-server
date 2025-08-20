@@ -19,26 +19,6 @@ class Prediction private constructor(
 ) {
 
     companion object {
-        fun createForFetch(
-            tickerId: UUID, tickerCode: String, shortCompanyName: String,
-            positiveNewsCount: Long, negativeNewsCount: Long,
-            neutralNewsCount: Long, sentimentScore: Int, predictionStrategy: PredictionStrategy,
-            sentiment: Int, predictionDate: LocalDateTime
-        ): Prediction {
-            return Prediction(
-                tickerId = tickerId,
-                tickerCode = tickerCode,
-                shortCompanyName = shortCompanyName,
-                positiveNewsCount = positiveNewsCount,
-                negativeNewsCount = negativeNewsCount,
-                neutralNewsCount = neutralNewsCount,
-                sentimentScore = sentimentScore,
-                predictionStrategy = predictionStrategy,
-                sentiment = sentiment,
-                predictionDate = predictionDate
-            )
-        }
-
         fun create(
             tickerId: UUID, tickerCode: String, shortCompanyName: String,
             positiveNewsCount: Long, negativeNewsCount: Long,
