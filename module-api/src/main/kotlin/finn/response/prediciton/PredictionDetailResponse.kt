@@ -10,7 +10,7 @@ data class PredictionDetailResponse(
     val tickerCode: String,
     val predictionStrategy: String,
     val sentiment: Int,
-    val newsCount: Long,
+    val articleCount: Long,
     val sentimentScore: Int,
     val detailData: PredictionDetailDataResponse
 ) {
@@ -21,10 +21,10 @@ data class PredictionDetailResponse(
         val high: BigDecimal,
         val low: BigDecimal,
         val volume: Long,
-        val news: List<NewsDataResponse>
+        val article: List<ArticleDataResponse>
     ) {
-        data class NewsDataResponse(
-            val newsId: UUID,
+        data class ArticleDataResponse(
+            val articleId: UUID,
             val headline: String,
             val sentiment: String,
             val reasoning: String? = null

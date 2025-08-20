@@ -2,7 +2,7 @@ package finn.paging
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-data class NewsPageRequest (
+data class ArticlePageRequest (
     @field:Schema(description = "페이지 번호", defaultValue = "0")
     override val page: Int = 0,
     @field:Schema(description = "페이지 당 데이터 개수", defaultValue = "10")

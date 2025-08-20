@@ -20,9 +20,9 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
                 tickerCode = testTickerCode,
                 collectedDate = testDate,
                 todayScores = emptyList(),
-                positiveNewsCount = 0,
-                neutralNewsCount = 0,
-                negativeNewsCount = 0
+                positiveArticleCount = 0,
+                neutralArticleCount = 0,
+                negativeArticleCount = 0
             )
             Then("기본값인 50점을 반환해야 한다") {
                 score shouldBe 50
@@ -34,9 +34,9 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
                 tickerCode = testTickerCode,
                 collectedDate = testDate,
                 todayScores = listOf(60, 70, 80), // 평균: 70
-                positiveNewsCount = 0,
-                neutralNewsCount = 0,
-                negativeNewsCount = 0
+                positiveArticleCount = 0,
+                neutralArticleCount = 0,
+                negativeArticleCount = 0
             )
             Then("기존 점수들의 평균값인 70점을 반환해야 한다") {
                 score shouldBe 70
@@ -53,9 +53,9 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
                 tickerCode = testTickerCode,
                 collectedDate = testDate,
                 todayScores = emptyList(),
-                positiveNewsCount = 10,
-                neutralNewsCount = 0,
-                negativeNewsCount = 0
+                positiveArticleCount = 10,
+                neutralArticleCount = 0,
+                negativeArticleCount = 0
             )
             Then("정규화된 최고점인 100점을 반환해야 한다") {
                 score shouldBe 100
@@ -67,9 +67,9 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
                 tickerCode = testTickerCode,
                 collectedDate = testDate,
                 todayScores = emptyList(),
-                positiveNewsCount = 10,
-                neutralNewsCount = 5,
-                negativeNewsCount = 10
+                positiveArticleCount = 10,
+                neutralArticleCount = 5,
+                negativeArticleCount = 10
             )
             Then("정규화된 중립 점수인 50점을 반환해야 한다") {
                 score shouldBe 50
@@ -82,9 +82,9 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
      */
     Given("기존 점수와 새로운 뉴스 데이터가 모두 있을 때") {
         val todayScores = listOf(60, 80) // 오래된 순 -> 최신 순
-        val positiveNewsCount = 10L
-        val neutralNewsCount = 0L
-        val negativeNewsCount = 0L
+        val positiveArticleCount = 10L
+        val neutralArticleCount = 0L
+        val negativeArticleCount = 0L
         // 이 경우, 정규화된 뉴스 점수는 100점
 
         When("calculateScore를 호출하면") {
@@ -92,9 +92,9 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
                 tickerCode = testTickerCode,
                 collectedDate = testDate,
                 todayScores = todayScores,
-                positiveNewsCount = positiveNewsCount,
-                neutralNewsCount = neutralNewsCount,
-                negativeNewsCount = negativeNewsCount
+                positiveArticleCount = positiveArticleCount,
+                neutralArticleCount = neutralArticleCount,
+                negativeArticleCount = negativeArticleCount
             )
 
             Then("시간 순서에 따라 가중치가 적용된 평균 점수를 반환해야 한다") {
