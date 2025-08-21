@@ -10,11 +10,11 @@ class Article private constructor(
     val thumbnailUrl: String? = null,
     val contentUrl: String,
     val publishedDate: LocalDateTime,
-    val shortCompanyName: String,
+    val shortCompanyName: String? = null,
     val source: String,
     val sentiment: String,
     val reasoning: String? = null,
-    val tickerId: UUID
+    val tickerId: UUID? = null
 ) {
     companion object {
         fun create(
@@ -24,11 +24,11 @@ class Article private constructor(
             thumbnailUrl: String?,
             contentUrl: String,
             publishedDate: LocalDateTime,
-            shortCompanyName: String,
+            shortCompanyName: String?,
             source: String,
             sentiment: String,
             reasoning: String?,
-            tickerId: UUID
+            tickerId: UUID?
         ): Article {
             return Article(
                 id,
