@@ -11,7 +11,7 @@ data class ArticleListResponse(
         val articleId: UUID,
         val title: String,
         val description: String,
-        val shortCompanyName: String,
+        val shortCompanyName: String? = null,
         val thumbnailUrl: String? = null,
         val contentUrl: String,
         val publishedDate: String,

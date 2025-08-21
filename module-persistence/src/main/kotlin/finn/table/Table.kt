@@ -26,11 +26,11 @@ object TickerTable : UUIDTable("ticker") {
         val likeCount = long("like_count").default(0L)
         val sentiment = varchar("sentiment", 20)
         val reasoning = varchar("reasoning", 255).nullable()
-        val shortCompanyName = varchar("short_company_name", 100)
+        val shortCompanyName = varchar("short_company_name", 100).nullable()
         val author = varchar("author", 50)
         val distinctId = varchar("distinct_id", 100).uniqueIndex()
-        val tickerId = uuid("ticker_id")
-        val tickerCode = varchar("ticker_code", 20)
+        val tickerId = uuid("ticker_id").nullable()
+        val tickerCode = varchar("ticker_code", 20).nullable()
         val createdAt = datetime("created_at")
     }
 
