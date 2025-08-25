@@ -18,7 +18,6 @@ class DatabaseInitializer : ApplicationRunner {
                 ArticleTable,
                 PredictionTable,
                 TickerPriceTable,
-                NIntervalChangeRateTable,
                 MarketStatusTable
             )
 

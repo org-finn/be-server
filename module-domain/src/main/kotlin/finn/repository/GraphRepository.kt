@@ -10,7 +10,6 @@ interface GraphRepository {
         tickerId: UUID,
         startDate: LocalDate,
         endDate: LocalDate,
-        interval: Int,
-        minimumCount: Long
+        interval: Int
     ): List<TickerGraphQueryDto>
 }

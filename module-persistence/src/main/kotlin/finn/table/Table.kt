@@ -55,6 +55,7 @@ object TickerPriceTable : UUIDTable("ticker_prices") {
     val low = decimal("low", 10, 4)
     val close = decimal("close", 10, 4)
     val volume = long("volume")
+    val changeRate = decimal("change_rate", 5, 2)
     val tickerCode = varchar("ticker_code", 20)
     val tickerId = uuid("ticker_id")
     val createdAt = datetime("created_at")
@@ -62,15 +63,6 @@ object TickerPriceTable : UUIDTable("ticker_prices") {
     init {
         uniqueIndex("ticker_prices_ticker_id_price_date_unique_key", tickerId, priceDate)
     }
-}
-
-object NIntervalChangeRateTable : UUIDTable("n_interval_change_rates") {
-    val interval = integer("interval")
-    val priceDate = date("price_date")
-    val changeRate = decimal("change_rate", 5, 2)
-    val tickerCode = varchar("ticker_code", 20)
-    val tickerId = uuid("ticker_id")
-    val createdAt = datetime("created_at")
 }
 
 // MarketStatus 테이블

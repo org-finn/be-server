@@ -2,13 +2,11 @@ package finn.repository.query
 
 import finn.exception.CriticalDataOmittedException
 import finn.queryDto.TickerGraphQueryDto
-import finn.table.NIntervalChangeRateTable
 import finn.table.TickerPriceTable
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.Function
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.mod
-import org.jetbrains.exposed.sql.javatime.dateLiteral
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.count
+import org.jetbrains.exposed.sql.max
+import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -27,12 +25,10 @@ class GraphQueryRepository {
         override fun changeRate(): BigDecimal = changeRate
     }
 
-    fun findByInterval(
+    fun findDaily(
         tickerId: UUID,
         startDate: LocalDate,
-        endDate: LocalDate,
-        interval: Int,
-        minimumCount: Long
+        endDate: LocalDate
     ): List<TickerGraphQueryDto> {
 
         val maxAndCountResult = TickerPriceTable
@@ -52,82 +48,96 @@ class GraphQueryRepository {
             throw CriticalDataOmittedException("치명적 오류: 조회 범위 내에 데이터가 존재하지 않습니다.")
         }
 
-        // A. 데이터 개수가 minimum_count 보다 적으면, interval 단위를 무시하고 전체 데이터 반환
-        if (count < minimumCount) {
-            return TickerPriceTable
-                .join(
-                    NIntervalChangeRateTable,
-                    JoinType.INNER,
-                    additionalConstraint = {
-                        (NIntervalChangeRateTable.tickerId eq TickerPriceTable.tickerId) and
-                                (NIntervalChangeRateTable.priceDate eq TickerPriceTable.priceDate) and
-                                (NIntervalChangeRateTable.interval eq interval)
-                    }
+        return TickerPriceTable
+            .select(
+                TickerPriceTable.priceDate,
+                TickerPriceTable.close,
+                TickerPriceTable.changeRate
+            )
+            .where {
+                TickerPriceTable.tickerId eq tickerId
+                TickerPriceTable.priceDate greater startDate
+                TickerPriceTable.priceDate less endDate
+            }
+            .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
+            .map { row ->
+                TickerGraphQueryDtoImpl(
+                    date = row[TickerPriceTable.priceDate],
+                    price = row[TickerPriceTable.close],
+                    changeRate = row[TickerPriceTable.changeRate]
                 )
-                .select(
-                    TickerPriceTable.priceDate,
-                    TickerPriceTable.close,
-                    NIntervalChangeRateTable.changeRate
-                )
-                .where {
-                    TickerPriceTable.tickerId eq tickerId
-                    TickerPriceTable.priceDate greater startDate
-                    TickerPriceTable.priceDate less endDate
-                }
-                .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
-                .map { row ->
-                    TickerGraphQueryDtoImpl(
-                        date = row[TickerPriceTable.priceDate],
-                        price = row[TickerPriceTable.close],
-                        changeRate = row[NIntervalChangeRateTable.changeRate]
-                    )
-                }
-        }
-        // B. 데이터 개수가 충분하면, interval 적용하여 데이터 반환
-        else {
-            val startDateLiteral = dateLiteral(startDate)
-            val intervalCondition =
-                (DaysBetween(TickerPriceTable.priceDate, startDateLiteral) mod interval) eq 0
-
-            return TickerPriceTable
-                .join(
-                    NIntervalChangeRateTable,
-                    JoinType.INNER,
-                    additionalConstraint = {
-                        (NIntervalChangeRateTable.tickerId eq TickerPriceTable.tickerId) and
-                                (NIntervalChangeRateTable.priceDate eq TickerPriceTable.priceDate) and
-                                (NIntervalChangeRateTable.interval eq interval)
-                    }
-                )
-                .select(
-                    TickerPriceTable.priceDate,
-                    TickerPriceTable.close,
-                    NIntervalChangeRateTable.changeRate
-                )
-                .where {
-                    TickerPriceTable.tickerId eq tickerId
-                    TickerPriceTable.priceDate greater startDate
-                    TickerPriceTable.priceDate less endDate
-                    // interval 조건을 만족하거나, 가장 최신 날짜의 데이터는 항상 포함
-                    (intervalCondition or (TickerPriceTable.priceDate eq maxDate))
-                }
-                .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
-                .map { row ->
-                    TickerGraphQueryDtoImpl(
-                        date = row[TickerPriceTable.priceDate],
-                        price = row[TickerPriceTable.close],
-                        changeRate = row[NIntervalChangeRateTable.changeRate]
-                    )
-                }
-        }
+            }
     }
 
-    inner class DaysBetween(
-        private val date1: Expression<*>,
-        private val date2: Expression<*>
-    ) : Function<Int>(IntegerColumnType()) {
-        override fun toQueryBuilder(queryBuilder: QueryBuilder) {
-            queryBuilder.append("CAST(DATE_PART('day', AGE(", date1, ", ", date2, ")) AS INTEGER)")
+    /**
+     * interval에 의해 등락률 동적 계산
+     */
+    fun findByInterval(
+        tickerId: UUID,
+        startDate: LocalDate,
+        endDate: LocalDate,
+        interval: Int
+    ): List<TickerGraphQueryDto> {
+        // 1. 필요한 모든 가격 데이터를 DB에서 한 번에 조회하여 Map으로 변환
+        val priceMap = TickerPriceTable
+            .selectAll().where {
+                (TickerPriceTable.tickerId eq tickerId)
+                // 기준일 계산을 위해 startDate보다 interval만큼 더 이전 데이터까지 조회
+                TickerPriceTable.priceDate.between(
+                    startDate.minusDays(interval.toLong()),
+                    endDate
+                )
+            }
+            .orderBy(TickerPriceTable.priceDate, SortOrder.DESC) // 최신순으로 정렬
+            .associate { it[TickerPriceTable.priceDate] to it[TickerPriceTable.close] }
+
+        if (priceMap.isEmpty()) {
+            throw CriticalDataOmittedException("치명적 오류: 조회 범위 내에 데이터가 존재하지 않습니다.")
         }
+
+        // 2. endDate부터 시작하여 interval만큼 차감하며 기준 날짜 목록 생성 및 등락률 계산
+        val graphData = mutableListOf<TickerGraphQueryDto>()
+        var currentDate = endDate
+
+        while (currentDate > startDate) {
+            // 3. 현재 날짜와 interval 이전 날짜에 대한 가장 가까운 영업일을 찾음
+            val currentBusinessDay = findClosestBusinessDay(currentDate, priceMap.keys)
+            val prevTargetDate = currentDate.minusDays(interval.toLong())
+            val prevBusinessDay = findClosestBusinessDay(prevTargetDate, priceMap.keys)
+
+            // 두 영업일이 모두 유효한 경우에만 계산 진행
+            if (currentBusinessDay != null && prevBusinessDay != null) {
+                val currentPrice = priceMap[currentBusinessDay]
+                val prevPrice = priceMap[prevBusinessDay]
+
+                // 4. 두 가격이 모두 존재하면 등락률을 계산하여 DTO 생성
+                if (currentPrice != null && prevPrice != null && prevPrice != BigDecimal.ZERO) {
+                    val changeRate =
+                        ((currentPrice / prevPrice) - BigDecimal.ONE).multiply(BigDecimal(100))
+                    graphData.add(
+                        TickerGraphQueryDtoImpl(
+                            date = currentBusinessDay,
+                            price = currentPrice,
+                            changeRate = changeRate
+                        )
+                    )
+                }
+            }
+            // 다음 기준 날짜로 이동
+            currentDate = prevTargetDate
+        }
+
+        // 날짜 오름차순으로 정렬하여 반환
+        return graphData.sortedBy { it.date() }
     }
+
+
+    /**
+     * 가격 데이터가 존재하는 날짜들(businessDays) 중에서,
+     * 주어진 날짜(date)와 같거나 그보다 과거인 가장 최근 날짜를 찾아 반환
+     */
+    private fun findClosestBusinessDay(date: LocalDate, businessDays: Set<LocalDate>): LocalDate? {
+        return businessDays.filter { !it.isAfter(date) }.maxOrNull()
+    }
+
 }

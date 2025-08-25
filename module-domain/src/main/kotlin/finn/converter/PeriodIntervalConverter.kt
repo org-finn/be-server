@@ -20,20 +20,3 @@ fun getStartDate(period: String, endDate: LocalDate): LocalDate {
         else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
     }
 }
-
-fun getMinimumCount(period: String): Long {
-    return when (period) {
-        "2W", "1M" -> 1L
-        "6M" -> 10L
-        "1Y" -> 20L
-        else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
-    }
-}
-
-fun isCachingPeriod(period: String): Boolean {
-    return when (period) {
-        "2W" -> true
-        "1M", "6M", "1Y" -> false
-        else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
-    }
-}
