@@ -1,5 +1,6 @@
 package finn.repository.impl
 
+import finn.exception.CriticalDataPollutedException
 import finn.queryDto.TickerGraphQueryDto
 import finn.repository.GraphRepository
 import finn.repository.query.GraphQueryRepository
@@ -15,15 +16,23 @@ class GraphRepositoryImpl(
         tickerId: UUID,
         startDate: LocalDate,
         endDate: LocalDate,
-        interval: Int,
-        minimumCount: Long
+        interval: Int
     ): List<TickerGraphQueryDto> {
-        return graphQueryRepository.findByInterval(
-            tickerId,
-            startDate,
-            endDate,
-            interval,
-            minimumCount
-        )
+        return when (interval) {
+            1 -> graphQueryRepository.findDaily(
+                tickerId,
+                startDate,
+                endDate
+            )
+
+            7 -> graphQueryRepository.findByInterval(
+                tickerId,
+                startDate,
+                endDate,
+                interval
+            )
+
+            else -> throw CriticalDataPollutedException("Interval: $interval, 지원하지 않는 주기입니다.")
+        }
     }
 }

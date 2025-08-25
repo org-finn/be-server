@@ -1,7 +1,6 @@
 package finn.service
 
 import finn.converter.getInterval
-import finn.converter.getMinimumCount
 import finn.converter.getStartDate
 import finn.queryDto.TickerGraphQueryDto
 import finn.repository.GraphRepository
@@ -17,7 +16,6 @@ class GraphQueryService(private val graphRepository: GraphRepository, private va
         val interval = getInterval(period)
         val endDate = LocalDate.now(clock)
         val startDate = getStartDate(period, endDate)
-        val minimumCount = getMinimumCount(period)
-        return graphRepository.getTickerGraph(tickerId, startDate, endDate, interval, minimumCount)
+        return graphRepository.getTickerGraph(tickerId, startDate, endDate, interval)
     }
 }
