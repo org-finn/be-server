@@ -14,6 +14,12 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
+      - name: Define image name and tag
+        run: |
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${REPO_NAME}:${{ github.ref_name }}-${{ github.sha }}"
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+
       # 2. JDK 21 설치
       - name: Set up JDK 21
         uses: actions/setup-java@v3
@@ -51,18 +57,19 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           # 이미지 태그: {DockerHub유저명}/{리포지토리명}:{브랜치명}-{commit해시}
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
+          tags: ${{ env.IMAGE_NAME }}
 
       # 7. EC2에 접속하여 배포 스크립트 실행
       - name: Deploy to EC2 instance
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             # Docker Hub에서 최신 이미지 가져오기
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
+            set -e
+            docker pull ${{ env.IMAGE_NAME }}
 
             if [ $(docker ps -q --filter "name=spring-container") ]; then
               docker stop spring-container
@@ -77,7 +84,7 @@ jobs:
             -e DB_USERNAME=${{ secrets.DEV_DB_USERNAME }} \
             -e DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }} \
             -e TRANSACTION_ISOLATION_LEVEL=${{ secrets.DEV_TRANSACTION_ISOLATION_LEVEL }} \
-            ${{ secrets.DOCKORHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}
             
             # 사용하지 않는 Docker 이미지 삭제
             docker image prune -f
