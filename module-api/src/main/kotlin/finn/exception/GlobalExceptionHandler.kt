@@ -20,7 +20,8 @@ class GlobalExceptionHandler() {
     fun handleCommonEx(e: CommonException): ErrorResponse {
         printException(e)
         val responseCode = e.code
-        val errorResponse = ErrorResponse(responseCode.code, responseCode.defaultMessage)
+        val message = e.message ?: responseCode.defaultMessage
+        val errorResponse = ErrorResponse(responseCode.code, message)
 
         return errorResponse
     }

@@ -49,7 +49,7 @@ interface TickerPriceApiSpec {
             schema = Schema(
                 type = "string",
                 defaultValue = "now",
-                allowableValues = ["now", "2W", "1M", "6M", "1Y"]
+                allowableValues = ["2W", "1M", "6M", "1Y"]
             )
         ) @RequestParam(defaultValue = "now") period: String
     ): SuccessResponse<TickerGraphResponse>
