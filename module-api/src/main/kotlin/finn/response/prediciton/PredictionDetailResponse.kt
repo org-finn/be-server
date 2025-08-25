@@ -26,7 +26,7 @@ data class PredictionDetailResponse(
         data class ArticleDataResponse(
             val articleId: UUID,
             val headline: String,
-            val sentiment: String,
+            val sentiment: String? = null,
             val reasoning: String? = null
         )
     }

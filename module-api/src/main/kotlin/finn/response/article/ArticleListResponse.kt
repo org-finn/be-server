@@ -16,7 +16,7 @@ data class ArticleListResponse(
         val contentUrl: String,
         val publishedDate: String,
         val source: String,
-        val sentiment: String,
+        val sentiment: String? = null,
         val reasoning: String? = null
     )
 }
