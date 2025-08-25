@@ -60,7 +60,8 @@ class GraphQueryRepository {
                     JoinType.INNER,
                     additionalConstraint = {
                         (NIntervalChangeRateTable.tickerId eq TickerPriceTable.tickerId) and
-                                (NIntervalChangeRateTable.priceDate eq TickerPriceTable.priceDate)
+                                (NIntervalChangeRateTable.priceDate eq TickerPriceTable.priceDate) and
+                                (NIntervalChangeRateTable.interval eq interval)
                     }
                 )
                 .select(
@@ -94,7 +95,8 @@ class GraphQueryRepository {
                     JoinType.INNER,
                     additionalConstraint = {
                         (NIntervalChangeRateTable.tickerId eq TickerPriceTable.tickerId) and
-                                (NIntervalChangeRateTable.priceDate eq TickerPriceTable.priceDate)
+                                (NIntervalChangeRateTable.priceDate eq TickerPriceTable.priceDate) and
+                                (NIntervalChangeRateTable.interval eq interval)
                     }
                 )
                 .select(

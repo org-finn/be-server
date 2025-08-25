@@ -38,14 +38,16 @@ internal class GraphRepositoryImplTest(
                     it[TickerPriceTable.volume] = 100000L
                     it[TickerPriceTable.createdAt] = LocalDateTime.now()
                 }
-                NIntervalChangeRateTable.insert {
-                    it[NIntervalChangeRateTable.id] = UUID.randomUUID()
-                    it[NIntervalChangeRateTable.tickerId] = tickerId
-                    it[NIntervalChangeRateTable.tickerCode] = "TEST"
-                    it[NIntervalChangeRateTable.priceDate] = currentDate
-                    it[NIntervalChangeRateTable.interval] = 1
-                    it[NIntervalChangeRateTable.changeRate] = i.toBigDecimal()
-                    it[NIntervalChangeRateTable.createdAt] = LocalDateTime.now()
+                (intArrayOf(1, 7)).forEach { j ->
+                    NIntervalChangeRateTable.insert {
+                        it[NIntervalChangeRateTable.id] = UUID.randomUUID()
+                        it[NIntervalChangeRateTable.tickerId] = tickerId
+                        it[NIntervalChangeRateTable.tickerCode] = "TEST"
+                        it[NIntervalChangeRateTable.priceDate] = currentDate
+                        it[NIntervalChangeRateTable.interval] = j
+                        it[NIntervalChangeRateTable.changeRate] = i.toBigDecimal()
+                        it[NIntervalChangeRateTable.createdAt] = LocalDateTime.now()
+                    }
                 }
             }
         }
@@ -84,10 +86,10 @@ internal class GraphRepositoryImplTest(
         val startDate = LocalDate.of(2025, 8, 1)
         val endDate = startDate.plusDays(10)
 
-        When("minimumCount=10, interval=2로 getTickerGraph를 호출하면") {
+        When("minimumCount=10, interval=1로 getTickerGraph를 호출하면") {
             val result = transaction {
-                setupGraphData(tickerId, startDate, 5)
-                graphRepository.getTickerGraph(tickerId, startDate, endDate, 2, 10)
+                setupGraphData(tickerId, startDate, 5) // 2025-08-01 ~ 2025-08-05
+                graphRepository.getTickerGraph(tickerId, startDate, endDate, 1, 10)
             }
 
             Then("interval을 무시하고 모든 데이터(5개)를 반환해야 한다") {
@@ -102,19 +104,25 @@ internal class GraphRepositoryImplTest(
         val startDate = LocalDate.of(2025, 8, 1)
         val endDate = startDate.plusDays(10)
 
-        When("minimumCount=5, interval=4로 getTickerGraph를 호출하면") {
+        When("minimumCount=5, interval=1로 getTickerGraph를 호출하면") {
             val result = transaction {
-                setupGraphData(tickerId, startDate, 10)
-                graphRepository.getTickerGraph(tickerId, startDate, endDate, 4, 5)
+                setupGraphData(tickerId, startDate, 10) // 2025-08-01 ~ 2025-08-10(1, 4, 7, 10)
+                graphRepository.getTickerGraph(tickerId, startDate, endDate, 1, 5)
             }
 
-            Then("interval에 맞는 데이터와 마지막 날짜의 데이터를 포함하여 4개를 반환해야 한다") {
-                result shouldHaveSize 4
+            Then("interval에 맞는 데이터와 마지막 날짜의 데이터를 포함하여 10개를 반환해야 한다") {
+                result shouldHaveSize 10
 
                 val resultDates = result.map { it.date() }
                 resultDates shouldContainExactlyInAnyOrder listOf(
                     LocalDate.of(2025, 8, 1),
+                    LocalDate.of(2025, 8, 2),
+                    LocalDate.of(2025, 8, 3),
+                    LocalDate.of(2025, 8, 4),
                     LocalDate.of(2025, 8, 5),
+                    LocalDate.of(2025, 8, 6),
+                    LocalDate.of(2025, 8, 7),
+                    LocalDate.of(2025, 8, 8),
                     LocalDate.of(2025, 8, 9),
                     LocalDate.of(2025, 8, 10)
                 )
