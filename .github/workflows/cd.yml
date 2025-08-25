@@ -41,6 +41,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           # 이미지 태그: {DockerHub유저명}/{리포지토리명}:{브랜치명}-{commit해시}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
