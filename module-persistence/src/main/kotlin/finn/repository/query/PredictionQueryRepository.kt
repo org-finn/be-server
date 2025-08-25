@@ -196,8 +196,8 @@ class PredictionQueryRepository {
                 TickerPriceTable.volume
             )
             .where {
-                PredictionTable.predictionDate eq latestDate
-                PredictionTable.tickerId eq tickerId
+                (PredictionTable.predictionDate eq latestDate) and
+                        (PredictionTable.tickerId eq tickerId)
             }.map { row ->
                 val articleCount = when (row[PredictionTable.sentiment]) {
                     1 -> row[PredictionTable.positiveArticleCount]

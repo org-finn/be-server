@@ -3,10 +3,7 @@ package finn.repository.query
 import finn.exception.CriticalDataOmittedException
 import finn.queryDto.TickerGraphQueryDto
 import finn.table.TickerPriceTable
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.max
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -34,9 +31,11 @@ class GraphQueryRepository {
         val maxAndCountResult = TickerPriceTable
             .select(TickerPriceTable.priceDate.max(), TickerPriceTable.id.count())
             .where {
-                TickerPriceTable.tickerId eq tickerId
-                TickerPriceTable.priceDate greater startDate
-                TickerPriceTable.priceDate less endDate
+                TickerPriceTable.tickerId eq tickerId and
+                TickerPriceTable.priceDate.between(
+                    startDate,
+                    endDate
+                )
             }
             .firstOrNull()
 
@@ -55,9 +54,11 @@ class GraphQueryRepository {
                 TickerPriceTable.changeRate
             )
             .where {
-                TickerPriceTable.tickerId eq tickerId
-                TickerPriceTable.priceDate greater startDate
-                TickerPriceTable.priceDate less endDate
+                TickerPriceTable.tickerId eq tickerId and
+                TickerPriceTable.priceDate.between(
+                    startDate,
+                    endDate
+                )
             }
             .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
             .map { row ->
@@ -81,7 +82,7 @@ class GraphQueryRepository {
         // 1. 필요한 모든 가격 데이터를 DB에서 한 번에 조회하여 Map으로 변환
         val priceMap = TickerPriceTable
             .selectAll().where {
-                (TickerPriceTable.tickerId eq tickerId)
+                (TickerPriceTable.tickerId eq tickerId) and
                 // 기준일 계산을 위해 startDate보다 interval만큼 더 이전 데이터까지 조회
                 TickerPriceTable.priceDate.between(
                     startDate.minusDays(interval.toLong()),
