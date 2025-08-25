@@ -12,7 +12,7 @@ class Article private constructor(
     val publishedDate: LocalDateTime,
     val shortCompanyName: String? = null,
     val source: String,
-    val sentiment: String,
+    val sentiment: String? = null,
     val reasoning: String? = null,
     val tickerId: UUID? = null
 ) {
@@ -26,7 +26,7 @@ class Article private constructor(
             publishedDate: LocalDateTime,
             shortCompanyName: String?,
             source: String,
-            sentiment: String,
+            sentiment: String?,
             reasoning: String?,
             tickerId: UUID?
         ): Article {

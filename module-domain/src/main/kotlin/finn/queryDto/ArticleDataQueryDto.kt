@@ -8,7 +8,7 @@ interface ArticleDataQueryDto {
 
     fun headline(): String
 
-    fun sentiment(): String
+    fun sentiment(): String?
 
     fun reasoning(): String?
 }

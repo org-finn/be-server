@@ -15,12 +15,12 @@ class ArticleQueryRepository {
     private data class ArticleDataQueryDtoImpl(
         val articleId: UUID,
         val headline: String,
-        val sentiment: String,
+        val sentiment: String?,
         val reasoning: String?
     ) : ArticleDataQueryDto {
         override fun articleId(): UUID = this.articleId
         override fun headline(): String = this.headline
-        override fun sentiment(): String = this.sentiment
+        override fun sentiment(): String? = this.sentiment
         override fun reasoning(): String? = this.reasoning
     }
 
