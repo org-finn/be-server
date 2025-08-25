@@ -6,8 +6,7 @@ import java.time.LocalDate
 fun getInterval(period: String): Int {
     return when (period) {
         "2W", "1M" -> 1
-        "6M" -> 3
-        "1Y" -> 7
+        "6M", "1Y" -> 7
         else -> throw DomainPolicyViolationException("지원하지 않는 주기입니다.")
     }
 }
