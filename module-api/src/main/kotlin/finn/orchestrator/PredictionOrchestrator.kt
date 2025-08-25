@@ -2,11 +2,9 @@ package finn.orchestrator
 
 import finn.mapper.toDto
 import finn.paging.PredictionPageRequest
-import finn.response.graph.TickerGraphResponse
 import finn.response.prediciton.PredictionDetailResponse
 import finn.response.prediciton.PredictionListResponse
 import finn.service.ArticleQueryService
-import finn.service.GraphQueryService
 import finn.service.PredictionQueryService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
@@ -16,8 +14,7 @@ import java.util.*
 @ExposedTransactional(readOnly = true)
 class PredictionOrchestrator(
     private val predictionQueryService: PredictionQueryService,
-    private val articleQueryService: ArticleQueryService,
-    private val graphQueryService: GraphQueryService
+    private val articleQueryService: ArticleQueryService
 ) {
 
     fun getRecentPredictionList(pageRequest: PredictionPageRequest): PredictionListResponse {
@@ -29,10 +26,5 @@ class PredictionOrchestrator(
         val predictionDetail = predictionQueryService.getPredictionDetail(tickerId)
         val articleList = articleQueryService.getArticleDataForPredictionDetail(tickerId)
         return toDto(predictionDetail, articleList)
-    }
-
-    fun getTickerGraphData(tickerId: UUID, period: String): TickerGraphResponse {
-        val graphData = graphQueryService.getTickerGraphData(tickerId, period)
-        return toDto(period, graphData)
     }
 }
