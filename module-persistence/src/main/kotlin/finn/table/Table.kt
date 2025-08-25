@@ -55,7 +55,7 @@ object TickerPriceTable : UUIDTable("ticker_prices") {
     val low = decimal("low", 10, 4)
     val close = decimal("close", 10, 4)
     val volume = long("volume")
-    val changeRate = decimal("change_rate", 5, 2)
+    val changeRate = decimal("change_rate", 7, 4)
     val tickerCode = varchar("ticker_code", 20)
     val tickerId = uuid("ticker_id")
     val createdAt = datetime("created_at")
