@@ -1,0 +1,75 @@
+name: Deploy to EC2 Articker Server
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # 2. JDK 21 설치
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'corretto' # Amazon Corretto JDK 사용
+
+      # 3. Gradle 실행 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 4. Spring Boot 애플리케이션 빌드
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # 5. Docker Hub 로그인
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 6. Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          # 이미지 태그: {DockerHub유저명}/{리포지토리명}:{브랜치명}-{commit해시}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
+
+      # 7. EC2에 접속하여 배포 스크립트 실행
+      - name: Deploy to EC2 instance
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Docker Hub에서 최신 이미지 가져오기
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
+
+            if [ $(docker ps -q --filter "name=spring-container") ]; then
+              docker stop spring-container
+              docker rm spring-container
+            fi
+
+            # ⭐️ 새로운 컨테이너 실행 (환경 변수 주입)
+            docker run -d -p 8080:8080 --name spring-container \
+            -e DB_HOST=${{ secrets.DEV_DB_HOST }} \
+            -e DB_PORT=${{ secrets.DEV_DB_PORT }} \
+            -e DB_NAME=${{ secrets.DEV_DB_NAME }} \
+            -e DB_USERNAME=${{ secrets.DEV_DB_USERNAME }} \
+            -e DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }} \
+            -e TRANSACTION_ISOLATION_LEVEL=${{ secrets.DEV_TRANSACTION_ISOLATION_LEVEL }} \
+            ${{ secrets.DOCKORHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
+            
+            # 사용하지 않는 Docker 이미지 삭제
+            docker image prune -f
