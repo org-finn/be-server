@@ -30,6 +30,7 @@ internal class TickerRepositoryImplTest(
                 it[fullCompanyName] = "Apple Inc."
                 it[shortCompanyName] = "Apple"
                 it[country] = "USA"
+                it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
             }
             TickerTable.insert {
@@ -38,6 +39,7 @@ internal class TickerRepositoryImplTest(
                 it[fullCompanyName] = "Amazon.com Inc."
                 it[shortCompanyName] = "Amazon"
                 it[country] = "USA"
+                it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
             }
             TickerTable.insert {
@@ -46,6 +48,7 @@ internal class TickerRepositoryImplTest(
                 it[fullCompanyName] = "Microsoft Corporation"
                 it[shortCompanyName] = "Microsoft"
                 it[country] = "USA"
+                it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
             }
         }
