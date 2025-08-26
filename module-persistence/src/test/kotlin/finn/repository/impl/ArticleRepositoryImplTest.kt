@@ -35,6 +35,7 @@ internal class ArticleRepositoryImplTest(
                 shortCompanyName = "Test"
                 country = "USA"
                 marketCap = 100000L
+                exchangeCode = "code"
                 createdAt = LocalDateTime.now()
             }
 

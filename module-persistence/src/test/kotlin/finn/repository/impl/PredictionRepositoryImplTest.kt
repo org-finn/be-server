@@ -33,6 +33,7 @@ internal class PredictionRepositoryImplTest(
                 it[shortCompanyName] = "Company A"
                 it[country] = "USA"
                 it[marketCap] = 1000L
+                it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
             } get TickerTable.id // insert 후 생성된 ID를 바로 가져옴
 
@@ -42,6 +43,7 @@ internal class PredictionRepositoryImplTest(
                 it[shortCompanyName] = "Company B"
                 it[country] = "USA"
                 it[marketCap] = 2000L
+                it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
             } get TickerTable.id
 
