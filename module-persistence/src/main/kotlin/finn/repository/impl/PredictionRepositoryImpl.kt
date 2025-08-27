@@ -1,5 +1,6 @@
 package finn.repository.impl
 
+import finn.entity.command.PredictionC
 import finn.exception.CriticalDataPollutedException
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
@@ -43,5 +44,13 @@ class PredictionRepositoryImpl(
 
     override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
         return predictionQueryRepository.findPredictionWithPriceInfoById(tickerId)
+    }
+
+    override fun getRecentSentimentScore(tickerId: UUID): List<Int> {
+        TODO("Not yet implemented")
+    }
+
+    override fun savePrediction(predictionQ: PredictionC) {
+        TODO("Not yet implemented")
     }
 }

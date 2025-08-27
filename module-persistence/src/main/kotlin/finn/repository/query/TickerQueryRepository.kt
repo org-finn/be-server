@@ -1,5 +1,6 @@
 package finn.repository.query
 
+import finn.entity.TickerExposed
 import finn.queryDto.TickerSearchQueryDto
 import finn.table.TickerTable
 import org.springframework.stereotype.Repository
@@ -35,5 +36,10 @@ class TickerQueryRepository {
                     fullCompanyName = row[TickerTable.fullCompanyName]
                 )
             }
+    }
+
+    fun findByTickerCode(tickerCode: String): TickerExposed {
+        return TickerExposed.find { TickerTable.code eq tickerCode }
+            .single()
     }
 }
