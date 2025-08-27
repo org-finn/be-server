@@ -1,5 +1,6 @@
 package finn.service
 
+import finn.entity.Ticker
 import finn.queryDto.TickerSearchQueryDto
 import finn.repository.TickerRepository
 import org.springframework.stereotype.Service
@@ -11,5 +12,9 @@ class TickerQueryService(
 
     fun getTickerSearchList(keyword: String) : List<TickerSearchQueryDto> {
         return tickerRepository.getTickerListBySearchKeyword(keyword)
+    }
+
+    fun getTickerByTickerCode(tickerCode: String) : Ticker {
+
     }
 }
