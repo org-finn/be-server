@@ -2,14 +2,8 @@ package finn.calculator
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 internal class SentimentScoreCalculatorTest : BehaviorSpec({
-
-    // 테스트 대상 인스턴스 생성
-    val testTickerCode = "AAPL"
-    val testDate = LocalDateTime.now(ZoneId.of("UTC"))
 
     /**
      * 시나리오 1: 뉴스 데이터가 없는 경우

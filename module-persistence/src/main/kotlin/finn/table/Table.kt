@@ -36,7 +36,7 @@ object ArticleTable : UUIDTable("article") {
 }
 
 object PredictionTable : UUIDTable("predictions") {
-    val predictionDate = datetime("prediction_date") // UTC
+    val predictionDate = datetime("prediction_date") // EST
     val positiveArticleCount = long("positive_Article_count")
     val negativeArticleCount = long("negative_Article_count")
     val neutralArticleCount = long("neutral_Article_count")
@@ -50,7 +50,7 @@ object PredictionTable : UUIDTable("predictions") {
 }
 
 object TickerPriceTable : UUIDTable("ticker_prices") {
-    val priceDate = date("price_date") // UTC
+    val priceDate = date("price_date") // EST
     val open = decimal("open", 10, 4)
     val high = decimal("high", 10, 4)
     val low = decimal("low", 10, 4)
