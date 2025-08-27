@@ -22,7 +22,7 @@ internal class PredictionRepositoryImplTest(
 
     beforeTest {
         // 테스트 데이터 준비: 최신 날짜를 동일하게 맞춤
-        val latestDate = LocalDateTime.now(ZoneId.of("UTC"))
+        val latestDate = LocalDateTime.now(ZoneId.of("America/New_York"))
         transaction {
             PredictionTable.deleteAll()
             TickerTable.deleteAll()

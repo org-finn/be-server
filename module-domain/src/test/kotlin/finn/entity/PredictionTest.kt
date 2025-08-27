@@ -19,7 +19,7 @@ internal class PredictionTest : BehaviorSpec({
     val testTickerId = UUID.randomUUID()
     val testTickerCode = "AAPL"
     val testCompanyName = "Apple"
-    val testDate = LocalDateTime.now(ZoneId.of("UTC"))
+    val testDate = LocalDateTime.now(ZoneId.of("America/New_York"))
 
     /**
      * 1. create 팩토리 메서드 테스트

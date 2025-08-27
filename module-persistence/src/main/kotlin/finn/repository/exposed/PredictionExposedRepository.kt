@@ -245,7 +245,7 @@ class PredictionExposedRepository {
     }
 
     fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
-        val today = LocalDate.now(ZoneId.of("UTC"))
+        val today = LocalDate.now(ZoneId.of("America/New_York"))
         return PredictionTable
             .select(PredictionTable.score)
             .where {
