@@ -53,7 +53,7 @@ class PredictionRepositoryImpl(
     }
 
     override fun getRecentSentimentScoreList(tickerId: UUID): List<Int> {
-        TODO("Not yet implemented")
+        return predictionQueryRepository.findTodaySentimentScoreByTickerId(tickerId)
     }
 
     override fun savePrediction(prediction: PredictionC) {

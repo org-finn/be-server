@@ -11,10 +11,12 @@ import finn.table.TickerPriceTable
 import finn.table.TickerTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.javatime.date
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Repository
@@ -240,5 +242,18 @@ class PredictionQueryRepository {
             tickerId = prediction.tickerId
             createdAt = LocalDateTime.now()
         }
+    }
+
+    fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
+        val today = LocalDate.now(ZoneId.of("UTC"))
+        return PredictionTable
+            .select(PredictionTable.score)
+            .where {
+                (PredictionTable.tickerId eq tickerId) and (PredictionTable.predictionDate.date() eq today)
+            }
+            .map { row ->
+                row[PredictionTable.score]
+            }
+
     }
 }
