@@ -1,6 +1,6 @@
 package finn.repository
 
-import finn.entity.Prediction
+import finn.entity.command.PredictionC
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -13,5 +13,5 @@ interface PredictionRepository {
 
     fun getRecentSentimentScore(tickerId: UUID): List<Int>
 
-    fun savePrediction(prediction: Prediction)
+    fun savePrediction(predictionQ: PredictionC)
 }

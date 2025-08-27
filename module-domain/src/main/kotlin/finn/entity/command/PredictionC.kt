@@ -1,11 +1,12 @@
-package finn.entity
+package finn.entity.command
 
 import finn.calculator.calculateScore
+import finn.entity.query.PredictionStrategy
 import finn.exception.DomainPolicyViolationException
 import java.time.LocalDateTime
 import java.util.*
 
-class Prediction private constructor(
+class PredictionC private constructor(
     val tickerId: UUID,
     val tickerCode: String,
     val shortCompanyName: String,
@@ -24,14 +25,14 @@ class Prediction private constructor(
             positiveArticleCount: Long, negativeArticleCount: Long,
             neutralArticleCount: Long, predictionDate: LocalDateTime,
             todayScores: List<Int>
-        ): Prediction {
+        ): PredictionC {
             val calculatedScore = getSentimentScore(
                 todayScores,
                 positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
             val strategy = getStrategyFromScore(calculatedScore)
 
-            return Prediction(
+            return PredictionC(
                 tickerId = tickerId,
                 tickerCode = tickerCode,
                 shortCompanyName = shortCompanyName,

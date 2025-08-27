@@ -1,6 +1,6 @@
 package finn.validator
 
-import finn.entity.Ticker
+import finn.entity.query.Ticker
 import finn.exception.DomainPolicyViolationException
 import java.util.*
 

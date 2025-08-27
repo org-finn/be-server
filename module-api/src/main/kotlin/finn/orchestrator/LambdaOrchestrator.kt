@@ -1,6 +1,6 @@
 package finn.orchestrator
 
-import finn.entity.Article
+import finn.entity.command.ArticleC
 import finn.request.lambda.ArticleRealTimeBatchRequest
 import finn.service.ArticleCommandService
 import finn.service.PredictionCommandService
@@ -28,7 +28,7 @@ class LambdaOrchestrator(
         // 각 Article 생성 및 저장
         val articleList = request.articles.asSequence()
             .map {
-                Article.create(
+                ArticleC.create(
                     it.title,
                     it.description,
                     it.thumbnailUrl,

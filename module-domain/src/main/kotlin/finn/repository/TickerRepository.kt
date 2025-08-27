@@ -1,6 +1,6 @@
 package finn.repository
 
-import finn.entity.Ticker
+import finn.entity.query.Ticker
 import finn.queryDto.TickerSearchQueryDto
 
 interface TickerRepository {

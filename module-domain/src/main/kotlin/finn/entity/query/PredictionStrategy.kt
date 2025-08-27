@@ -1,4 +1,4 @@
-package finn.entity
+package finn.entity.query
 
 enum class PredictionStrategy(val strategy: String, val left: Int, val right: Int, val sentiment: Int) {
     STRONG_BUY("강한 매수", 80, 100, 1),

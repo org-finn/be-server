@@ -1,4 +1,4 @@
-package finn.entity
+package finn.entity.query
 
 import finn.converter.getTradingHours
 import java.time.DayOfWeek

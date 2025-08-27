@@ -1,6 +1,6 @@
 package finn.repository.impl
 
-import finn.entity.Article
+import finn.entity.query.ArticleQ
 import finn.exception.CriticalDataPollutedException
 import finn.mapper.toDomain
 import finn.paging.PageResponse
@@ -23,7 +23,7 @@ class ArticleRepositoryImpl(
         size: Int,
         filter: String,
         sort: String
-    ): PageResponse<Article> {
+    ): PageResponse<ArticleQ> {
         val ArticleExposedList = when (filter) {
             "all" -> articleQueryRepository.findAllArticleList(page, size)
 

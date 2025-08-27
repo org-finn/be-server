@@ -1,6 +1,8 @@
 package finn.entity
 
 import finn.calculator.SentimentScoreCalculator
+import finn.entity.command.PredictionC
+import finn.entity.query.PredictionStrategy
 import finn.exception.DomainPolicyViolationException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -42,7 +44,7 @@ internal class PredictionTest : BehaviorSpec({
         } returns calculatedScore
 
         When("필요한 모든 정보와 계산기를 전달하면") {
-            val prediction = Prediction.create(
+            val predictionQ = PredictionC.create(
                 tickerId = testTickerId,
                 tickerCode = testTickerCode,
                 shortCompanyName = testCompanyName,
@@ -56,9 +58,9 @@ internal class PredictionTest : BehaviorSpec({
             )
 
             Then("계산된 점수와 그에 맞는 전략으로 Prediction 객체가 생성되어야 한다") {
-                prediction.tickerCode shouldBe testTickerCode
-                prediction.sentimentScore shouldBe calculatedScore // mock이 반환한 값
-                prediction.predictionStrategy shouldBe PredictionStrategy.STRONG_BUY // 85점에 해당하는 전략
+                predictionQ.tickerCode shouldBe testTickerCode
+                predictionQ.sentimentScore shouldBe calculatedScore // mock이 반환한 값
+                predictionQ.predictionStrategy shouldBe PredictionStrategy.STRONG_BUY // 85점에 해당하는 전략
             }
         }
     }
@@ -75,14 +77,14 @@ internal class PredictionTest : BehaviorSpec({
             30 to PredictionStrategy.WEEK_SELL,
             10 to PredictionStrategy.STRONG_SELL
         ) { (score, expectedStrategy) ->
-            val actualStrategy = Prediction.getStrategyFromScore(score)
+            val actualStrategy = PredictionC.getStrategyFromScore(score)
             actualStrategy shouldBe expectedStrategy
         }
 
         When("유효하지 않은 점수(-10)를 전달하면") {
             Then("예외가 발생해야 한다") {
                 shouldThrow<DomainPolicyViolationException> {
-                    Prediction.getStrategyFromScore(-10)
+                    PredictionC.getStrategyFromScore(-10)
                 }
             }
         }
@@ -104,7 +106,7 @@ internal class PredictionTest : BehaviorSpec({
                     any()
                 )
             } returns 90
-            val prediction = Prediction.create(
+            val predictionQ = PredictionC.create(
                 // ... 다른 파라미터들
                 positiveArticleCount = 15,
                 negativeArticleCount = 1,
@@ -120,7 +122,7 @@ internal class PredictionTest : BehaviorSpec({
             )
 
             Then("긍정 뉴스 개수(positiveArticleCount)를 반환해야 한다") {
-                prediction.getArticleCountAlongWithStrategy() shouldBe 15
+                predictionQ.getArticleCountAlongWithStrategy() shouldBe 15
             }
         }
 
@@ -136,7 +138,7 @@ internal class PredictionTest : BehaviorSpec({
                     any()
                 )
             } returns 50
-            val prediction = Prediction.create(
+            val predictionQ = PredictionC.create(
                 positiveArticleCount = 5,
                 negativeArticleCount = 5,
                 neutralArticleCount = 10,
@@ -149,7 +151,7 @@ internal class PredictionTest : BehaviorSpec({
                 calculator = mockCalculator
             )
             Then("중립 뉴스 개수(neutralArticleCount)를 반환해야 한다") {
-                prediction.getArticleCountAlongWithStrategy() shouldBe 10
+                predictionQ.getArticleCountAlongWithStrategy() shouldBe 10
             }
         }
     }

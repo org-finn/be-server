@@ -1,6 +1,6 @@
 package finn.orchestrator
 
-import finn.entity.MarketStatus
+import finn.entity.query.MarketStatus
 import finn.service.MarketStatusQueryService
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.datatest.withData

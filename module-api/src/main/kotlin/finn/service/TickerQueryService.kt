@@ -1,6 +1,6 @@
 package finn.service
 
-import finn.entity.Ticker
+import finn.entity.query.Ticker
 import finn.queryDto.TickerSearchQueryDto
 import finn.repository.TickerRepository
 import org.springframework.stereotype.Service

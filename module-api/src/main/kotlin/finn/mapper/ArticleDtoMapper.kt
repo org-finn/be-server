@@ -1,11 +1,11 @@
 package finn.mapper
 
-import finn.entity.Article
+import finn.entity.query.ArticleQ
 import finn.paging.PageResponse
 import finn.response.article.ArticleListResponse
 
-fun toDto(articleData: PageResponse<Article>): ArticleListResponse {
-    val ArticleList = articleData.content.map { it ->
+fun toDto(articleData: PageResponse<ArticleQ>): ArticleListResponse {
+    val ArticleList = articleData.content.map {
         ArticleListResponse.ArticleDataResponse(
             it.id, it.title, it.description,
             it.shortCompanyName, it.thumbnailUrl, it.contentUrl,

@@ -1,6 +1,6 @@
 package finn.repository.impl
 
-import finn.entity.MarketStatus
+import finn.entity.query.MarketStatus
 import finn.mapper.toDomain
 import finn.repository.MarketStatusRepository
 import finn.repository.query.MarketStatusQueryRepository
