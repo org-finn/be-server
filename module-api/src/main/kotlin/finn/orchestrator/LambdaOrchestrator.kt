@@ -36,9 +36,11 @@ class LambdaOrchestrator(
                     it.publishedDate.toLocalDateTime(),
                     shortCompanyName,
                     it.author,
+                    it.distinctId,
                     it.sentiment,
                     it.reasoning,
-                    tickerId
+                    tickerId,
+                    tickerCode
                 )
             }.toList()
 

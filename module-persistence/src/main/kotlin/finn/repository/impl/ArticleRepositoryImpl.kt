@@ -1,5 +1,7 @@
 package finn.repository.impl
 
+import finn.dto.ArticleToInsert
+import finn.entity.command.ArticleC
 import finn.entity.query.ArticleQ
 import finn.exception.CriticalDataPollutedException
 import finn.mapper.toDomain
@@ -38,4 +40,16 @@ class ArticleRepositoryImpl(
         }.toList(), page, size, ArticleExposedList.hasNext)
     }
 
+    override fun saveArticleList(articleList: List<ArticleC>) {
+        val articleToInsertList = articleList.asSequence()
+            .map {
+                ArticleToInsert(
+                    it.title, it.description, it.thumbnailUrl, it.contentUrl, it.publishedDate,
+                    it.shortCompanyName, it.source, it.distinctId, it.sentiment, it.reasoning,
+                    it.tickerId, it.tickerCode
+                )
+            }
+            .toList()
+        articleQueryRepository.saveAll(articleToInsertList)
+    }
 }

@@ -11,9 +11,11 @@ class ArticleC private constructor(
     val publishedDate: LocalDateTime,
     val shortCompanyName: String? = null,
     val source: String,
+    val distinctId: String,
     val sentiment: String? = null,
     val reasoning: String? = null,
-    val tickerId: UUID? = null
+    val tickerId: UUID? = null,
+    val tickerCode: String? = null
 ) {
     companion object {
         fun create(
@@ -24,9 +26,11 @@ class ArticleC private constructor(
             publishedDate: LocalDateTime,
             shortCompanyName: String?,
             source: String,
+            distinctId: String,
             sentiment: String?,
             reasoning: String?,
-            tickerId: UUID?
+            tickerId: UUID?,
+            tickerCode: String?
         ): ArticleC {
             return ArticleC(
                 title,
@@ -36,9 +40,11 @@ class ArticleC private constructor(
                 publishedDate,
                 shortCompanyName,
                 source,
+                distinctId,
                 sentiment,
                 reasoning,
-                tickerId
+                tickerId,
+                tickerCode
             )
         }
 
