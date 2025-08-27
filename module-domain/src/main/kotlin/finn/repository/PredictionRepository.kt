@@ -11,7 +11,7 @@ interface PredictionRepository {
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto
 
-    fun getRecentSentimentScore(tickerId: UUID): List<Int>
+    fun getRecentSentimentScoreList(tickerId: UUID): List<Int>
 
-    fun savePrediction(predictionQ: PredictionC)
+    fun savePrediction(prediction: PredictionC)
 }

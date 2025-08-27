@@ -1,4 +1,4 @@
-package finn.dto
+package finn.insertDto
 
 import java.time.LocalDateTime
 import java.util.*

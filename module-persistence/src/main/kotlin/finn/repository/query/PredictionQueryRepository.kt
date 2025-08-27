@@ -1,6 +1,8 @@
 package finn.repository.query
 
+import finn.entity.PredictionExposed
 import finn.exception.CriticalDataOmittedException
+import finn.insertDto.PredictionToInsert
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -222,5 +224,21 @@ class PredictionQueryRepository {
                 )
             }.singleOrNull()
             ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
+    }
+
+    fun save(prediction: PredictionToInsert) {
+        PredictionExposed.new {
+            predictionDate = prediction.predictionDate
+            positiveArticleCount = prediction.positiveArticleCount
+            negativeArticleCount = prediction.negativeArticleCount
+            neutralArticleCount = prediction.neutralArticleCount
+            sentiment = prediction.sentiment
+            strategy = prediction.strategy
+            score = prediction.sentimentScore
+            tickerCode = prediction.tickerCode
+            shortCompanyName = prediction.shortCompanyName
+            tickerId = prediction.tickerId
+            createdAt = LocalDateTime.now()
+        }
     }
 }

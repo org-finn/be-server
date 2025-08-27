@@ -1,7 +1,7 @@
 package finn.repository.query
 
-import finn.dto.ArticleToInsert
 import finn.entity.ArticleExposed
+import finn.insertDto.ArticleToInsert
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.table.ArticleTable

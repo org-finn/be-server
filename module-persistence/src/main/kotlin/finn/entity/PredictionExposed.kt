@@ -13,8 +13,8 @@ class PredictionExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var positiveArticleCount by PredictionTable.positiveArticleCount
     var negativeArticleCount by PredictionTable.negativeArticleCount
     var neutralArticleCount by PredictionTable.neutralArticleCount
-    val sentiment by PredictionTable.sentiment
-    val strategy by PredictionTable.strategy
+    var sentiment by PredictionTable.sentiment
+    var strategy by PredictionTable.strategy
     var score by PredictionTable.score
     var tickerCode by PredictionTable.tickerCode
     var shortCompanyName by PredictionTable.shortCompanyName

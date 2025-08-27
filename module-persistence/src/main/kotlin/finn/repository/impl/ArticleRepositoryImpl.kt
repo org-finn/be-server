@@ -1,9 +1,9 @@
 package finn.repository.impl
 
-import finn.dto.ArticleToInsert
 import finn.entity.command.ArticleC
 import finn.entity.query.ArticleQ
 import finn.exception.CriticalDataPollutedException
+import finn.insertDto.ArticleToInsert
 import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto

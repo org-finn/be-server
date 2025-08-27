@@ -2,6 +2,7 @@ package finn.repository.impl
 
 import finn.entity.command.PredictionC
 import finn.exception.CriticalDataPollutedException
+import finn.insertDto.PredictionToInsert
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -39,18 +40,35 @@ class PredictionRepositoryImpl(
 
             else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
         }
-        return PageResponse(predictionExposedList.content, page, size, predictionExposedList.hasNext)
+        return PageResponse(
+            predictionExposedList.content,
+            page,
+            size,
+            predictionExposedList.hasNext
+        )
     }
 
     override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
         return predictionQueryRepository.findPredictionWithPriceInfoById(tickerId)
     }
 
-    override fun getRecentSentimentScore(tickerId: UUID): List<Int> {
+    override fun getRecentSentimentScoreList(tickerId: UUID): List<Int> {
         TODO("Not yet implemented")
     }
 
-    override fun savePrediction(predictionQ: PredictionC) {
-        TODO("Not yet implemented")
+    override fun savePrediction(prediction: PredictionC) {
+        val predictionToInsert = PredictionToInsert(
+            prediction.tickerId,
+            prediction.tickerCode,
+            prediction.shortCompanyName,
+            prediction.positiveArticleCount,
+            prediction.negativeArticleCount,
+            prediction.neutralArticleCount,
+            prediction.sentimentScore,
+            prediction.sentiment,
+            prediction.predictionStrategy.strategy,
+            prediction.predictionDate
+        )
+        predictionQueryRepository.save(predictionToInsert)
     }
 }

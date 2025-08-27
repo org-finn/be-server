@@ -22,7 +22,7 @@ class PredictionCommandService(
         val negativeArticleCount = ArticleC.getNegativeCount(articleList)
         val neutralArticleCount = ArticleC.getNeutralCount(articleList)
         val predictionDate = LocalDateTime.now()
-        val todayScores = predictionRepository.getRecentSentimentScore(tickerId)
+        val todayScores = predictionRepository.getRecentSentimentScoreList(tickerId)
 
         val predictionQ = PredictionC.create(
             tickerId,
