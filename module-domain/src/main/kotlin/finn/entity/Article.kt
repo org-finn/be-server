@@ -4,7 +4,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class Article private constructor(
-    val id: UUID,
     val title: String,
     val description: String,
     val thumbnailUrl: String? = null,
@@ -18,7 +17,6 @@ class Article private constructor(
 ) {
     companion object {
         fun create(
-            id: UUID,
             title: String,
             description: String,
             thumbnailUrl: String?,
@@ -31,7 +29,6 @@ class Article private constructor(
             tickerId: UUID?
         ): Article {
             return Article(
-                id,
                 title,
                 description,
                 thumbnailUrl,
@@ -43,6 +40,22 @@ class Article private constructor(
                 reasoning,
                 tickerId
             )
+        }
+
+        fun getPositiveCount(articleList: List<Article>): Long {
+            return articleList.count({ it -> it.sentiment.equals("positive") })
+                .coerceAtLeast(0).toLong()
+        }
+
+        fun getNegativeCount(articleList: List<Article>): Long {
+            return articleList.count({ it -> it.sentiment.equals("negative") })
+                .coerceAtLeast(0).toLong()
+        }
+
+        fun getNeutralCount(articleList: List<Article>): Long {
+            // 뉴스 양이 적은 것을 고려해, 감정 정보가 없는 데이터들은 중립으로 간주
+            return articleList.count({ it -> it.sentiment.isNullOrBlank() || it.sentiment.equals("neutral") })
+                .coerceAtLeast(0).toLong()
         }
     }
 

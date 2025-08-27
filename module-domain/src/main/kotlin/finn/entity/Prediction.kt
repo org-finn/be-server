@@ -1,6 +1,6 @@
 package finn.entity
 
-import finn.calculator.SentimentScoreCalculator
+import finn.calculator.calculateScore
 import finn.exception.DomainPolicyViolationException
 import java.time.LocalDateTime
 import java.util.*
@@ -22,12 +22,12 @@ class Prediction private constructor(
         fun create(
             tickerId: UUID, tickerCode: String, shortCompanyName: String,
             positiveArticleCount: Long, negativeArticleCount: Long,
-            neutralArticleCount: Long, predictionDate: LocalDateTime, collectedDate: LocalDateTime,
-            todayScores: List<Int>, calculator: SentimentScoreCalculator
+            neutralArticleCount: Long, predictionDate: LocalDateTime,
+            todayScores: List<Int>
         ): Prediction {
             val calculatedScore = getSentimentScore(
-                tickerCode, collectedDate, todayScores,
-                positiveArticleCount, neutralArticleCount, negativeArticleCount, calculator
+                todayScores,
+                positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
             val strategy = getStrategyFromScore(calculatedScore)
 
@@ -46,16 +46,13 @@ class Prediction private constructor(
         }
 
         fun getSentimentScore(
-            tickerCode: String,
-            collectedDate: LocalDateTime,
             todayScores: List<Int>,
             positiveArticleCount: Long,
             neutralArticleCount: Long,
             negativeArticleCount: Long,
-            calculator: SentimentScoreCalculator
         ): Int {
-            return calculator.calculateScore(
-                tickerCode, collectedDate, todayScores,
+            return calculateScore(
+                todayScores,
                 positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
         }

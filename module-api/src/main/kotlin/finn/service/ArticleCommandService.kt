@@ -10,7 +10,7 @@ class ArticleCommandService(
 ) {
 
     fun saveArticleList(articleList: List<Article>) {
-
+        articleRepository.saveArticleList(articleList)
     }
 
 }

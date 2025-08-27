@@ -10,4 +10,6 @@ interface ArticleRepository {
     fun getArticleDataForPredictionDetail(tickerId: UUID) : List<ArticleDataQueryDto>
 
     fun getArticleList(page: Int, size: Int, filter: String, sort:String) : PageResponse<Article>
+
+    fun saveArticleList(articleList: List<Article>)
 }

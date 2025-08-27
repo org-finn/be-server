@@ -15,6 +15,6 @@ class TickerQueryService(
     }
 
     fun getTickerByTickerCode(tickerCode: String) : Ticker {
-
+        return tickerRepository.getTickerByTickerCode(tickerCode)
     }
 }
