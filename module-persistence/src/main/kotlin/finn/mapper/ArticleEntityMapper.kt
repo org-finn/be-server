@@ -1,10 +1,10 @@
 package finn.mapper
 
-import finn.entity.Article
 import finn.entity.ArticleExposed
+import finn.entity.query.ArticleQ
 
-fun toDomain(article: ArticleExposed): Article {
-    return Article.create(
+fun toDomain(article: ArticleExposed): ArticleQ {
+    return ArticleQ.create(
         article.id.value, article.title, article.description,
         article.thumbnailUrl, article.contentUrl, article.publishedDate, article.shortCompanyName,
         article.author, article.sentiment, article.reasoning, article.tickerId

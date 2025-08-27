@@ -1,4 +1,4 @@
-package finn.repository.query
+package finn.repository.exposed
 
 import finn.entity.MarketStatusExposed
 import finn.table.MarketStatusTable
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
 @Repository
-class MarketStatusQueryRepository {
+class MarketStatusExposedRepository {
 
     fun findMarketStatusByDate(today: LocalDate): MarketStatusExposed? {
         return MarketStatusExposed.find(

@@ -1,4 +1,4 @@
-package finn.entity
+package finn.entity.query
 
 import java.math.BigDecimal
 import java.time.LocalDate

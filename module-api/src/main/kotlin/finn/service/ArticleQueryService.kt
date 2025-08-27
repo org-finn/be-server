@@ -1,6 +1,6 @@
 package finn.service
 
-import finn.entity.Article
+import finn.entity.query.ArticleQ
 import finn.paging.ArticlePageRequest
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
@@ -15,7 +15,7 @@ class ArticleQueryService(private val articleRepository: ArticleRepository) {
         return articleRepository.getArticleDataForPredictionDetail(tickerId)
     }
 
-    fun getArticleDataList(pageRequest: ArticlePageRequest): PageResponse<Article> {
+    fun getArticleDataList(pageRequest: ArticlePageRequest): PageResponse<ArticleQ> {
         return articleRepository.getArticleList(
             pageRequest.page,
             pageRequest.size,

@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 @SpringBootTest(classes = [TestApplication::class])
 internal class PredictionRepositoryImplTest(
@@ -21,7 +22,7 @@ internal class PredictionRepositoryImplTest(
 
     beforeTest {
         // 테스트 데이터 준비: 최신 날짜를 동일하게 맞춤
-        val latestDate = LocalDateTime.now()
+        val latestDate = LocalDateTime.now(ZoneId.of("UTC"))
         transaction {
             PredictionTable.deleteAll()
             TickerTable.deleteAll()
@@ -128,4 +129,17 @@ internal class PredictionRepositoryImplTest(
             }
         }
     }
+
+//    Given("오늘 및 어제 날짜의 예측 점수가 여러 티커에 대해 저장되어 있을 때") {
+//        When("특정 티커 A의 오늘 점수 조회를 요청하면") {
+//            val result = predictionRepository.getRecentSentimentScoreList(tickerA.id.value)
+//
+//            Then("해당 티커의 오늘 날짜 점수만 리스트로 반환해야 한다") {
+//                // Ticker A의 오늘 점수는 2개
+//                result shouldHaveSize 2
+//                // 반환된 점수가 80, 85인지 순서에 상관없이 확인
+//                result shouldContainExactlyInAnyOrder listOf(80, 85)
+//            }
+//        }
+//    }
 })

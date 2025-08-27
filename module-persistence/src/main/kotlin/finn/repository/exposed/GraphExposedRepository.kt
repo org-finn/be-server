@@ -1,4 +1,4 @@
-package finn.repository.query
+package finn.repository.exposed
 
 import finn.exception.CriticalDataOmittedException
 import finn.queryDto.TickerGraphQueryDto
@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Repository
-class GraphQueryRepository {
+class GraphExposedRepository {
 
     private data class TickerGraphQueryDtoImpl(
         val date: LocalDate,

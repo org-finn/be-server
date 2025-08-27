@@ -1,12 +1,13 @@
-package finn.repository.query
+package finn.repository.exposed
 
+import finn.entity.TickerExposed
 import finn.queryDto.TickerSearchQueryDto
 import finn.table.TickerTable
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-class TickerQueryRepository {
+class TickerExposedRepository {
 
     private data class TickerSearchQueryDtoImpl(
         val tickerId: UUID,
@@ -35,5 +36,10 @@ class TickerQueryRepository {
                     fullCompanyName = row[TickerTable.fullCompanyName]
                 )
             }
+    }
+
+    fun findByTickerCode(tickerCode: String): TickerExposed {
+        return TickerExposed.find { TickerTable.code eq tickerCode }
+            .single()
     }
 }

@@ -1,6 +1,6 @@
 package finn.orchestrator
 
-import finn.entity.MarketStatus
+import finn.entity.query.MarketStatus
 import finn.service.MarketStatusQueryService
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.datatest.withData
@@ -18,7 +18,7 @@ internal class MarketStatusOrchestratorTest : BehaviorSpec({
             nameFn = { (status, _) -> "시장 상태가 '${status.tradingHours}'일 때" },
             // 1. 실제 데이터 형식을 반영한 테스트 케이스
             MarketStatus.create(LocalDate.now(), "휴장", "New Year's Day") to true,
-            MarketStatus.create(LocalDate.now(), "09:00~16:30", null) to false,
+            MarketStatus.create(LocalDate.now(), "22:30~05:00", null) to false,
             MarketStatus.create(LocalDate.now(), "22:30~02:00", "Independence Day") to false
         ) { (marketStatus, expectedIsClosed) ->
 

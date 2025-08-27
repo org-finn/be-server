@@ -1,6 +1,6 @@
 package finn.repository
 
-import finn.entity.MarketStatus
+import finn.entity.query.MarketStatus
 import java.time.LocalDate
 
 interface MarketStatusRepository {

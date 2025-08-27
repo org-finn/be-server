@@ -3,14 +3,14 @@ package finn.repository.impl
 import finn.exception.CriticalDataPollutedException
 import finn.queryDto.TickerGraphQueryDto
 import finn.repository.GraphRepository
-import finn.repository.query.GraphQueryRepository
+import finn.repository.exposed.GraphExposedRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.util.*
 
 @Repository
 class GraphRepositoryImpl(
-    private val graphQueryRepository: GraphQueryRepository
+    private val graphExposedRepository: GraphExposedRepository
 ) : GraphRepository {
     override fun getTickerGraph(
         tickerId: UUID,
@@ -19,13 +19,13 @@ class GraphRepositoryImpl(
         interval: Int
     ): List<TickerGraphQueryDto> {
         return when (interval) {
-            1 -> graphQueryRepository.findDaily(
+            1 -> graphExposedRepository.findDaily(
                 tickerId,
                 startDate,
                 endDate
             )
 
-            7 -> graphQueryRepository.findByInterval(
+            7 -> graphExposedRepository.findByInterval(
                 tickerId,
                 startDate,
                 endDate,

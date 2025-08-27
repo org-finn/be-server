@@ -1,6 +1,6 @@
 package finn.service
 
-import finn.entity.MarketStatus
+import finn.entity.query.MarketStatus
 import finn.repository.MarketStatusRepository
 import org.springframework.stereotype.Service
 import java.time.Clock

@@ -1,6 +1,8 @@
-package finn.repository.query
+package finn.repository.exposed
 
+import finn.entity.PredictionExposed
 import finn.exception.CriticalDataOmittedException
+import finn.insertDto.PredictionToInsert
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -9,14 +11,16 @@ import finn.table.TickerPriceTable
 import finn.table.TickerTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.javatime.date
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Repository
-class PredictionQueryRepository {
+class PredictionExposedRepository {
 
     private data class PredictionQueryDtoImpl(
         val predictionDate: LocalDateTime,
@@ -222,5 +226,34 @@ class PredictionQueryRepository {
                 )
             }.singleOrNull()
             ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
+    }
+
+    fun save(prediction: PredictionToInsert) {
+        PredictionExposed.new {
+            predictionDate = prediction.predictionDate
+            positiveArticleCount = prediction.positiveArticleCount
+            negativeArticleCount = prediction.negativeArticleCount
+            neutralArticleCount = prediction.neutralArticleCount
+            sentiment = prediction.sentiment
+            strategy = prediction.strategy
+            score = prediction.sentimentScore
+            tickerCode = prediction.tickerCode
+            shortCompanyName = prediction.shortCompanyName
+            tickerId = prediction.tickerId
+            createdAt = LocalDateTime.now()
+        }
+    }
+
+    fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
+        val today = LocalDate.now(ZoneId.of("UTC"))
+        return PredictionTable
+            .select(PredictionTable.score)
+            .where {
+                (PredictionTable.tickerId eq tickerId) and (PredictionTable.predictionDate.date() eq today)
+            }
+            .map { row ->
+                row[PredictionTable.score]
+            }
+
     }
 }

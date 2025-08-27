@@ -1,6 +1,6 @@
 package finn.service
 
-import finn.entity.MarketStatus
+import finn.entity.query.MarketStatus
 import finn.repository.MarketStatusRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

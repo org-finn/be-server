@@ -1,16 +1,19 @@
-package finn.repository.query
+package finn.repository.exposed
 
 import finn.entity.ArticleExposed
+import finn.insertDto.ArticleToInsert
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.table.ArticleTable
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.batchInsert
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 import java.util.*
 
 @Repository
-class ArticleQueryRepository {
+class ArticleExposedRepository {
 
     private data class ArticleDataQueryDtoImpl(
         val articleId: UUID,
@@ -110,6 +113,29 @@ class ArticleQueryRepository {
             size = content.size,
             hasNext = hasNext
         )
+    }
+
+    fun saveAll(articleList: List<ArticleToInsert>) {
+        ArticleTable.batchInsert(
+            articleList,
+            ignore = true // distinctId unique 조건 위반 데이터는 삽입 건너뜀
+        ) { article ->
+            this[ArticleTable.publishedDate] = article.publishedDate
+            this[ArticleTable.title] = article.title
+            this[ArticleTable.description] = article.description
+            this[ArticleTable.articleUrl] = article.contentUrl
+            this[ArticleTable.thumbnailUrl] = article.thumbnailUrl
+            this[ArticleTable.viewCount] = 0L
+            this[ArticleTable.likeCount] = 0L
+            this[ArticleTable.sentiment] = article.sentiment
+            this[ArticleTable.reasoning] = article.reasoning
+            this[ArticleTable.shortCompanyName] = article.shortCompanyName
+            this[ArticleTable.author] = article.source
+            this[ArticleTable.distinctId] = article.distinctId
+            this[ArticleTable.tickerId] = article.tickerId
+            this[ArticleTable.tickerCode] = article.tickerCode
+            this[ArticleTable.createdAt] = LocalDateTime.now()
+        }
     }
 
 }

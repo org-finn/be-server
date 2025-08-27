@@ -1,11 +1,12 @@
-package finn.entity
+package finn.entity.command
 
-import finn.calculator.SentimentScoreCalculator
+import finn.calculator.calculateScore
+import finn.entity.query.PredictionStrategy
 import finn.exception.DomainPolicyViolationException
 import java.time.LocalDateTime
 import java.util.*
 
-class Prediction private constructor(
+class PredictionC private constructor(
     val tickerId: UUID,
     val tickerCode: String,
     val shortCompanyName: String,
@@ -22,16 +23,16 @@ class Prediction private constructor(
         fun create(
             tickerId: UUID, tickerCode: String, shortCompanyName: String,
             positiveArticleCount: Long, negativeArticleCount: Long,
-            neutralArticleCount: Long, predictionDate: LocalDateTime, collectedDate: LocalDateTime,
-            todayScores: List<Int>, calculator: SentimentScoreCalculator
-        ): Prediction {
+            neutralArticleCount: Long, predictionDate: LocalDateTime,
+            todayScores: List<Int>
+        ): PredictionC {
             val calculatedScore = getSentimentScore(
-                tickerCode, collectedDate, todayScores,
-                positiveArticleCount, neutralArticleCount, negativeArticleCount, calculator
+                todayScores,
+                positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
             val strategy = getStrategyFromScore(calculatedScore)
 
-            return Prediction(
+            return PredictionC(
                 tickerId = tickerId,
                 tickerCode = tickerCode,
                 shortCompanyName = shortCompanyName,
@@ -46,16 +47,13 @@ class Prediction private constructor(
         }
 
         fun getSentimentScore(
-            tickerCode: String,
-            collectedDate: LocalDateTime,
             todayScores: List<Int>,
             positiveArticleCount: Long,
             neutralArticleCount: Long,
             negativeArticleCount: Long,
-            calculator: SentimentScoreCalculator
         ): Int {
-            return calculator.calculateScore(
-                tickerCode, collectedDate, todayScores,
+            return calculateScore(
+                todayScores,
                 positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
         }

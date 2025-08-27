@@ -3,22 +3,20 @@ package finn.calculator
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 internal class SentimentScoreCalculatorTest : BehaviorSpec({
 
     // 테스트 대상 인스턴스 생성
-    val calculator = SentimentScoreCalculator()
     val testTickerCode = "AAPL"
-    val testDate = LocalDateTime.now()
+    val testDate = LocalDateTime.now(ZoneId.of("UTC"))
 
     /**
      * 시나리오 1: 뉴스 데이터가 없는 경우
      */
     Given("새로운 뉴스 데이터가 없을 때") {
         When("기존 점수도 없다면") {
-            val score = calculator.calculateScore(
-                tickerCode = testTickerCode,
-                collectedDate = testDate,
+            val score = calculateScore(
                 todayScores = emptyList(),
                 positiveArticleCount = 0,
                 neutralArticleCount = 0,
@@ -30,9 +28,7 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
         }
 
         When("기존 점수 [60, 70, 80]이 있다면") {
-            val score = calculator.calculateScore(
-                tickerCode = testTickerCode,
-                collectedDate = testDate,
+            val score = calculateScore(
                 todayScores = listOf(60, 70, 80), // 평균: 70
                 positiveArticleCount = 0,
                 neutralArticleCount = 0,
@@ -49,9 +45,7 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
      */
     Given("기존 점수는 없고 새로운 뉴스 데이터만 있을 때") {
         When("모든 뉴스가 긍정적이라면") {
-            val score = calculator.calculateScore(
-                tickerCode = testTickerCode,
-                collectedDate = testDate,
+            val score = calculateScore(
                 todayScores = emptyList(),
                 positiveArticleCount = 10,
                 neutralArticleCount = 0,
@@ -63,9 +57,7 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
         }
 
         When("긍정과 부정 뉴스가 동일하다면") {
-            val score = calculator.calculateScore(
-                tickerCode = testTickerCode,
-                collectedDate = testDate,
+            val score = calculateScore(
                 todayScores = emptyList(),
                 positiveArticleCount = 10,
                 neutralArticleCount = 5,
@@ -88,9 +80,7 @@ internal class SentimentScoreCalculatorTest : BehaviorSpec({
         // 이 경우, 정규화된 뉴스 점수는 100점
 
         When("calculateScore를 호출하면") {
-            val score = calculator.calculateScore(
-                tickerCode = testTickerCode,
-                collectedDate = testDate,
+            val score = calculateScore(
                 todayScores = todayScores,
                 positiveArticleCount = positiveArticleCount,
                 neutralArticleCount = neutralArticleCount,

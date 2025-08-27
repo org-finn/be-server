@@ -1,9 +1,9 @@
-package finn.entity
+package finn.entity.query
 
 import java.time.LocalDateTime
 import java.util.*
 
-class Article private constructor(
+class ArticleQ private constructor(
     val id: UUID,
     val title: String,
     val description: String,
@@ -29,8 +29,8 @@ class Article private constructor(
             sentiment: String?,
             reasoning: String?,
             tickerId: UUID?
-        ): Article {
-            return Article(
+        ): ArticleQ {
+            return ArticleQ(
                 id,
                 title,
                 description,
