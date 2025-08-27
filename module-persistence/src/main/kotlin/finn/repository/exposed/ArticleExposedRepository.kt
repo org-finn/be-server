@@ -1,4 +1,4 @@
-package finn.repository.query
+package finn.repository.exposed
 
 import finn.entity.ArticleExposed
 import finn.insertDto.ArticleToInsert
@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Repository
-class ArticleQueryRepository {
+class ArticleExposedRepository {
 
     private data class ArticleDataQueryDtoImpl(
         val articleId: UUID,

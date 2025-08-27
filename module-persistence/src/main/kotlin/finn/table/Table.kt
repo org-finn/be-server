@@ -17,26 +17,26 @@ object TickerTable : UUIDTable("ticker") {
     val createdAt = datetime("created_at")
 }
 
-    object ArticleTable : UUIDTable("article") {
-        val publishedDate = datetime("published_date")
-        val title = text("title")
-        val description = text("description")
-        val articleUrl = text("article_url").uniqueIndex()
-        val thumbnailUrl = text("thumbnail_url").nullable()
-        val viewCount = long("view_count").default(0L)
-        val likeCount = long("like_count").default(0L)
-        val sentiment = varchar("sentiment", 20).nullable()
-        val reasoning = text("reasoning").nullable()
-        val shortCompanyName = varchar("short_company_name", 100).nullable()
-        val author = varchar("author", 100)
-        val distinctId = varchar("distinct_id", 255).uniqueIndex()
-        val tickerId = uuid("ticker_id").nullable()
-        val tickerCode = varchar("ticker_code", 20).nullable()
-        val createdAt = datetime("created_at")
-    }
+object ArticleTable : UUIDTable("article") {
+    val publishedDate = datetime("published_date")
+    val title = text("title")
+    val description = text("description")
+    val articleUrl = text("article_url").uniqueIndex()
+    val thumbnailUrl = text("thumbnail_url").nullable()
+    val viewCount = long("view_count").default(0L)
+    val likeCount = long("like_count").default(0L)
+    val sentiment = varchar("sentiment", 20).nullable()
+    val reasoning = text("reasoning").nullable()
+    val shortCompanyName = varchar("short_company_name", 100).nullable()
+    val author = varchar("author", 100)
+    val distinctId = varchar("distinct_id", 255).uniqueIndex()
+    val tickerId = uuid("ticker_id").nullable()
+    val tickerCode = varchar("ticker_code", 20).nullable()
+    val createdAt = datetime("created_at")
+}
 
 object PredictionTable : UUIDTable("predictions") {
-    val predictionDate = datetime("prediction_date")
+    val predictionDate = datetime("prediction_date") // UTC
     val positiveArticleCount = long("positive_Article_count")
     val negativeArticleCount = long("negative_Article_count")
     val neutralArticleCount = long("neutral_Article_count")
@@ -50,7 +50,7 @@ object PredictionTable : UUIDTable("predictions") {
 }
 
 object TickerPriceTable : UUIDTable("ticker_prices") {
-    val priceDate = date("price_date")
+    val priceDate = date("price_date") // UTC
     val open = decimal("open", 10, 4)
     val high = decimal("high", 10, 4)
     val low = decimal("low", 10, 4)

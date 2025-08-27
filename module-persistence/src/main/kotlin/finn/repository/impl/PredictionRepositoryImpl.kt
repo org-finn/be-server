@@ -7,13 +7,13 @@ import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.repository.PredictionRepository
-import finn.repository.query.PredictionQueryRepository
+import finn.repository.exposed.PredictionExposedRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 class PredictionRepositoryImpl(
-    private val predictionQueryRepository: PredictionQueryRepository
+    private val predictionExposedRepository: PredictionExposedRepository
 ) : PredictionRepository {
     override fun getPredictionList(
         page: Int,
@@ -21,18 +21,18 @@ class PredictionRepositoryImpl(
         sort: String
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = when (sort) {
-            "popular" -> predictionQueryRepository.findALlPredictionByPopular(
+            "popular" -> predictionExposedRepository.findALlPredictionByPopular(
                 page,
                 size
             )
 
-            "upward" -> predictionQueryRepository.findALlPredictionBySentimentScore(
+            "upward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
                 page,
                 size,
                 false
             )
 
-            "downward" -> predictionQueryRepository.findALlPredictionBySentimentScore(
+            "downward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
                 page,
                 size,
                 true
@@ -49,11 +49,11 @@ class PredictionRepositoryImpl(
     }
 
     override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
-        return predictionQueryRepository.findPredictionWithPriceInfoById(tickerId)
+        return predictionExposedRepository.findPredictionWithPriceInfoById(tickerId)
     }
 
     override fun getRecentSentimentScoreList(tickerId: UUID): List<Int> {
-        return predictionQueryRepository.findTodaySentimentScoreByTickerId(tickerId)
+        return predictionExposedRepository.findTodaySentimentScoreByTickerId(tickerId)
     }
 
     override fun savePrediction(prediction: PredictionC) {
@@ -69,6 +69,6 @@ class PredictionRepositoryImpl(
             prediction.predictionStrategy.strategy,
             prediction.predictionDate
         )
-        predictionQueryRepository.save(predictionToInsert)
+        predictionExposedRepository.save(predictionToInsert)
     }
 }

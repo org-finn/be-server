@@ -7,6 +7,7 @@ import finn.service.PredictionCommandService
 import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
+import java.time.ZoneId
 
 @Service
 @ExposedTransactional(readOnly = true)
@@ -33,7 +34,8 @@ class LambdaOrchestrator(
                     it.description,
                     it.thumbnailUrl,
                     it.articleUrl,
-                    it.publishedDate.toLocalDateTime(),
+                    it.publishedDate.atZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                        .toLocalDateTime(), // 한국 시간 기준으로 저장해야함(n시간 전 등 구현 위함)
                     shortCompanyName,
                     it.author,
                     it.distinctId,

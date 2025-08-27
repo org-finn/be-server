@@ -8,16 +8,16 @@ import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.repository.ArticleRepository
-import finn.repository.query.ArticleQueryRepository
+import finn.repository.exposed.ArticleExposedRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 class ArticleRepositoryImpl(
-    private val articleQueryRepository: ArticleQueryRepository
+    private val articleExposedRepository: ArticleExposedRepository
 ) : ArticleRepository {
     override fun getArticleDataForPredictionDetail(tickerId: UUID): List<ArticleDataQueryDto> {
-        return articleQueryRepository.findArticleListByTickerId(tickerId)
+        return articleExposedRepository.findArticleListByTickerId(tickerId)
     }
 
     override fun getArticleList(
@@ -27,11 +27,11 @@ class ArticleRepositoryImpl(
         sort: String
     ): PageResponse<ArticleQ> {
         val ArticleExposedList = when (filter) {
-            "all" -> articleQueryRepository.findAllArticleList(page, size)
+            "all" -> articleExposedRepository.findAllArticleList(page, size)
 
-            "positive" -> articleQueryRepository.findAllPositiveArticleList(page, size)
+            "positive" -> articleExposedRepository.findAllPositiveArticleList(page, size)
 
-            "negative" -> articleQueryRepository.findAllNegativeArticleList(page, size)
+            "negative" -> articleExposedRepository.findAllNegativeArticleList(page, size)
 
             else -> throw CriticalDataPollutedException("filter: $filter, 지원하지 않는 옵션입니다.")
         }
@@ -50,6 +50,6 @@ class ArticleRepositoryImpl(
                 )
             }
             .toList()
-        articleQueryRepository.saveAll(articleToInsertList)
+        articleExposedRepository.saveAll(articleToInsertList)
     }
 }

@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController
 class LambdaController(
     private val lambdaOrchestrator: LambdaOrchestrator
 ) : LambdaApiSpec {
-    override fun processArticleRealTime(articleBatchRequest: ArticleRealTimeBatchRequest) {
-        lambdaOrchestrator.saveArticleAndPrediction(articleBatchRequest)
+    override fun processArticleRealTime(articleRequest: ArticleRealTimeBatchRequest) {
+        lambdaOrchestrator.saveArticleAndPrediction(articleRequest)
     }
 
 }

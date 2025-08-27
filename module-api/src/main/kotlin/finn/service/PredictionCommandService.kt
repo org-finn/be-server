@@ -5,6 +5,7 @@ import finn.entity.command.PredictionC
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Service
@@ -21,7 +22,7 @@ class PredictionCommandService(
         val positiveArticleCount = ArticleC.getPositiveCount(articleList)
         val negativeArticleCount = ArticleC.getNegativeCount(articleList)
         val neutralArticleCount = ArticleC.getNeutralCount(articleList)
-        val predictionDate = LocalDateTime.now()
+        val predictionDate = LocalDateTime.now(ZoneId.of("UTC"))
         val todayScores = predictionRepository.getRecentSentimentScoreList(tickerId)
 
         val predictionQ = PredictionC.create(

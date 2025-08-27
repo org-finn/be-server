@@ -1,4 +1,4 @@
-package finn.repository.query
+package finn.repository.exposed
 
 import finn.entity.PredictionExposed
 import finn.exception.CriticalDataOmittedException
@@ -20,7 +20,7 @@ import java.time.ZoneId
 import java.util.*
 
 @Repository
-class PredictionQueryRepository {
+class PredictionExposedRepository {
 
     private data class PredictionQueryDtoImpl(
         val predictionDate: LocalDateTime,
