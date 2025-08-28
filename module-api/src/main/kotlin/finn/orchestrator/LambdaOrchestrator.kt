@@ -6,6 +6,7 @@ import finn.service.ArticleCommandService
 import finn.service.PredictionCommandService
 import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.ZoneId
 import java.util.*
@@ -17,17 +18,22 @@ class LambdaOrchestrator(
     private val predictionService: PredictionCommandService,
     private val tickerService: TickerQueryService
 ) {
+    companion object {
+        private val log = KotlinLogging.logger {}
+    }
 
     @ExposedTransactional
     fun saveArticleAndPrediction(request: ArticleRealTimeBatchRequest) {
         if (request.articles.isEmpty()) {
             return // 아티클 데이터가 없으므로, 더 이상 처리할 것이 없으므로 종료
         }
+        log.debug { "요청된 tickerCode: ${request.tickerCode}" }
 
         // 특정 종목 관련이 아닌 뉴스는 예측과 관련없으므로 예측 로직 수행 x
         if (ArticleC.isNotProcessingPredictionArticles(request.tickerCode)) {
             val articleList = createArticleListGeneral(request)
             articleService.saveArticleList(articleList)
+            log.debug { "GENERAL에 해당하는 뉴스들이므로 뉴스 저장만 수행합니다." }
             return
         }
 
@@ -41,10 +47,13 @@ class LambdaOrchestrator(
         val articleList = createArticleList(request, shortCompanyName, tickerId, tickerCode)
 
         articleService.saveArticleList(articleList)
+        log.debug { "${request.tickerCode}의 뉴스를 성공적으로 저장하였습니다." }
 
         // isMarketOpen: True이면, Article Data들을 취합하여 Prediction 생성 및 저장
         if (request.isMarketOpen) { // 정규장 중에 수집된 뉴스 데이터이므로, 다음 주가 예측을 해야함
+            log.debug { "정규장 시간이므로 예측을 수행하여 저장합니다." }
             predictionService.savePrediction(articleList, tickerId, tickerCode, shortCompanyName)
+            log.debug { "${request.tickerCode}의 예측을 성공적으로 저장하였습니다." }
         }
     }
 
