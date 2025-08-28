@@ -17,6 +17,8 @@ class LambdaOrchestrator(
     private val predictionService: PredictionCommandService,
     private val tickerService: TickerQueryService
 ) {
+    
+    @ExposedTransactional
     fun saveArticleAndPrediction(request: ArticleRealTimeBatchRequest) {
         if (request.articles.isEmpty()) {
             return // 아티클 데이터가 없으므로, 더 이상 처리할 것이 없으므로 종료
