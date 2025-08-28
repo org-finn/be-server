@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.batchInsert
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Repository
@@ -134,7 +135,7 @@ class ArticleExposedRepository {
             this[ArticleTable.distinctId] = article.distinctId
             this[ArticleTable.tickerId] = article.tickerId
             this[ArticleTable.tickerCode] = article.tickerCode
-            this[ArticleTable.createdAt] = LocalDateTime.now()
+            this[ArticleTable.createdAt] = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         }
     }
 
