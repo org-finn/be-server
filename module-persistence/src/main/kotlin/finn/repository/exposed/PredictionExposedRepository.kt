@@ -240,7 +240,7 @@ class PredictionExposedRepository {
             tickerCode = prediction.tickerCode
             shortCompanyName = prediction.shortCompanyName
             tickerId = prediction.tickerId
-            createdAt = LocalDateTime.now()
+            createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         }
     }
 

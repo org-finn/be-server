@@ -17,7 +17,7 @@ class LambdaOrchestrator(
     private val predictionService: PredictionCommandService,
     private val tickerService: TickerQueryService
 ) {
-    
+
     @ExposedTransactional
     fun saveArticleAndPrediction(request: ArticleRealTimeBatchRequest) {
         if (request.articles.isEmpty()) {
