@@ -15,13 +15,16 @@ spring:
     generate-ddl: false
     show-sql: true
     default-transaction-isolation: ${TRANSACTION_ISOLATION_LEVEL}
+  profiles:
+    # ???? ???? ??? (?? ? ??)
+    active: dev
 
 ---
 # ?? ?? ??? (dev, default)
 spring:
-  profiles:
-    active: dev
-
+  config:
+    activate:
+      on-profile: "dev"
 cors:
   allowed-origins: '*'
 
