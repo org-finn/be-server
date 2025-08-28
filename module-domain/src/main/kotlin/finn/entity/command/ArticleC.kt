@@ -63,5 +63,9 @@ class ArticleC private constructor(
             return articleList.count({ it -> it.sentiment.isNullOrBlank() || it.sentiment.equals("neutral") })
                 .coerceAtLeast(0).toLong()
         }
+
+        fun isNotProcessingPredictionArticles(tickerCode: String): Boolean {
+            return tickerCode == "GENERAL"
+        }
     }
 }

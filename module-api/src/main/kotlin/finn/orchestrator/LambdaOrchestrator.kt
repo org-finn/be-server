@@ -8,6 +8,7 @@ import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
 import java.time.ZoneId
+import java.util.*
 
 @Service
 @ExposedTransactional(readOnly = true)
@@ -20,6 +21,14 @@ class LambdaOrchestrator(
         if (request.articles.isEmpty()) {
             return // 아티클 데이터가 없으므로, 더 이상 처리할 것이 없으므로 종료
         }
+
+        // 특정 종목 관련이 아닌 뉴스는 예측과 관련없으므로 예측 로직 수행 x
+        if (ArticleC.isNotProcessingPredictionArticles(request.tickerCode)) {
+            val articleList = createArticleListGeneral(request)
+            articleService.saveArticleList(articleList)
+            return
+        }
+
         // Article에 필요한 Ticker 정보 조회
         val ticker = tickerService.getTickerByTickerCode(request.tickerCode)
         val tickerId = ticker.id
@@ -27,24 +36,7 @@ class LambdaOrchestrator(
         val tickerCode = ticker.tickerCode
 
         // 각 Article 생성 및 저장
-        val articleList = request.articles.asSequence()
-            .map {
-                ArticleC.create(
-                    it.title,
-                    it.description,
-                    it.thumbnailUrl,
-                    it.articleUrl,
-                    it.publishedDate.atZoneSameInstant(ZoneId.of("Asia/Seoul"))
-                        .toLocalDateTime(), // 한국 시간 기준으로 저장해야함(n시간 전 등 구현 위함)
-                    shortCompanyName,
-                    it.author,
-                    it.distinctId,
-                    it.sentiment,
-                    it.reasoning,
-                    tickerId,
-                    tickerCode
-                )
-            }.toList()
+        val articleList = createArticleList(request, shortCompanyName, tickerId, tickerCode)
 
         articleService.saveArticleList(articleList)
 
@@ -54,4 +46,47 @@ class LambdaOrchestrator(
         }
     }
 
+    private fun createArticleListGeneral(request: ArticleRealTimeBatchRequest): List<ArticleC> =
+        request.articles.asSequence()
+            .map {
+                ArticleC.create(
+                    it.title,
+                    it.description,
+                    it.thumbnailUrl,
+                    it.articleUrl,
+                    it.publishedDate.atZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                        .toLocalDateTime(),
+                    null,
+                    it.author,
+                    it.distinctId,
+                    it.sentiment,
+                    it.reasoning,
+                    null,
+                    null
+                )
+            }.toList()
+
+    private fun createArticleList(
+        request: ArticleRealTimeBatchRequest,
+        shortCompanyName: String,
+        tickerId: UUID,
+        tickerCode: String
+    ): List<ArticleC> = request.articles.asSequence()
+        .map {
+            ArticleC.create(
+                it.title,
+                it.description,
+                it.thumbnailUrl,
+                it.articleUrl,
+                it.publishedDate.atZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                    .toLocalDateTime(), // 한국 시간 기준으로 저장해야함(n시간 전 등 구현 위함)
+                shortCompanyName,
+                it.author,
+                it.distinctId,
+                it.sentiment,
+                it.reasoning,
+                tickerId,
+                tickerCode
+            )
+        }.toList()
 }
