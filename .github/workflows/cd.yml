@@ -71,10 +71,8 @@ jobs:
             set -e
             docker pull ${{ env.IMAGE_NAME }}
 
-            if [ $(docker ps -q --filter "name=spring-container") ]; then
-              docker stop spring-container
-            fi
-            docker rm spring-container
+            # spring-container가 있으면 중지 후 삭제하고, 없으면 그냥 넘어감
+            docker rm -f spring-container || true
 
             # ⭐️ 새로운 컨테이너 실행 (환경 변수 주입)
             docker run -d -p 8080:8080 --name spring-container \
