@@ -73,8 +73,8 @@ jobs:
 
             if [ $(docker ps -q --filter "name=spring-container") ]; then
               docker stop spring-container
-              docker rm spring-container
             fi
+            docker rm spring-container
 
             # ⭐️ 새로운 컨테이너 실행 (환경 변수 주입)
             docker run -d -p 8080:8080 --name spring-container \
