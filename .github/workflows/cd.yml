@@ -87,4 +87,4 @@ jobs:
             ${{ env.IMAGE_NAME }}
             
             # 사용하지 않는 Docker 이미지 삭제
-            docker image prune -f
+            docker image prune -a -f
