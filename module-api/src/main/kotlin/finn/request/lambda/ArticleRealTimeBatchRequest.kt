@@ -12,6 +12,9 @@ data class ArticleRealTimeBatchRequest(
     @field:JsonProperty("is_market_open")
     val isMarketOpen: Boolean,
 
+    @field:JsonProperty("prediction_date")
+    val predictionDate : OffsetDateTime,
+
     @field:JsonProperty("created_at")
     val createdAt: OffsetDateTime
 ) {
