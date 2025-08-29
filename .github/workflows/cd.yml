@@ -79,7 +79,7 @@ jobs:
             --name spring-container \
             --log-driver=awslogs \
             --log-opt awslogs-region=ap-northeast-2 \
-            --log-opt awslogs-group=my-app-logs \
+            --log-opt awslogs-group=articker-ec2-server-main-logs \
             --log-opt awslogs-create-group=true \
             -e SPRING_PROFILES_ACTIVE=prod \
             -e DB_HOST=${{ secrets.DEV_DB_HOST }} \
