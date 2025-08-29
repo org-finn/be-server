@@ -52,7 +52,8 @@ class LambdaOrchestrator(
         // isMarketOpen: True이면, Article Data들을 취합하여 Prediction 생성 및 저장
         if (request.isMarketOpen) { // 정규장 중에 수집된 뉴스 데이터이므로, 다음 주가 예측을 해야함
             log.debug { "정규장 시간이므로 예측을 수행하여 저장합니다." }
-            predictionService.savePrediction(articleList, tickerId, tickerCode, shortCompanyName)
+            val predictionDate = request.predictionDate
+            predictionService.savePrediction(articleList, tickerId, tickerCode, shortCompanyName, predictionDate)
             log.debug { "${request.tickerCode}의 예측을 성공적으로 저장하였습니다." }
         }
     }

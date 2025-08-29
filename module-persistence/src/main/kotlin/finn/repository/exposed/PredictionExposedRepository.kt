@@ -188,7 +188,8 @@ class PredictionExposedRepository {
         return PredictionTable
             .join(
                 TickerPriceTable, JoinType.INNER,
-                PredictionTable.tickerId eq TickerTable.id
+                PredictionTable.tickerId,
+                TickerPriceTable.id
             )
             .select(
                 PredictionTable.columns as Expression<*>,
