@@ -49,6 +49,8 @@ class PredictionExposedRepository {
             ?.get(maxDateExpression)
             ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
 
+        val lastestLocalDate = latestDate.toLocalDate()
+
         val limit = size
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
@@ -60,7 +62,7 @@ class PredictionExposedRepository {
                 TickerTable.id
             )
             .select(PredictionTable.columns)
-            .where(PredictionTable.predictionDate eq latestDate)
+            .where(PredictionTable.predictionDate.date() eq lastestLocalDate)
             .orderBy(TickerTable.marketCap to SortOrder.DESC)
             .limit(n = itemsToFetch, offset = offset)
 
@@ -188,7 +190,8 @@ class PredictionExposedRepository {
         return PredictionTable
             .join(
                 TickerPriceTable, JoinType.INNER,
-                PredictionTable.tickerId eq TickerTable.id
+                PredictionTable.tickerId,
+                TickerPriceTable.id
             )
             .select(
                 PredictionTable.columns as Expression<*>,
