@@ -32,7 +32,8 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
             tickerCode = "AAPL",
             isMarketOpen = true,
             articles = emptyList(), // 아티클 리스트가 비어있음
-            createdAt = OffsetDateTime.now()
+            createdAt = OffsetDateTime.now(),
+            predictionDate = OffsetDateTime.now()
         )
 
         When("saveArticleAndPrediction을 호출하면") {
@@ -42,7 +43,15 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
                 // 어떤 서비스의 메서드도 호출되지 않았음을 검증
                 verify(exactly = 0) { tickerService.getTickerByTickerCode(any()) }
                 verify(exactly = 0) { articleService.saveArticleList(any()) }
-                verify(exactly = 0) { predictionService.savePrediction(any(), any(), any(), any()) }
+                verify(exactly = 0) {
+                    predictionService.savePrediction(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
             }
         }
     }
@@ -64,7 +73,8 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
             tickerCode = "AAPL",
             isMarketOpen = true, // 시장이 열려있음
             articles = listOf(articleDto),
-            createdAt = OffsetDateTime.now()
+            createdAt = OffsetDateTime.now(),
+            predictionDate = OffsetDateTime.now()
         )
 
         val mockTicker = Ticker.create(
@@ -85,7 +95,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
                 verifyOrder {
                     tickerService.getTickerByTickerCode("AAPL")
                     articleService.saveArticleList(any())
-                    predictionService.savePrediction(any(), any(), any(), any())
+                    predictionService.savePrediction(any(), any(), any(), any(), any())
                 }
             }
         }
@@ -107,7 +117,8 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
             tickerCode = "MSFT",
             isMarketOpen = false, // 시장이 닫혀있음
             articles = listOf(articleDto),
-            createdAt = OffsetDateTime.now()
+            createdAt = OffsetDateTime.now(),
+            predictionDate = OffsetDateTime.now()
         )
         val mockTicker = Ticker.create(
             id = UUID.randomUUID(),
@@ -125,7 +136,15 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
                 verify(exactly = 1) { tickerService.getTickerByTickerCode("MSFT") }
                 verify(exactly = 1) { articleService.saveArticleList(any()) }
                 // PredictionService는 호출되지 않았음을 검증
-                verify(exactly = 0) { predictionService.savePrediction(any(), any(), any(), any()) }
+                verify(exactly = 0) {
+                    predictionService.savePrediction(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
             }
         }
     }
