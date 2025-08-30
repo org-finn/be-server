@@ -8,7 +8,6 @@ import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
-import java.time.ZoneId
 import java.util.*
 
 @Service
@@ -70,8 +69,7 @@ class LambdaOrchestrator(
                     it.description,
                     it.thumbnailUrl,
                     it.articleUrl,
-                    it.publishedDate.atZoneSameInstant(ZoneId.of("Asia/Seoul"))
-                        .toLocalDateTime(),
+                    it.publishedDate.toLocalDateTime(),
                     null,
                     it.author,
                     it.distinctId,
@@ -94,8 +92,7 @@ class LambdaOrchestrator(
                 it.description,
                 it.thumbnailUrl,
                 it.articleUrl,
-                it.publishedDate.atZoneSameInstant(ZoneId.of("Asia/Seoul"))
-                    .toLocalDateTime(), // 한국 시간 기준으로 저장해야함(n시간 전 등 구현 위함)
+                it.publishedDate.toLocalDateTime(),
                 shortCompanyName,
                 it.author,
                 it.distinctId,
