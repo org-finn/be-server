@@ -1,6 +1,7 @@
 package finn.entity.query
 
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 class ArticleQ private constructor(
@@ -36,7 +37,7 @@ class ArticleQ private constructor(
                 description,
                 thumbnailUrl,
                 contentUrl,
-                publishedDate,
+                publishedDate.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime(), // KST 기준 적용
                 shortCompanyName,
                 source,
                 sentiment,
