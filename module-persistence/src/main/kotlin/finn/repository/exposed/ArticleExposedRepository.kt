@@ -5,6 +5,7 @@ import finn.insertDto.ArticleToInsert
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.table.ArticleTable
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.batchInsert
@@ -15,6 +16,9 @@ import java.util.*
 
 @Repository
 class ArticleExposedRepository {
+    companion object {
+        private val log = KotlinLogging.logger {}
+    }
 
     private data class ArticleDataQueryDtoImpl(
         val articleId: UUID,
@@ -117,7 +121,7 @@ class ArticleExposedRepository {
     }
 
     fun saveAll(articleList: List<ArticleToInsert>) {
-        ArticleTable.batchInsert(
+        val insertedCount = ArticleTable.batchInsert(
             articleList,
             ignore = true // distinctId unique 조건 위반 데이터는 삽입 건너뜀
         ) { article ->
@@ -136,7 +140,9 @@ class ArticleExposedRepository {
             this[ArticleTable.tickerId] = article.tickerId
             this[ArticleTable.tickerCode] = article.tickerCode
             this[ArticleTable.createdAt] = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        }
+        }.size
+
+        log.debug { "${articleList[0].tickerCode}:${insertedCount} / ${articleList.size} 개의 아티클 데이터를 성공적으로 저장하였습니다." }
     }
 
 }
