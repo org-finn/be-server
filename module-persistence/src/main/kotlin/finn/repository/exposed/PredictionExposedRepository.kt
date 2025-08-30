@@ -9,6 +9,7 @@ import finn.queryDto.PredictionQueryDto
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.javatime.date
@@ -21,6 +22,9 @@ import java.util.*
 
 @Repository
 class PredictionExposedRepository {
+    companion object {
+        private val log = KotlinLogging.logger {}
+    }
 
     private data class PredictionQueryDtoImpl(
         val predictionDate: LocalDateTime,
@@ -230,7 +234,7 @@ class PredictionExposedRepository {
     }
 
     fun save(prediction: PredictionToInsert) {
-        PredictionExposed.new {
+        val savedPrediction = PredictionExposed.new {
             predictionDate = prediction.predictionDate
             positiveArticleCount = prediction.positiveArticleCount
             negativeArticleCount = prediction.negativeArticleCount
@@ -243,6 +247,7 @@ class PredictionExposedRepository {
             tickerId = prediction.tickerId
             createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         }
+        log.debug { "${savedPrediction.tickerCode}:예측 데이터를 성공적으로 저장하였습니다." }
     }
 
     fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
