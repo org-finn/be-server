@@ -1,9 +1,11 @@
 package finn.converter
 
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
-fun getAbstractDateBefore(today: LocalDateTime, contentDate: LocalDateTime): String {
+fun getAbstractDateBefore(contentDate: LocalDateTime): String {
+    val today = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
 
     if (contentDate.isAfter(today)) {
         return "방금 전"
