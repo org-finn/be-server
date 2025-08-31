@@ -1,7 +1,7 @@
 package finn.repository.impl
 
 import finn.TestApplication
-import finn.exception.CriticalDataOmittedException
+import finn.exception.CriticalDataPollutedException
 import finn.repository.GraphRepository
 import finn.table.TickerPriceTable
 import io.kotest.assertions.throwables.shouldThrow
@@ -38,7 +38,7 @@ internal class GraphRepositoryImplTest(
                         it[TickerPriceTable.id] = UUID.randomUUID()
                         it[TickerPriceTable.tickerId] = tickerId
                         it[TickerPriceTable.tickerCode] = "TEST"
-                        it[TickerPriceTable.priceDate] = currentDate
+                        it[TickerPriceTable.priceDate] = currentDate.atStartOfDay()
                         it[TickerPriceTable.close] = (1000 + i).toBigDecimal()
                         it[TickerPriceTable.open] = (1000 + i).toBigDecimal()
                         it[TickerPriceTable.high] = (1000 + i).toBigDecimal()
@@ -68,8 +68,8 @@ internal class GraphRepositoryImplTest(
         val endDate = LocalDate.of(2025, 1, 31)
 
         When("getTickerGraph를 호출하면") {
-            Then("ServerErrorCriticalDataOmittedException 예외가 발생해야 한다") {
-                shouldThrow<CriticalDataOmittedException> {
+            Then("CriticalDataPollutedException 예외가 발생해야 한다") {
+                shouldThrow<CriticalDataPollutedException> {
                     transaction {
                         graphRepository.getTickerGraph(tickerId, startDate, endDate, 7)
                     }

@@ -50,7 +50,7 @@ object PredictionTable : UUIDTable("predictions") {
 }
 
 object TickerPriceTable : UUIDTable("ticker_prices") {
-    val priceDate = date("price_date") // EST
+    val priceDate = datetime("price_date")
     val open = decimal("open", 10, 4)
     val high = decimal("high", 10, 4)
     val low = decimal("low", 10, 4)
