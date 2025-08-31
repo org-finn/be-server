@@ -4,16 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 
 data class ArticleRealTimeBatchRequest(
-    @field:JsonProperty("ticker_code")
-    val tickerCode: String,
-
-    val articles: List<ArticleRealTimeRequest>,
+    val article: List<ArticleRealTimeRequest>,
 
     @field:JsonProperty("is_market_open")
     val isMarketOpen: Boolean,
 
     @field:JsonProperty("prediction_date")
-    val predictionDate : OffsetDateTime,
+    val predictionDate: OffsetDateTime,
 
     @field:JsonProperty("created_at")
     val createdAt: OffsetDateTime
@@ -37,8 +34,15 @@ data class ArticleRealTimeBatchRequest(
         @field:JsonProperty("distinct_id")
         val distinctId: String,
 
-        val sentiment: String?,
+        val tickers: List<String>,
 
-        val reasoning: String?
-    )
+        val insights: List<ArticleRealTimeInsightRequest>
+    ) {
+        data class ArticleRealTimeInsightRequest(
+            @field:JsonProperty("ticker_code")
+            val tickerCode: String,
+            val sentiment: String,
+            val reasoning: String
+        )
+    }
 }
