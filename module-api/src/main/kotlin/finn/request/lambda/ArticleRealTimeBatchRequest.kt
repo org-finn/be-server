@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 
 data class ArticleRealTimeBatchRequest(
-    val article: List<ArticleRealTimeRequest>,
+    val article: ArticleRealTimeRequest,
 
     @field:JsonProperty("is_market_open")
     val isMarketOpen: Boolean,
