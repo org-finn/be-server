@@ -185,6 +185,7 @@ class PredictionExposedRepository {
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
             .select(maxDateExpression)
+            .where(PredictionTable.tickerId eq tickerId)
             .firstOrNull()
             ?.get(maxDateExpression)
             ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
@@ -192,11 +193,22 @@ class PredictionExposedRepository {
         return PredictionTable
             .join(
                 TickerPriceTable, JoinType.INNER,
-                PredictionTable.tickerId,
-                TickerPriceTable.id
+                additionalConstraint = {
+                    PredictionTable.tickerId eq TickerPriceTable.tickerId
+                    PredictionTable.predictionDate.date() eq TickerPriceTable.priceDate.date()
+                }
             )
             .select(
-                PredictionTable.columns as Expression<*>,
+                PredictionTable.predictionDate,
+                PredictionTable.tickerId,
+                PredictionTable.shortCompanyName,
+                PredictionTable.tickerCode,
+                PredictionTable.strategy,
+                PredictionTable.sentiment,
+                PredictionTable.score,
+                PredictionTable.positiveArticleCount,
+                PredictionTable.negativeArticleCount,
+                PredictionTable.neutralArticleCount,
                 TickerPriceTable.priceDate,
                 TickerPriceTable.open,
                 TickerPriceTable.close,
@@ -204,10 +216,9 @@ class PredictionExposedRepository {
                 TickerPriceTable.low,
                 TickerPriceTable.volume
             )
-            .where {
-                (PredictionTable.predictionDate eq latestDate) and
-                        (PredictionTable.tickerId eq tickerId)
-            }.map { row ->
+            .where(PredictionTable.predictionDate eq latestDate)
+            .limit(1)
+            .map { row ->
                 val articleCount = when (row[PredictionTable.sentiment]) {
                     1 -> row[PredictionTable.positiveArticleCount]
                     -1 -> row[PredictionTable.negativeArticleCount]
@@ -222,7 +233,7 @@ class PredictionExposedRepository {
                     sentiment = row[PredictionTable.sentiment],
                     articleCount = articleCount,
                     sentimentScore = row[PredictionTable.score],
-                    priceDate = row[TickerPriceTable.priceDate],
+                    priceDate = row[TickerPriceTable.priceDate].toLocalDate(),
                     open = row[TickerPriceTable.open],
                     close = row[TickerPriceTable.close],
                     high = row[TickerPriceTable.high],
