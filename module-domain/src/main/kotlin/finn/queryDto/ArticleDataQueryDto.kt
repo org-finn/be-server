@@ -6,6 +6,8 @@ interface ArticleDataQueryDto {
 
     fun articleId(): UUID
 
+    fun tickerId(): UUID
+
     fun headline(): String
 
     fun sentiment(): String?

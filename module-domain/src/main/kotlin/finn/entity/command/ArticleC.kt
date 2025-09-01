@@ -34,9 +34,5 @@ class ArticleC private constructor(
                 tickers
             )
         }
-
-        fun isNotProcessingPredictionArticles(tickers: List<String>): Boolean {
-            return tickers.isEmpty()
-        }
     }
 }

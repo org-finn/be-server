@@ -4,16 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 
 data class LambdaArticleRealTimeRequest(
-    @field:JsonProperty("ticker_code")
-    val tickerCode: String,
-
-    val articles: List<LambdaArticle>,
+    val article: LambdaArticle,
 
     @field:JsonProperty("is_market_open")
     val isMarketOpen: Boolean,
-
-    @field:JsonProperty("prediction_date")
-    val predictionDate: OffsetDateTime,
 
     @field:JsonProperty("created_at")
     val createdAt: OffsetDateTime

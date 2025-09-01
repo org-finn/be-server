@@ -30,10 +30,6 @@ class ArticleRepositoryImpl(
         val ArticleExposedList = when (filter) {
             "all" -> articleExposedRepository.findAllArticleList(page, size)
 
-            "positive" -> articleExposedRepository.findAllPositiveArticleList(page, size)
-
-            "negative" -> articleExposedRepository.findAllNegativeArticleList(page, size)
-
             else -> throw CriticalDataPollutedException("filter: $filter, 지원하지 않는 옵션입니다.")
         }
         return PageResponse(ArticleExposedList.content.map { it ->

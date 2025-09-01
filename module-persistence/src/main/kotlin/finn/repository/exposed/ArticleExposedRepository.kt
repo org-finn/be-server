@@ -5,8 +5,10 @@ import finn.insertDto.ArticleToInsert
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.table.ArticleTable
+import finn.table.ArticleTickerTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -20,31 +22,34 @@ class ArticleExposedRepository {
 
     private data class ArticleDataQueryDtoImpl(
         val articleId: UUID,
+        val tickerId: UUID,
         val headline: String,
         val sentiment: String?,
         val reasoning: String?
     ) : ArticleDataQueryDto {
         override fun articleId(): UUID = this.articleId
+        override fun tickerId(): UUID = this.tickerId
         override fun headline(): String = this.headline
         override fun sentiment(): String? = this.sentiment
         override fun reasoning(): String? = this.reasoning
     }
 
     fun findArticleListByTickerId(tickerId: UUID): List<ArticleDataQueryDto> {
-        return ArticleTable.select(
-            ArticleTable.id,
-            ArticleTable.title,
-            ArticleTable.sentiment,
-            ArticleTable.reasoning
-        ).where(ArticleTable.tickerId eq tickerId)
-            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
+        return ArticleTickerTable.select(
+            ArticleTickerTable.articleId,
+            ArticleTickerTable.tickerId,
+            ArticleTickerTable.title,
+            ArticleTickerTable.sentiment,
+            ArticleTickerTable.reasoning
+        ).where(ArticleTickerTable.tickerId eq tickerId)
             .limit(3)
             .map { row ->
                 ArticleDataQueryDtoImpl(
-                    articleId = row[ArticleTable.id].value,
-                    headline = row[ArticleTable.title],
-                    sentiment = row[ArticleTable.sentiment],
-                    reasoning = row[ArticleTable.reasoning]
+                    articleId = row[ArticleTickerTable.articleId],
+                    tickerId = row[ArticleTickerTable.tickerId],
+                    headline = row[ArticleTickerTable.title],
+                    sentiment = row[ArticleTickerTable.sentiment],
+                    reasoning = row[ArticleTickerTable.reasoning]
                 )
             }
     }
@@ -72,51 +77,6 @@ class ArticleExposedRepository {
         )
     }
 
-    fun findAllPositiveArticleList(
-        page: Int,
-        size: Int
-    ): PageResponse<ArticleExposed> {
-        val limit = size
-        val offset = (page * limit).toLong()
-        val itemsToFetch = limit + 1
-
-        val results = ArticleExposed.find(ArticleTable.sentiment eq "positive")
-            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
-            .limit(itemsToFetch, offset)
-            .toList()
-        val hasNext = results.size > limit
-        val content = if (hasNext) results.dropLast(1) else results
-
-        return PageResponse(
-            content = content,
-            page = page,
-            size = content.size,
-            hasNext = hasNext
-        )
-    }
-
-    fun findAllNegativeArticleList(
-        page: Int,
-        size: Int
-    ): PageResponse<ArticleExposed> {
-        val limit = size
-        val offset = (page * limit).toLong()
-        val itemsToFetch = limit + 1
-
-        val results = ArticleExposed.find(ArticleTable.sentiment eq "negative")
-            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
-            .limit(itemsToFetch, offset)
-            .toList()
-        val hasNext = results.size > limit
-        val content = if (hasNext) results.dropLast(1) else results
-
-        return PageResponse(
-            content = content,
-            page = page,
-            size = content.size,
-            hasNext = hasNext
-        )
-    }
 
     fun save(article: ArticleToInsert): UUID {
         val savedArticle = ArticleExposed.new {
