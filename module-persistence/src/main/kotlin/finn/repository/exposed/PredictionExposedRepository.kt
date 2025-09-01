@@ -278,12 +278,17 @@ class PredictionExposedRepository {
         return updatedPrediction
     }
 
+    // 최근 7일 간의 prediction score를 반환(추세 반영 목적)
     fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val sevenDaysAgo = today.minusDays(6) // 오늘을 포함하여 7일 전
+
         return PredictionTable
             .select(PredictionTable.score)
             .where {
-                (PredictionTable.tickerId eq tickerId) and (PredictionTable.predictionDate.date() eq today)
+                (PredictionTable.tickerId eq tickerId) and
+                        (PredictionTable.predictionDate.date() greaterEq sevenDaysAgo) and
+                        (PredictionTable.predictionDate.date() lessEq today)
             }
             .map { row ->
                 row[PredictionTable.score]
