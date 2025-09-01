@@ -88,6 +88,10 @@ jobs:
             -e DB_USERNAME=${{ secrets.DEV_DB_USERNAME }} \
             -e DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }} \
             -e TRANSACTION_ISOLATION_LEVEL=${{ secrets.DEV_TRANSACTION_ISOLATION_LEVEL }} \
+            -e S3_REALTIME_TICKER_PRICE_BUCKET_NAME=${{ secrets.S3_REALTIME_TICKER_PRICE_BUCKET_NAME }} \
+            -e AWS_REGION=${{ AWS_REGION }} \
+            -e AWS_ACCESS_KEY_ID=${{ AWS_ACCESS_KEY_ID }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ AWS_SECRET_ACCESS_KEY }} \
             ${{ env.IMAGE_NAME }}
             
             # 사용하지 않는 Docker 이미지 삭제
