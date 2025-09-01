@@ -42,9 +42,9 @@ object ArticleTickerTable : UUIDTable("article_ticker") {
 
 object PredictionTable : UUIDTable("predictions") {
     val predictionDate = datetime("prediction_date") // EST
-    val positiveArticleCount = long("positive_Article_count")
-    val negativeArticleCount = long("negative_Article_count")
-    val neutralArticleCount = long("neutral_Article_count")
+    val positiveArticleCount = long("positive_article_count")
+    val negativeArticleCount = long("negative_article_count")
+    val neutralArticleCount = long("neutral_article_count")
     val sentiment = integer("sentiment")
     val strategy = varchar("strategy", 50)
     val score = integer("score")

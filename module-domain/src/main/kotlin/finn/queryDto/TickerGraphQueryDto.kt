@@ -10,4 +10,8 @@ interface TickerGraphQueryDto {
     fun price(): BigDecimal
 
     fun changeRate(): BigDecimal
+
+    fun positiveArticleCount(): Long
+
+    fun negativeArticleCount(): Long
 }
