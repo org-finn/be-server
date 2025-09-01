@@ -13,5 +13,5 @@ interface ArticleRepository {
 
     fun getArticleList(page: Int, size: Int, filter: String, sort:String) : PageResponse<ArticleQ>
 
-    fun saveArticle(article: ArticleC, insights: List<ArticleInsight>) : UUID
+    fun saveArticle(article: ArticleC, insights: List<ArticleInsight>) : UUID?
 }

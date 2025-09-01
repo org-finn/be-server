@@ -1,6 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.ArticleExposed
+import finn.exception.CriticalDataOmittedException
 import finn.insertDto.ArticleToInsert
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
@@ -9,6 +10,7 @@ import finn.table.ArticleTickerTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insertIgnore
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -78,22 +80,34 @@ class ArticleExposedRepository {
     }
 
 
-    fun save(article: ArticleToInsert): UUID {
-        val savedArticle = ArticleExposed.new {
-            this.publishedDate = article.publishedDate
-            this.title = article.title
-            this.description = article.description
-            this.contentUrl = article.contentUrl
-            this.thumbnailUrl = article.thumbnailUrl
-            this.viewCount = 0L
-            this.likeCount = 0L
-            this.author = article.source
-            this.distinctId = article.distinctId
-            this.tickers = article.tickers
-            this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
+    fun save(article: ArticleToInsert): UUID? {
+        val insertedRowCount = ArticleTable.insertIgnore {
+            it[publishedDate] = article.publishedDate
+            it[title] = article.title
+            it[description] = article.description
+            it[articleUrl] = article.contentUrl
+            it[thumbnailUrl] = article.thumbnailUrl
+            it[viewCount] = 0L
+            it[likeCount] = 0L
+            it[author] = article.source
+            it[distinctId] = article.distinctId
+            it[tickers] = article.tickers
+            it[createdAt] = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
         }
-        log.debug { "id:${savedArticle.id.value}, 아티클 데이터를 성공적으로 저장하였습니다." }
-        return savedArticle.id.value
+        if (insertedRowCount.insertedCount > 0) {
+            log.debug { "새로운 아티클을 성공적으로 INSERT 하였습니다. distinctId: ${article.distinctId}" }
+        } else {
+            log.debug { "이미 존재하는 아티클이므로 INSERT를 건너뛰었습니다. distinctId: ${article.distinctId}" }
+            return null
+        }
+
+        val articleId = ArticleTable
+            .select(ArticleTable.id)
+            .where { ArticleTable.distinctId eq article.distinctId }
+            .singleOrNull()
+
+        return articleId?.get(ArticleTable.id)?.value
+            ?: throw CriticalDataOmittedException("${article.distinctId}의 데이터가 DB에 존재하지 않습니다.")
     }
 
 }

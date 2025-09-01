@@ -12,7 +12,7 @@ class ArticleQ private constructor(
     val contentUrl: String,
     val publishedDate: LocalDateTime,
     val source: String,
-    val tickers: List<String>? = null
+    val tickers: List<String>? = emptyList()
 ) {
     companion object {
         fun create(

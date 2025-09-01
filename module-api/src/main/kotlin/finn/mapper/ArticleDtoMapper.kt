@@ -9,7 +9,7 @@ fun toDto(articleData: PageResponse<ArticleQ>): ArticleListResponse {
     val ArticleList = articleData.content.map {
         ArticleListResponse.ArticleDataResponse(
             it.id, it.title, it.description,
-            it.thumbnailUrl, it.contentUrl,
+            it.tickers, it.thumbnailUrl, it.contentUrl,
             getAbstractDateBefore(it.publishedDate), it.source
         )
     }.toList()
