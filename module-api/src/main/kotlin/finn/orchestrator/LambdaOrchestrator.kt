@@ -5,6 +5,8 @@ import finn.entity.command.ArticleInsight
 import finn.request.lambda.ArticleRealTimeBatchRequest
 import finn.request.lambda.ArticleRealTimeBatchRequest.ArticleRealTimeRequest
 import finn.request.lambda.ArticleRealTimeBatchRequest.ArticleRealTimeRequest.ArticleRealTimeInsightRequest
+import finn.request.lambda.LambdaArticleRealTimeRequest
+import finn.request.lambda.LambdaPredictionRequest
 import finn.service.ArticleCommandService
 import finn.service.PredictionCommandService
 import finn.service.TickerQueryService
@@ -25,8 +27,11 @@ class LambdaOrchestrator(
     }
 
     @ExposedTransactional
-    fun saveArticleAndPrediction(request: ArticleRealTimeBatchRequest) {
-        log.debug { "요청된 article distinct_id: ${request.article.distinctId}" }
+    fun saveArticle(request: LambdaArticleRealTimeRequest) {
+        if (request.articles.isEmpty()) {
+            return // 아티클 데이터가 없으므로, 더 이상 처리할 것이 없으므로 종료
+        }
+        log.debug { "요청된 tickerCode: ${request.tickerCode}" }
 
         // tickers가 비어있는 경우는 예측 로직 수행 x
         if (ArticleC.isNotProcessingPredictionArticles(request.article.tickers)) {
@@ -37,23 +42,39 @@ class LambdaOrchestrator(
             return
         }
 
+        // Article에 필요한 Ticker 정보 조회
+        val ticker = tickerService.getTickerByTickerCode(request.tickerCode)
+        val tickerId = ticker.id
+        val shortCompanyName = ticker.shortCompanyName
+        val tickerCode = ticker.tickerCode
+
+        // 각 Article 생성 및 저장
+        val articleList = createArticleList(request, shortCompanyName, tickerId, tickerCode)
+
+        articleService.saveArticleList(articleList)
+    }
         // Article 생성 및 저장(Ticker_Article도 같이 생성)
         val article = createArticle(request.article)
         val insights = createArticleInsights(request.article.insights)
         articleService.saveArticleList(article, insights)
 
-        // isMarketOpen: True이면, Article Data들을 취합하여 Prediction 생성 및 저장
-        if (request.isMarketOpen) { // 정규장 중에 수집된 뉴스 데이터이므로, 다음 주가 예측을 해야함
-            log.debug { "정규장 시간이므로 예측을 수행하여 저장합니다." }
-            val predictionDate = request.predictionDate
-            predictionService.savePrediction(
-                articleList,
-                tickerId,
-                tickerCode,
-                shortCompanyName,
-                predictionDate
-            )
-        }
+    @ExposedTransactional
+    fun savePrediction(request: LambdaPredictionRequest) {
+        val tickerId = request.tickerId
+        val tickerCode = request.tickerCode
+        val shortCompanyName = request.shortCompanyName
+        val predictionDate = request.predictionDate
+
+        log.debug { "${tickerCode}: 예측을 수행하여 저장합니다." }
+        predictionService.savePrediction(
+            tickerId,
+            tickerCode,
+            shortCompanyName,
+            predictionDate,
+            request.positiveArticleCount,
+            request.negativeArticleCount,
+            request.neutralArticleCount
+        )
     }
 
     fun createArticle(article: ArticleRealTimeRequest): ArticleC {

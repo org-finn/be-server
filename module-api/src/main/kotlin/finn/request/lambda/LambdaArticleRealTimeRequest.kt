@@ -3,8 +3,11 @@ package finn.request.lambda
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 
-data class ArticleRealTimeBatchRequest(
-    val article: ArticleRealTimeRequest,
+data class LambdaArticleRealTimeRequest(
+    @field:JsonProperty("ticker_code")
+    val tickerCode: String,
+
+    val articles: List<LambdaArticle>,
 
     @field:JsonProperty("is_market_open")
     val isMarketOpen: Boolean,
@@ -15,7 +18,7 @@ data class ArticleRealTimeBatchRequest(
     @field:JsonProperty("created_at")
     val createdAt: OffsetDateTime
 ) {
-    data class ArticleRealTimeRequest(
+    data class LambdaArticle(
         @field:JsonProperty("published_date")
         val publishedDate: OffsetDateTime, // Timezone 정보 포함
 

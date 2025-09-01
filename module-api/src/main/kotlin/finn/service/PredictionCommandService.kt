@@ -1,6 +1,5 @@
 package finn.service
 
-import finn.entity.command.ArticleC
 import finn.entity.command.PredictionC
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
@@ -13,29 +12,27 @@ class PredictionCommandService(
 ) {
 
     fun savePrediction(
-        articleList: List<ArticleC>,
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
-        predictionDate: OffsetDateTime
+        predictionDate: OffsetDateTime,
+        positiveArticleCount : Long,
+        negativeArticleCount : Long,
+        neutralArticleCount : Long
     ) {
-        val positiveArticleCount = ArticleC.getPositiveCount(articleList)
-        val negativeArticleCount = ArticleC.getNegativeCount(articleList)
-        val neutralArticleCount = ArticleC.getNeutralCount(articleList)
-        val predictionDate = predictionDate.toLocalDateTime() // 담긴 날짜 그대로 반환
         val todayScores = predictionRepository.getRecentSentimentScoreList(tickerId)
 
-        val predictionQ = PredictionC.create(
+        val predictionC = PredictionC.create(
             tickerId,
             tickerCode,
             shortCompanyName,
             positiveArticleCount,
             negativeArticleCount,
             neutralArticleCount,
-            predictionDate,
+            predictionDate.toLocalDateTime(),
             todayScores
         )
 
-        predictionRepository.savePrediction(predictionQ)
+        predictionRepository.updatePrediction(predictionC)
     }
 }
