@@ -10,8 +10,9 @@ data class ArticlePageRequest (
     @field:Schema(
         description = "필터링 기준",
         defaultValue = "all",
-        allowableValues = ["all", "positive", "negative"]
-    )
+//        allowableValues = ["all", "positive", "negative"]
+        allowableValues = ["all"]
+        )
     val filter: String,
     @field:Schema(
         description = "정렬 기준",
