@@ -14,14 +14,14 @@ data class LambdaPredictionRequest(
     @field:JsonProperty("short_company_name")
     val shortCompanyName: String,
 
-    @field:JsonProperty("positive_news_count")
-    val positiveNewsCount: Long,
+    @field:JsonProperty("positive_article_count")
+    val positiveArticleCount: Long,
 
-    @field:JsonProperty("negative_news_count")
-    val negativeNewsCount: Long,
+    @field:JsonProperty("negative_article_count")
+    val negativeArticleCount: Long,
 
-    @field:JsonProperty("neutral_news_count")
-    val neutralNewsCount: Long,
+    @field:JsonProperty("neutral_article_count")
+    val neutralArticleCount: Long,
 
     @field:JsonProperty("prediction_date")
     val predictionDate: OffsetDateTime,

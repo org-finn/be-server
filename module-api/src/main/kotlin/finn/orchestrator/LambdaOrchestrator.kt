@@ -62,9 +62,9 @@ class LambdaOrchestrator(
             tickerCode,
             shortCompanyName,
             predictionDate,
-            request.positiveNewsCount,
-            request.negativeNewsCount,
-            request.neutralNewsCount
+            request.positiveArticleCount,
+            request.negativeArticleCount,
+            request.neutralArticleCount
         )
     }
 
