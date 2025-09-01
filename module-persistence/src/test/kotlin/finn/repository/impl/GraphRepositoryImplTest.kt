@@ -3,11 +3,13 @@ package finn.repository.impl
 import finn.TestApplication
 import finn.exception.CriticalDataPollutedException
 import finn.repository.GraphRepository
+import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.equals.shouldBeEqual
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -160,6 +162,47 @@ internal class GraphRepositoryImplTest(
                     LocalDate.of(2025, 7, 18),
                     LocalDate.of(2025, 7, 14)
                 )
+            }
+        }
+    }
+
+    Given("특정 날짜에 해당하는 예측 데이터 값과 주가 데이터 값이 모두 존재할때") {
+        val tickerId = UUID.randomUUID()
+        val startDate = LocalDate.of(2025, 7, 10)
+        val endDate = LocalDate.of(2025, 7, 10)
+        val joinDate = startDate
+        val holidays = setOf(LocalDate.of(2025, 7, 9))
+
+        When("주가 그래프 API를 호출하면") {
+            val result = transaction {
+                setupGraphData(tickerId, startDate, 1, holidays)
+                PredictionTable.insert {
+                    it[PredictionTable.tickerId] = tickerId
+                    it[predictionDate] = joinDate.atStartOfDay()
+                    it[positiveArticleCount] = 123
+                    it[negativeArticleCount] = 56
+                    it[neutralArticleCount] = 13
+                    it[sentiment] = 0
+                    it[strategy] = ""
+                    it[score] = 0
+                    it[tickerCode] = ""
+                    it[shortCompanyName] = ""
+                    it[createdAt] = LocalDateTime.now()
+                }
+                graphRepository.getTickerGraph(
+                    tickerId = tickerId,
+                    startDate = startDate,
+                    endDate = endDate,
+                    interval = 1,
+                )
+            }
+
+            Then("정확한 긍정/부정 아티클 개수를 반환해야한다.") {
+                result shouldHaveSize 1
+                val data = result[0]
+                data.date() shouldBeEqual joinDate
+                data.positiveArticleCount() shouldBeEqual 123L
+                data.negativeArticleCount() shouldBeEqual 56L
             }
         }
     }
