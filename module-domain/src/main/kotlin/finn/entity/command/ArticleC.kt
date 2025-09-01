@@ -21,7 +21,7 @@ class ArticleC private constructor(
             publishedDate: LocalDateTime,
             source: String,
             distinctId: String,
-            tickers: List<String>
+            tickers: List<String>?
         ): ArticleC {
             return ArticleC(
                 title,
