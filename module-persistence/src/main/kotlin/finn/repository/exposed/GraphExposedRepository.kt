@@ -2,6 +2,7 @@ package finn.repository.exposed
 
 import finn.exception.CriticalDataPollutedException
 import finn.queryDto.TickerGraphQueryDto
+import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
@@ -20,11 +21,15 @@ class GraphExposedRepository {
     private data class TickerGraphQueryDtoImpl(
         val date: LocalDate,
         val price: BigDecimal,
-        val changeRate: BigDecimal
+        val changeRate: BigDecimal,
+        val positiveArticleCount: Long,
+        val negativeArticleCount: Long
     ) : TickerGraphQueryDto {
         override fun date(): LocalDate = date
         override fun price(): BigDecimal = price
         override fun changeRate(): BigDecimal = changeRate
+        override fun positiveArticleCount(): Long = positiveArticleCount
+        override fun negativeArticleCount(): Long = negativeArticleCount
     }
 
     fun findDaily(
@@ -34,7 +39,10 @@ class GraphExposedRepository {
     ): List<TickerGraphQueryDto> {
 
         val maxAndCountResult = TickerPriceTable
-            .select(TickerPriceTable.priceDate.max().date(), TickerPriceTable.id.count())
+            .select(
+                TickerPriceTable.priceDate.max().date(),
+                TickerPriceTable.id.count()
+            )
             .where {
                 TickerPriceTable.tickerId eq tickerId and
                         TickerPriceTable.priceDate.date().between(
@@ -46,7 +54,7 @@ class GraphExposedRepository {
 
         val count = maxAndCountResult?.get(TickerPriceTable.id.count()) ?: 0L
         val maxDate = maxAndCountResult?.get(TickerPriceTable.priceDate.max().date())
-        log.debug {"maxDate: $maxDate, from: $startDate, to: $endDate" }
+        log.debug { "maxDate: $maxDate, from: $startDate, to: $endDate" }
 
         // 데이터가 전혀 없는 경우 예외 처리
         if (count == 0L || maxDate == null) {
@@ -54,10 +62,19 @@ class GraphExposedRepository {
         }
 
         return TickerPriceTable
+            .join(
+                PredictionTable,
+                JoinType.LEFT,
+                additionalConstraint = {
+                    (TickerPriceTable.tickerId eq PredictionTable.tickerId) and
+                            (TickerPriceTable.priceDate.date() eq PredictionTable.predictionDate.date())
+                })
             .select(
                 TickerPriceTable.priceDate,
                 TickerPriceTable.close,
-                TickerPriceTable.changeRate
+                TickerPriceTable.changeRate,
+                PredictionTable.positiveArticleCount,
+                PredictionTable.negativeArticleCount
             )
             .where {
                 TickerPriceTable.tickerId eq tickerId and
@@ -71,7 +88,10 @@ class GraphExposedRepository {
                 TickerGraphQueryDtoImpl(
                     date = row[TickerPriceTable.priceDate].toLocalDate(),
                     price = row[TickerPriceTable.close],
-                    changeRate = row[TickerPriceTable.changeRate]
+                    changeRate = row[TickerPriceTable.changeRate],
+                    positiveArticleCount = row.getOrNull(PredictionTable.positiveArticleCount)
+                        ?: 0L,
+                    negativeArticleCount = row.getOrNull(PredictionTable.negativeArticleCount) ?: 0L
                 )
             }
     }
@@ -79,64 +99,87 @@ class GraphExposedRepository {
     /**
      * interval에 의해 등락률 동적 계산
      */
+    private data class PriceAndSentimentData(
+        val closePrice: BigDecimal,
+        val positiveCount: Long,
+        val negativeCount: Long
+    )
+
     fun findByInterval(
         tickerId: UUID,
         startDate: LocalDate,
         endDate: LocalDate,
         interval: Int
     ): List<TickerGraphQueryDto> {
-        // 1. 필요한 모든 가격 데이터를 DB에서 한 번에 조회하여 Map으로 변환
-        val priceMap = TickerPriceTable
-            .selectAll().where {
+        // 3. TickerPrice와 Prediction 테이블을 조인하여 필요한 모든 데이터를 한 번에 조회합니다.
+        val dataMap = TickerPriceTable
+            .join(
+                PredictionTable,
+                JoinType.LEFT,
+                additionalConstraint = {
+                    (TickerPriceTable.tickerId eq PredictionTable.tickerId) and
+                            // datetime 컬럼의 날짜 부분만 비교하여 조인합니다.
+                            (TickerPriceTable.priceDate.date() eq PredictionTable.predictionDate.date())
+                }
+            )
+            .select(
+                TickerPriceTable.priceDate,
+                TickerPriceTable.close,
+                PredictionTable.positiveArticleCount,
+                PredictionTable.negativeArticleCount
+            ).where {
                 (TickerPriceTable.tickerId eq tickerId) and
-                        // 기준일 계산을 위해 startDate보다 interval만큼 더 이전 데이터까지 조회
-                        TickerPriceTable.priceDate.date().between(
+                        (TickerPriceTable.priceDate.date().between(
                             startDate.minusDays(interval.toLong()),
                             endDate
-                        )
+                        ))
             }
-            .orderBy(TickerPriceTable.priceDate, SortOrder.DESC) // 최신순으로 정렬
-            .associate {
-                it[TickerPriceTable.priceDate].toLocalDate() to it[TickerPriceTable.close]
+            .associate { row ->
+                row[TickerPriceTable.priceDate].toLocalDate() to PriceAndSentimentData(
+                    closePrice = row[TickerPriceTable.close],
+                    positiveCount = row.getOrNull(PredictionTable.positiveArticleCount) ?: 0L,
+                    negativeCount = row.getOrNull(PredictionTable.negativeArticleCount) ?: 0L
+                )
             }
 
-        if (priceMap.isEmpty()) {
+        if (dataMap.isEmpty()) {
             throw CriticalDataPollutedException("해당 id로 조회한 데이터가 없습니다, tickerId를 다시 확인해주세요.")
         }
 
-        // 2. endDate부터 시작하여 interval만큼 차감하며 기준 날짜 목록 생성 및 등락률 계산
+        val businessDays = dataMap.keys
         val graphData = mutableListOf<TickerGraphQueryDto>()
         var currentDate = endDate
 
         while (currentDate > startDate) {
-            // 3. 현재 날짜와 interval 이전 날짜에 대한 가장 가까운 영업일을 찾음
-            val currentBusinessDay = findClosestBusinessDay(currentDate, priceMap.keys)
+            val currentBusinessDay = findClosestBusinessDay(currentDate, businessDays)
             val prevTargetDate = currentDate.minusDays(interval.toLong())
-            val prevBusinessDay = findClosestBusinessDay(prevTargetDate, priceMap.keys)
+            val prevBusinessDay = findClosestBusinessDay(prevTargetDate, businessDays)
 
-            // 두 영업일이 모두 유효한 경우에만 계산 진행
             if (currentBusinessDay != null && prevBusinessDay != null) {
-                val currentPrice = priceMap[currentBusinessDay]
-                val prevPrice = priceMap[prevBusinessDay]
+                val currentData = dataMap[currentBusinessDay]
+                val prevData = dataMap[prevBusinessDay]
 
-                // 4. 두 가격이 모두 존재하면 등락률을 계산하여 DTO 생성
-                if (currentPrice != null && prevPrice != null && prevPrice != BigDecimal.ZERO) {
+                if (currentData != null && prevData != null && prevData.closePrice != BigDecimal.ZERO) {
                     val changeRate =
-                        ((currentPrice / prevPrice) - BigDecimal.ONE).multiply(BigDecimal(100))
+                        ((currentData.closePrice / prevData.closePrice) - BigDecimal.ONE).multiply(
+                            BigDecimal(100)
+                        )
+
+                    // 4. DTO를 생성할 때 Map에서 가져온 count 값들을 추가합니다.
                     graphData.add(
                         TickerGraphQueryDtoImpl(
                             date = currentBusinessDay,
-                            price = currentPrice,
-                            changeRate = changeRate
+                            price = currentData.closePrice,
+                            changeRate = changeRate,
+                            positiveArticleCount = currentData.positiveCount,
+                            negativeArticleCount = currentData.negativeCount
                         )
                     )
                 }
             }
-            // 다음 기준 날짜로 이동
             currentDate = prevTargetDate
         }
 
-        // 날짜 오름차순으로 정렬하여 반환
         return graphData.sortedBy { it.date() }
     }
 

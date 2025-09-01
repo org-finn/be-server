@@ -9,7 +9,9 @@ fun toDto(period: String, graphDto: List<TickerGraphQueryDto>): TickerGraphRespo
         TickerGraphResponse.TickerGraphDataResponse(
             it.date().toString(),
             it.price(),
-            it.changeRate()
+            it.changeRate(),
+            it.positiveArticleCount(),
+            it.negativeArticleCount(),
         )
     }.toList()
     return TickerGraphResponse(period, graphData)
