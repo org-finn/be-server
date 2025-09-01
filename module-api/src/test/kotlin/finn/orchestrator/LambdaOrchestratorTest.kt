@@ -1,6 +1,6 @@
 import finn.entity.query.Ticker
 import finn.orchestrator.LambdaOrchestrator
-import finn.request.lambda.ArticleRealTimeBatchRequest
+import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.service.ArticleCommandService
 import finn.service.PredictionCommandService
 import finn.service.TickerQueryService
@@ -28,7 +28,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
     // --- 테스트 시나리오 ---
 
     Given("아티클 데이터가 없는 요청이 주어졌을 때") {
-        val requestWithNoArticles = ArticleRealTimeBatchRequest(
+        val requestWithNoArticles = LambdaArticleRealTimeRequest(
             tickerCode = "AAPL",
             isMarketOpen = true,
             articles = emptyList(), // 아티클 리스트가 비어있음
@@ -37,7 +37,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
         )
 
         When("saveArticleAndPrediction을 호출하면") {
-            orchestrator.saveArticleAndPrediction(requestWithNoArticles)
+            orchestrator.saveArticle(requestWithNoArticles)
 
             Then("아무 서비스도 호출되지 않고 조용히 종료되어야 한다") {
                 // 어떤 서비스의 메서드도 호출되지 않았음을 검증
@@ -58,7 +58,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
 
     Given("아티클 데이터가 있고 시장이 열려있을 때 (isMarketOpen = true)") {
         // 테스트용 데이터 준비
-        val articleDto = ArticleRealTimeBatchRequest.ArticleRealTimeRequest(
+        val articleDto = LambdaArticleRealTimeRequest.LambdaArticle(
             title = "Apple's new product",
             description = "A new product was released.",
             thumbnailUrl = "url",
@@ -69,7 +69,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
             reasoning = "Because it's new",
             distinctId = UUID.randomUUID().toString()
         )
-        val request = ArticleRealTimeBatchRequest(
+        val request = LambdaArticleRealTimeRequest(
             tickerCode = "AAPL",
             isMarketOpen = true, // 시장이 열려있음
             articles = listOf(articleDto),
@@ -88,7 +88,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
         every { tickerService.getTickerByTickerCode("AAPL") } returns mockTicker
 
         When("saveArticleAndPrediction을 호출하면") {
-            orchestrator.saveArticleAndPrediction(request)
+            orchestrator.saveArticle(request)
 
             Then("Ticker, Article, Prediction 서비스가 순서대로 모두 호출되어야 한다") {
                 // verifyOrder를 통해 메서드 호출 순서까지 검증
@@ -102,7 +102,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
     }
 
     Given("아티클 데이터가 있지만 시장이 닫혀있을 때 (isMarketOpen = false)") {
-        val articleDto = ArticleRealTimeBatchRequest.ArticleRealTimeRequest(
+        val articleDto = LambdaArticleRealTimeRequest.LambdaArticle(
             title = "Apple's new product",
             description = "A new product was released.",
             thumbnailUrl = "url",
@@ -113,7 +113,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
             reasoning = "Because it's new",
             distinctId = UUID.randomUUID().toString()
         )
-        val request = ArticleRealTimeBatchRequest(
+        val request = LambdaArticleRealTimeRequest(
             tickerCode = "MSFT",
             isMarketOpen = false, // 시장이 닫혀있음
             articles = listOf(articleDto),
@@ -130,7 +130,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
         every { tickerService.getTickerByTickerCode("MSFT") } returns mockTicker
 
         When("saveArticleAndPrediction을 호출하면") {
-            orchestrator.saveArticleAndPrediction(request)
+            orchestrator.saveArticle(request)
 
             Then("Ticker와 Article 서비스는 호출되지만, Prediction 서비스는 호출되지 않아야 한다") {
                 verify(exactly = 1) { tickerService.getTickerByTickerCode("MSFT") }

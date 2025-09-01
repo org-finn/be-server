@@ -13,11 +13,13 @@ class PredictionCommandService(
 ) {
 
     fun savePrediction(
-        articleList: List<ArticleC>,
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
-        predictionDate: OffsetDateTime
+        predictionDate: OffsetDateTime,
+        positiveNewsCount : Long,
+        negativeNewsCount : Long,
+        neutralNewsCount : Long
     ) {
         val positiveArticleCount = ArticleC.getPositiveCount(articleList)
         val negativeArticleCount = ArticleC.getNegativeCount(articleList)
