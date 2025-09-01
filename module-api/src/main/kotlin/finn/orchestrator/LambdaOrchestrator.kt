@@ -1,7 +1,8 @@
 package finn.orchestrator
 
 import finn.entity.command.ArticleC
-import finn.request.lambda.ArticleRealTimeBatchRequest
+import finn.request.lambda.LambdaArticleRealTimeRequest
+import finn.request.lambda.LambdaPredictionRequest
 import finn.service.ArticleCommandService
 import finn.service.PredictionCommandService
 import finn.service.TickerQueryService
@@ -22,7 +23,7 @@ class LambdaOrchestrator(
     }
 
     @ExposedTransactional
-    fun saveArticleAndPrediction(request: ArticleRealTimeBatchRequest) {
+    fun saveArticle(request: LambdaArticleRealTimeRequest) {
         if (request.articles.isEmpty()) {
             return // 아티클 데이터가 없으므로, 더 이상 처리할 것이 없으므로 종료
         }
@@ -46,22 +47,28 @@ class LambdaOrchestrator(
         val articleList = createArticleList(request, shortCompanyName, tickerId, tickerCode)
 
         articleService.saveArticleList(articleList)
-
-        // isMarketOpen: True이면, Article Data들을 취합하여 Prediction 생성 및 저장
-        if (request.isMarketOpen) { // 정규장 중에 수집된 뉴스 데이터이므로, 다음 주가 예측을 해야함
-            log.debug { "정규장 시간이므로 예측을 수행하여 저장합니다." }
-            val predictionDate = request.predictionDate
-            predictionService.savePrediction(
-                articleList,
-                tickerId,
-                tickerCode,
-                shortCompanyName,
-                predictionDate
-            )
-        }
     }
 
-    private fun createArticleListGeneral(request: ArticleRealTimeBatchRequest): List<ArticleC> =
+    @ExposedTransactional
+    fun savePrediction(request: LambdaPredictionRequest) {
+        val tickerId = request.tickerId
+        val tickerCode = request.tickerCode
+        val shortCompanyName = request.shortCompanyName
+        val predictionDate = request.predictionDate
+
+        log.debug { "${tickerCode}: 예측을 수행하여 저장합니다." }
+        predictionService.savePrediction(
+            tickerId,
+            tickerCode,
+            shortCompanyName,
+            predictionDate,
+            request.positiveArticleCount,
+            request.negativeArticleCount,
+            request.neutralArticleCount
+        )
+    }
+
+    private fun createArticleListGeneral(request: LambdaArticleRealTimeRequest): List<ArticleC> =
         request.articles.asSequence()
             .map {
                 ArticleC.create(
@@ -81,7 +88,7 @@ class LambdaOrchestrator(
             }.toList()
 
     private fun createArticleList(
-        request: ArticleRealTimeBatchRequest,
+        request: LambdaArticleRealTimeRequest,
         shortCompanyName: String,
         tickerId: UUID,
         tickerCode: String

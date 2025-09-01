@@ -244,7 +244,7 @@ class PredictionExposedRepository {
             ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 
-    fun save(prediction: PredictionToInsert) {
+    fun save(prediction: PredictionToInsert): PredictionExposed {
         val savedPrediction = PredictionExposed.new {
             predictionDate = prediction.predictionDate
             positiveArticleCount = prediction.positiveArticleCount
@@ -259,18 +259,40 @@ class PredictionExposedRepository {
             createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         }
         log.debug { "${savedPrediction.tickerCode}:예측 데이터를 성공적으로 저장하였습니다." }
+        return savedPrediction
     }
 
+    fun update(prediction: PredictionToInsert): PredictionExposed {
+        val updatedPrediction = PredictionExposed.findSingleByAndUpdate(
+            (PredictionTable.tickerId eq prediction.tickerId)
+                    and (PredictionTable.predictionDate.date() eq prediction.predictionDate.toLocalDate())
+        ) {
+            it.sentiment = prediction.sentiment
+            it.score = prediction.sentimentScore
+            it.strategy = prediction.strategy
+            it.positiveArticleCount += prediction.positiveArticleCount
+            it.negativeArticleCount += prediction.negativeArticleCount
+            it.neutralArticleCount += prediction.neutralArticleCount
+        } ?: save(prediction) // 만약 데이터가 없을 시, 새로 생성하도록 수정
+
+        log.debug { "${updatedPrediction.tickerCode}:예측 데이터를 성공적으로 업데이트하였습니다." }
+        return updatedPrediction
+    }
+
+    // 최근 7일 간의 prediction score를 반환(추세 반영 목적)
     fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val sevenDaysAgo = today.minusDays(6) // 오늘을 포함하여 7일 전
+
         return PredictionTable
             .select(PredictionTable.score)
             .where {
-                (PredictionTable.tickerId eq tickerId) and (PredictionTable.predictionDate.date() eq today)
+                (PredictionTable.tickerId eq tickerId) and
+                        (PredictionTable.predictionDate.date() greaterEq sevenDaysAgo) and
+                        (PredictionTable.predictionDate.date() lessEq today)
             }
             .map { row ->
                 row[PredictionTable.score]
             }
-
     }
 }
