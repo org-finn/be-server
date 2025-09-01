@@ -14,7 +14,7 @@ class ArticleCommandService(
 
     fun saveArticleList(article: ArticleC, insights: List<ArticleInsight>) {
         val articleId = articleRepository.saveArticle(article, insights)
-        if (insights.isNotEmpty()) {
+        if (articleId != null && insights.isNotEmpty()) {
             articleTickerRepository.saveArticleTicker(articleId, article.title, insights)
         }
     }

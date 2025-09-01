@@ -37,7 +37,7 @@ class ArticleRepositoryImpl(
         }.toList(), page, size, ArticleExposedList.hasNext)
     }
 
-    override fun saveArticle(article: ArticleC, insights: List<ArticleInsight>) : UUID {
+    override fun saveArticle(article: ArticleC, insights: List<ArticleInsight>) : UUID? {
         val articleToInsert = ArticleToInsert(
             article.title, article.description, article.thumbnailUrl, article.contentUrl,
             article.publishedDate, article.source, article.distinctId,
