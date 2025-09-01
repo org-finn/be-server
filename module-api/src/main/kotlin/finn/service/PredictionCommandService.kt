@@ -23,7 +23,7 @@ class PredictionCommandService(
         val predictionDate = predictionDate.toLocalDateTime() // 담긴 날짜 그대로 반환
         val todayScores = predictionRepository.getRecentSentimentScoreList(tickerId)
 
-        val predictionQ = PredictionC.create(
+        val predictionC = PredictionC.create(
             tickerId,
             tickerCode,
             shortCompanyName,
@@ -34,6 +34,6 @@ class PredictionCommandService(
             todayScores
         )
 
-        predictionRepository.savePrediction(predictionQ)
+        predictionRepository.updatePrediction(predictionC)
     }
 }

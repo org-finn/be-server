@@ -71,4 +71,20 @@ class PredictionRepositoryImpl(
         )
         predictionExposedRepository.save(predictionToInsert)
     }
+
+    override fun updatePrediction(prediction: PredictionC) {
+        val predictionToUpdate = PredictionToInsert(
+            prediction.tickerId,
+            prediction.tickerCode,
+            prediction.shortCompanyName,
+            prediction.positiveArticleCount,
+            prediction.negativeArticleCount,
+            prediction.neutralArticleCount,
+            prediction.sentimentScore,
+            prediction.sentiment,
+            prediction.predictionStrategy.strategy,
+            prediction.predictionDate
+        )
+        predictionExposedRepository.update(predictionToUpdate)
+    }
 }
