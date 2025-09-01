@@ -20,10 +20,12 @@ repositories {
 }
 
 dependencies {
+    implementation project(':module-common')
 
     // AWS S3
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"))
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
+    implementation('org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE')
 }
 
 kotlin {
@@ -44,4 +46,4 @@ jar {
     enabled = true
 }
 
-tasks.register("prepareKotlinBuildScriptModel"){}
+tasks.register("prepareKotlinBuildScriptModel") {}

@@ -3,7 +3,7 @@ package finn.apiSpec
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
 import finn.response.graph.TickerGraphResponse
-import finn.response.graph.TickerRealTimeGraphResponse
+import finn.response.graph.TickerRealTimeGraphListResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -77,5 +77,5 @@ interface TickerPriceApiSpec {
             required = true,
             example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         ) @PathVariable tickerId: UUID,
-    ): SuccessResponse<TickerRealTimeGraphResponse>
+    ): SuccessResponse<TickerRealTimeGraphListResponse>
 }
