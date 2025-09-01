@@ -42,4 +42,11 @@ class TickerExposedRepository {
         return TickerExposed.find { TickerTable.code eq tickerCode }
             .single()
     }
+
+    fun findTickerMapByTickerCodeList(tickerCodeList: List<String>): Map<String, UUID> {
+        return TickerTable.select(
+            TickerTable.id, TickerTable.code
+        ).where { TickerTable.code inList tickerCodeList }
+            .associate { it[TickerTable.code] to it[TickerTable.id].value }
+    }
 }

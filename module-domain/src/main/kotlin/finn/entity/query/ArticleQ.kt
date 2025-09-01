@@ -11,11 +11,8 @@ class ArticleQ private constructor(
     val thumbnailUrl: String? = null,
     val contentUrl: String,
     val publishedDate: LocalDateTime,
-    val shortCompanyName: String? = null,
     val source: String,
-    val sentiment: String? = null,
-    val reasoning: String? = null,
-    val tickerId: UUID? = null
+    val tickers: List<String>? = null
 ) {
     companion object {
         fun create(
@@ -25,11 +22,8 @@ class ArticleQ private constructor(
             thumbnailUrl: String?,
             contentUrl: String,
             publishedDate: LocalDateTime,
-            shortCompanyName: String?,
             source: String,
-            sentiment: String?,
-            reasoning: String?,
-            tickerId: UUID?
+            tickers: String?
         ): ArticleQ {
             return ArticleQ(
                 id,
@@ -38,11 +32,8 @@ class ArticleQ private constructor(
                 thumbnailUrl,
                 contentUrl,
                 publishedDate.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime(), // KST 기준 적용
-                shortCompanyName,
                 source,
-                sentiment,
-                reasoning,
-                tickerId
+                tickers?.let { tickers.split(",") }
             )
         }
     }

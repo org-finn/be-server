@@ -16,12 +16,8 @@ class ArticleExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var thumbnailUrl by ArticleTable.thumbnailUrl
     var viewCount by ArticleTable.viewCount
     var likeCount by ArticleTable.likeCount
-    var sentiment by ArticleTable.sentiment
-    var reasoning by ArticleTable.reasoning
-    var shortCompanyName by ArticleTable.shortCompanyName
     var author by ArticleTable.author
     var distinctId by ArticleTable.distinctId
-    var tickerId by ArticleTable.tickerId
-    var tickerCode by ArticleTable.tickerCode
+    var tickers by ArticleTable.tickers
     var createdAt by ArticleTable.createdAt
 }

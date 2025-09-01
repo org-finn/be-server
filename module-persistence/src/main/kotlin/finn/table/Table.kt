@@ -25,13 +25,18 @@ object ArticleTable : UUIDTable("article") {
     val thumbnailUrl = text("thumbnail_url").nullable()
     val viewCount = long("view_count").default(0L)
     val likeCount = long("like_count").default(0L)
-    val sentiment = varchar("sentiment", 20).nullable()
-    val reasoning = text("reasoning").nullable()
-    val shortCompanyName = varchar("short_company_name", 100).nullable()
     val author = varchar("author", 100)
     val distinctId = varchar("distinct_id", 255).uniqueIndex()
-    val tickerId = uuid("ticker_id").nullable()
-    val tickerCode = varchar("ticker_code", 20).nullable()
+    val tickers = varchar("tickers", 255).nullable()
+    val createdAt = datetime("created_at")
+}
+
+object ArticleTickerTable : UUIDTable("article_ticker") {
+    val articleId = uuid("article_id")
+    val tickerId = uuid("ticker_id")
+    val title = text("title")
+    val sentiment = varchar("sentiment", 20).nullable()
+    val reasoning = text("reasoning").nullable()
     val createdAt = datetime("created_at")
 }
 

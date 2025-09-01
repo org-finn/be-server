@@ -6,7 +6,7 @@ import finn.entity.query.ArticleQ
 fun toDomain(article: ArticleExposed): ArticleQ {
     return ArticleQ.create(
         article.id.value, article.title, article.description,
-        article.thumbnailUrl, article.contentUrl, article.publishedDate, article.shortCompanyName,
-        article.author, article.sentiment, article.reasoning, article.tickerId
+        article.thumbnailUrl, article.contentUrl, article.publishedDate,
+        article.author, article.tickers
     )
 }
