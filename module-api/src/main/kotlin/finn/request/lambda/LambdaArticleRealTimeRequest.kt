@@ -31,7 +31,7 @@ data class LambdaArticleRealTimeRequest(
         @field:JsonProperty("distinct_id")
         val distinctId: String,
 
-        val tickers: List<String>,
+        val tickers: List<String>? = null,
 
         val insights: List<ArticleRealTimeInsightRequest>
     ) {
