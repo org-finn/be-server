@@ -3,7 +3,7 @@ name: Deploy to EC2 Articker Server
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
