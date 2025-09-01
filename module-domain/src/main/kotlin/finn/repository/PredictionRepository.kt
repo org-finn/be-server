@@ -1,6 +1,7 @@
 package finn.repository
 
 import finn.entity.command.PredictionC
+import finn.entity.query.PredictionQ
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -15,5 +16,5 @@ interface PredictionRepository {
 
     fun savePrediction(prediction: PredictionC)
 
-    fun updatePrediction(prediction: PredictionC)
+    fun updatePrediction(prediction: PredictionC) : PredictionQ
 }

@@ -274,6 +274,7 @@ class PredictionExposedRepository {
             it.negativeArticleCount += prediction.negativeArticleCount
             it.neutralArticleCount += prediction.neutralArticleCount
         } ?: save(prediction) // 만약 데이터가 없을 시, 새로 생성하도록 수정
+
         log.debug { "${updatedPrediction.tickerCode}:예측 데이터를 성공적으로 업데이트하였습니다." }
         return updatedPrediction
     }
@@ -293,6 +294,5 @@ class PredictionExposedRepository {
             .map { row ->
                 row[PredictionTable.score]
             }
-
     }
 }

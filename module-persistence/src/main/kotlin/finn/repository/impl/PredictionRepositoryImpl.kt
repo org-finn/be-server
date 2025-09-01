@@ -1,8 +1,10 @@
 package finn.repository.impl
 
 import finn.entity.command.PredictionC
+import finn.entity.query.PredictionQ
 import finn.exception.CriticalDataPollutedException
 import finn.insertDto.PredictionToInsert
+import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -72,7 +74,7 @@ class PredictionRepositoryImpl(
         predictionExposedRepository.save(predictionToInsert)
     }
 
-    override fun updatePrediction(prediction: PredictionC) {
+    override fun updatePrediction(prediction: PredictionC): PredictionQ {
         val predictionToUpdate = PredictionToInsert(
             prediction.tickerId,
             prediction.tickerCode,
@@ -85,6 +87,7 @@ class PredictionRepositoryImpl(
             prediction.predictionStrategy.strategy,
             prediction.predictionDate
         )
-        predictionExposedRepository.update(predictionToUpdate)
+        val updatedPrediction = predictionExposedRepository.update(predictionToUpdate)
+        return toDomain(updatedPrediction)
     }
 }
