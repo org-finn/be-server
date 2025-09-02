@@ -57,8 +57,9 @@ interface TickerPriceApiSpec {
 
 
     @Operation(
-        summary = "실시간 주가 데이터 조회",
-        description = "특정 종목의 실시간 종가 그래프 데이터를 조회합니다."
+        summary = "실시간 주가 그래프 데이터 조회",
+        description =
+            "특정 종목의 실시간 종가 그래프 데이터를 조회합니다."
     )
     @ApiResponses(
         value = [ApiResponse(
@@ -67,7 +68,7 @@ interface TickerPriceApiSpec {
         ), ApiResponse(
             responseCode = "404",
             description = "존재하지 않는 종목 Id 값입니다.",
-            content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )]
     )
     @GetMapping("/{tickerId}/real-time")
@@ -77,5 +78,16 @@ interface TickerPriceApiSpec {
             required = true,
             example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         ) @PathVariable tickerId: UUID,
+
+        @Parameter(
+            description = "특정 인덱스와 같거나 큰 데이터만 조회합니다. (Optional)",
+            example = "1"
+        ) @RequestParam(required = false) gte: Int?,
+
+        @Parameter(
+            description = "누락된 특정 인덱스들의 데이터를 재요청합니다. (인덱스의 리스트, Optional)",
+            example = "1,3"
+        ) @RequestParam(required = false) missing: List<Int>?
+
     ): SuccessResponse<TickerRealTimeGraphListResponse>
 }
