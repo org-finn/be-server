@@ -8,6 +8,11 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Repository
@@ -62,11 +67,15 @@ class TickerPriceRealTimeDynamoDbRepository(
         // 조회된 아이템을 DTO로 파싱 및 필터링
         val priceDateStr = item["priceDate"]?.s() ?: ""
         val maxLen = item["maxLen"]?.n()?.toInt() ?: 0
+        val priceDate = LocalDate.parse(item["priceDate"]?.s().toString())
+        
         val fullPriceDataList = item["priceDataList"]?.l()?.map { priceDataMapAttr ->
             val priceDataMap = priceDataMapAttr.m()
+            val utcHours = priceDataMap["hours"]?.s() ?: "00:00:00"
+
             TickerRealTimeGraphDataQueryDtoImpl(
                 price = BigDecimal(priceDataMap["price"]?.n()),
-                hours = priceDataMap["hours"]?.s() ?: "",
+                hours = convertUtcTimeToKst(utcHours, priceDate),
                 index = priceDataMap["index"]?.n()?.toInt() ?: 0
             )
         } ?: emptyList()
@@ -83,5 +92,23 @@ class TickerPriceRealTimeDynamoDbRepository(
             priceDataList = filteredPriceDataList,
             maxLen = maxLen
         )
+    }
+
+    // 1. UTC 시간 문자열을 KST로 변환하는 헬퍼 함수
+    private fun convertUtcTimeToKst(utcTimeStr: String, date: LocalDate): String {
+        // (EST)와 같은 부가 정보가 있다면 제거
+        val cleanUtcTimeStr = utcTimeStr.substringBefore("(")
+        val utcTime = LocalTime.parse(cleanUtcTimeStr)
+
+        // 날짜와 시간을 합쳐 UTC 기준 LocalDateTime 생성
+        val utcDateTime = LocalDateTime.of(date, utcTime)
+
+        // UTC -> KST로 변환
+        val kstDateTime = utcDateTime.atZone(ZoneId.of("UTC"))
+            .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+            .toLocalDateTime()
+
+        // KST 시간 부분만 HH:mm:ss 형식으로 반환
+        return kstDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
     }
 }
