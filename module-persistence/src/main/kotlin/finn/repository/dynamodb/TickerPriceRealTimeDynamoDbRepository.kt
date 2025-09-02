@@ -1,6 +1,6 @@
 package finn.repository.dynamodb
 
-import finn.exception.CriticalDataOmittedException
+import finn.exception.NotFoundDataException
 import finn.queryDto.TickerRealTimeGraphDataQueryDto
 import finn.queryDto.TickerRealTimeGraphQueryDto
 import org.springframework.stereotype.Repository
@@ -37,14 +37,13 @@ class TickerPriceRealTimeDynamoDbRepository(
         override fun priceDataList(): List<TickerRealTimeGraphDataQueryDto> = this.priceDataList
         override fun maxLen(): Int = this.maxLen
     }
-
-
+    
     fun getLatestRealTimeData(
         tickerId: UUID,
         gte: Int?,
         missing: List<Int>?
     ): TickerRealTimeGraphQueryDto {
-        // 2. DynamoDB Query 요청 생성 (가장 최신 데이터 1개만 조회)
+        // DynamoDB Query 요청 생성 (가장 최신 데이터 1개만 조회)
         val queryRequest = QueryRequest.builder()
             .tableName(tableName)
             .keyConditionExpression("tickerId = :v1")
@@ -58,15 +57,15 @@ class TickerPriceRealTimeDynamoDbRepository(
             .build()
 
         val item = dynamoDbClient.query(queryRequest).items().firstOrNull()
-            ?: throw CriticalDataOmittedException("${tickerId}에 해당하는 최신 실시간 주가 데이터가 존재하지 않습니다.")
+            ?: throw NotFoundDataException("${tickerId}에 해당하는 최신 실시간 주가 데이터가 존재하지 않습니다. id 값을 확인해주세요.")
 
-        // 3. 조회된 아이템을 새로운 private DTO로 파싱 및 필터링
+        // 조회된 아이템을 DTO로 파싱 및 필터링
         val priceDateStr = item["priceDate"]?.s() ?: ""
         val maxLen = item["maxLen"]?.n()?.toInt() ?: 0
         val fullPriceDataList = item["priceDataList"]?.l()?.map { priceDataMapAttr ->
             val priceDataMap = priceDataMapAttr.m()
             TickerRealTimeGraphDataQueryDtoImpl(
-                price = BigDecimal(priceDataMap["price"]?.s()),
+                price = BigDecimal(priceDataMap["price"]?.n()),
                 hours = priceDataMap["hours"]?.s() ?: "",
                 index = priceDataMap["index"]?.n()?.toInt() ?: 0
             )
@@ -78,7 +77,6 @@ class TickerPriceRealTimeDynamoDbRepository(
             else -> fullPriceDataList
         }
 
-        // 4. 최종적으로 인터페이스를 구현한 DTOImpl 객체를 반환
         return TickerRealTimeGraphQueryDtoImpl(
             priceDate = priceDateStr,
             tickerId = tickerId,
