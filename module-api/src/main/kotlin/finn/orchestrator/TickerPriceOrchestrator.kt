@@ -3,7 +3,6 @@ package finn.orchestrator
 import finn.mapper.toDto
 import finn.response.graph.TickerGraphResponse
 import finn.response.graph.TickerRealTimeGraphListResponse
-import finn.response.graph.TickerRealTimeGraphListResponse.TickerRealTimeGraphResponse
 import finn.service.GraphQueryService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
@@ -19,10 +18,8 @@ class TickerPriceOrchestrator(
         return toDto(period, graphData)
     }
 
-    fun getTickerRealTimeGraphData(tickerId: UUID): TickerRealTimeGraphListResponse {
-        val dateUrlMap = s3Service.getLatestPresignedUrlsForTicker(bucketName, tickerId)
-        return TickerRealTimeGraphListResponse(dateUrlMap.entries.map {
-            TickerRealTimeGraphResponse(it.key, it.value.toString())
-        }.toList())
+    fun getTickerRealTimeGraphData(tickerId: UUID, gte: Int?, missing: List<Int>?): TickerRealTimeGraphListResponse {
+        val graphData = graphQueryService.getTickerRealTimeGraphData(tickerId, gte, missing)
+        return toDto(graphData)
     }
 }

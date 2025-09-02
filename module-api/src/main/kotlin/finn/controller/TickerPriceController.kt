@@ -26,7 +26,7 @@ class TickerPriceController(
         gte: Int?,
         missing: List<Int>?
     ): SuccessResponse<TickerRealTimeGraphListResponse> {
-        val response = tickerPriceOrchestrator.getTickerRealTimeGraphData(tickerId)
+        val response = tickerPriceOrchestrator.getTickerRealTimeGraphData(tickerId, gte, missing)
         return SuccessResponse("200 OK", "실시간 종목 주가 데이터를 성공적으로 조회하였습니다.", response)
     }
 }
