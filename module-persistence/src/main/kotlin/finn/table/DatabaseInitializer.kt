@@ -4,10 +4,11 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
-// 주의사항: prod 환경에서는 절대 사용하지 않기!
 @Component
+@Profile("dev") // "dev"에서만 활성화
 class DatabaseInitializer : ApplicationRunner {
     // 애플리케이션이 준비되면 이 run 메서드가 자동으로 호출됩니다.
     override fun run(args: ApplicationArguments?) {
