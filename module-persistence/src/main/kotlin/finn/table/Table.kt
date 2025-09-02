@@ -37,6 +37,7 @@ object ArticleTickerTable : UUIDTable("article_ticker") {
     val title = text("title")
     val sentiment = varchar("sentiment", 20).nullable()
     val reasoning = text("reasoning").nullable()
+    val publishedDate = datetime("published_date")
     val createdAt = datetime("created_at")
 }
 

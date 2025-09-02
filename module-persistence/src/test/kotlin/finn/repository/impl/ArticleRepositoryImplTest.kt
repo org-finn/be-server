@@ -57,6 +57,7 @@ internal class ArticleRepositoryImplTest(
                 this.title = article1.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
+                this.publishedDate = LocalDateTime.now().minusDays(1)
                 this.createdAt = LocalDateTime.now()
             }
 
@@ -75,6 +76,7 @@ internal class ArticleRepositoryImplTest(
                 this.title = article2.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
+                this.publishedDate = LocalDateTime.now().minusDays(2)
                 this.createdAt = LocalDateTime.now()
             }
 
@@ -93,6 +95,7 @@ internal class ArticleRepositoryImplTest(
                 this.title = article3.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
+                this.publishedDate = LocalDateTime.now().minusDays(3)
                 this.createdAt = LocalDateTime.now()
             }
 
@@ -111,6 +114,7 @@ internal class ArticleRepositoryImplTest(
                 this.title = article4.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
+                this.publishedDate = LocalDateTime.now().minusDays(4)
                 this.createdAt = LocalDateTime.now()
             }
 
@@ -129,6 +133,7 @@ internal class ArticleRepositoryImplTest(
                 this.title = article5.title
                 this.sentiment = "neutral"
                 this.reasoning = "..."
+                this.publishedDate = LocalDateTime.now().minusDays(5)
                 this.createdAt = LocalDateTime.now()
             }
 
