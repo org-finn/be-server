@@ -19,10 +19,14 @@ spring:
     # ???? ???? ??? (?? ? ??)
     active: dev
 
-cloud:
-  aws:
-    s3:
-      bucket: ${S3_REALTIME_TICKER_PRICE_BUCKET_NAME}
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION} # AWS 리전
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+
 ---
 # ?? ?? ??? (dev, default)
 spring:
