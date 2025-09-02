@@ -61,7 +61,7 @@ class TickerPriceRealTimeDynamoDbRepository(
 
         // 조회된 아이템을 DTO로 파싱 및 필터링
         val priceDateStr = item["priceDate"]?.s() ?: ""
-        val maxLen = item["maxLen"]?.n()?.toInt() ?: 0
+        val maxLen = item["maxSize"]?.n()?.toInt() ?: 0
         val fullPriceDataList = item["priceDataList"]?.l()?.map { priceDataMapAttr ->
             val priceDataMap = priceDataMapAttr.m()
             TickerRealTimeGraphDataQueryDtoImpl(
