@@ -14,5 +14,6 @@ class ArticleTickerExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var title by ArticleTickerTable.title
     var sentiment by ArticleTickerTable.sentiment
     var reasoning by ArticleTickerTable.reasoning
+    var publishedDate by ArticleTickerTable.publishedDate
     var createdAt by ArticleTickerTable.createdAt
 }

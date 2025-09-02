@@ -44,6 +44,7 @@ class ArticleExposedRepository {
             ArticleTickerTable.sentiment,
             ArticleTickerTable.reasoning
         ).where(ArticleTickerTable.tickerId eq tickerId)
+            .orderBy(ArticleTickerTable.publishedDate, SortOrder.DESC)
             .limit(3)
             .map { row ->
                 ArticleDataQueryDtoImpl(
