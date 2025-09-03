@@ -187,7 +187,7 @@ class PredictionExposedRepository {
             .select(maxDateExpression)
             .where(PredictionTable.tickerId eq tickerId)
             .firstOrNull()
-            ?.get(maxDateExpression)
+            ?.get(maxDateExpression)?.toLocalDate()
             ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
 
         return PredictionTable
@@ -195,7 +195,8 @@ class PredictionExposedRepository {
                 TickerPriceTable, JoinType.INNER,
                 additionalConstraint = {
                     PredictionTable.tickerId eq TickerPriceTable.tickerId
-                    PredictionTable.predictionDate.date() eq TickerPriceTable.priceDate.date()
+                    PredictionTable.predictionDate.date() eq latestDate
+                    TickerPriceTable.priceDate.date() eq latestDate.minusDays(1)
                 }
             )
             .select(
@@ -216,7 +217,6 @@ class PredictionExposedRepository {
                 TickerPriceTable.low,
                 TickerPriceTable.volume
             )
-            .where(PredictionTable.predictionDate eq latestDate)
             .limit(1)
             .map { row ->
                 val articleCount = when (row[PredictionTable.sentiment]) {
