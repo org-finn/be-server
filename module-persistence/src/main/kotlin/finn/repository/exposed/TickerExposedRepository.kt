@@ -3,6 +3,7 @@ package finn.repository.exposed
 import finn.entity.TickerExposed
 import finn.queryDto.TickerSearchQueryDto
 import finn.table.TickerTable
+import org.jetbrains.exposed.sql.lowerCase
 import org.springframework.stereotype.Repository
 import java.util.*
 
@@ -27,7 +28,7 @@ class TickerExposedRepository {
             TickerTable.code,
             TickerTable.shortCompanyName,
             TickerTable.fullCompanyName
-        ).where { TickerTable.shortCompanyName like "$keyword%" }
+        ).where { TickerTable.shortCompanyName.lowerCase() like "${keyword.lowercase()}%" }
             .map { row ->
                 TickerSearchQueryDtoImpl(
                     tickerId = row[TickerTable.id].value,
