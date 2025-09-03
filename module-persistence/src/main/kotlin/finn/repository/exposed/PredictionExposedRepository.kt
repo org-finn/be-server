@@ -194,9 +194,7 @@ class PredictionExposedRepository {
             .join(
                 TickerPriceTable, JoinType.INNER,
                 additionalConstraint = {
-                    PredictionTable.tickerId eq TickerPriceTable.tickerId
-                    PredictionTable.predictionDate.date() eq latestDate
-                    TickerPriceTable.priceDate.date() eq latestDate.minusDays(1)
+                    (PredictionTable.tickerId eq TickerPriceTable.tickerId)
                 }
             )
             .select(
@@ -217,6 +215,11 @@ class PredictionExposedRepository {
                 TickerPriceTable.low,
                 TickerPriceTable.volume
             )
+            .where {
+                (PredictionTable.tickerId eq tickerId) and
+                        (PredictionTable.predictionDate.date() eq latestDate) and
+                        (TickerPriceTable.priceDate.date() eq latestDate.minusDays(1))
+            }
             .limit(1)
             .map { row ->
                 val articleCount = when (row[PredictionTable.sentiment]) {
