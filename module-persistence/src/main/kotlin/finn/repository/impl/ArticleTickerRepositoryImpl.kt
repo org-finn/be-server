@@ -7,6 +7,7 @@ import finn.repository.ArticleTickerRepository
 import finn.repository.exposed.ArticleTickerExposedRepository
 import finn.repository.exposed.TickerExposedRepository
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 import java.util.*
 
 @Repository
@@ -15,7 +16,12 @@ class ArticleTickerRepositoryImpl(
     private val tickerExposedRepository: TickerExposedRepository
 ) : ArticleTickerRepository {
 
-    override fun saveArticleTicker(articleId: UUID, title: String, insights: List<ArticleInsight>) {
+    override fun saveArticleTicker(
+        articleId: UUID,
+        title: String,
+        insights: List<ArticleInsight>,
+        publishedDate: LocalDateTime
+    ) {
         // id: ticker_code, value: ticker_id
         val tickerMap =
             tickerExposedRepository.findTickerMapByTickerCodeList(insights.map { it.tickerCode }
@@ -28,7 +34,8 @@ class ArticleTickerRepositoryImpl(
                     ?: throw CriticalDataPollutedException("${it.tickerCode}는 지원하지 않는 종목입니다."),
                 title,
                 it.sentiment,
-                it.reasoning
+                it.reasoning,
+                publishedDate
             )
         }.toList()
         articleTickerExposedRepository.saveAll(toInsert)

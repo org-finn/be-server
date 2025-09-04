@@ -15,7 +15,13 @@ class ArticleCommandService(
     fun saveArticleList(article: ArticleC, insights: List<ArticleInsight>) {
         val articleId = articleRepository.saveArticle(article, insights)
         if (articleId != null && insights.isNotEmpty()) {
-            articleTickerRepository.saveArticleTicker(articleId, article.title, insights)
+            val publishedDate = article.publishedDate
+            articleTickerRepository.saveArticleTicker(
+                articleId,
+                article.title,
+                insights,
+                publishedDate
+            )
         }
     }
 
