@@ -182,12 +182,17 @@ class PredictionExposedRepository {
     }
 
     fun findPredictionWithPriceInfoById(tickerId: UUID): PredictionDetailQueryDto {
-        val maxDateExpression = PredictionTable.predictionDate.max()
-        val latestDate = PredictionTable
-            .select(maxDateExpression)
+        val latestPredictionDate = PredictionTable
+            .select(PredictionTable.predictionDate.max())
             .where(PredictionTable.tickerId eq tickerId)
             .firstOrNull()
-            ?.get(maxDateExpression)?.toLocalDate()
+            ?.get(PredictionTable.predictionDate.max())?.toLocalDate()
+            ?: throw CriticalDataOmittedException("치명적 오류: 예측 정보가 존재하지 않습니다.")
+        val latestPriceDate = TickerPriceTable
+            .select(TickerPriceTable.priceDate.max())
+            .where(TickerPriceTable.tickerId eq tickerId)
+            .firstOrNull()
+            ?.get(TickerPriceTable.priceDate.max())?.toLocalDate()
             ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
 
         return PredictionTable
@@ -217,8 +222,8 @@ class PredictionExposedRepository {
             )
             .where {
                 (PredictionTable.tickerId eq tickerId) and
-                        (PredictionTable.predictionDate.date() eq latestDate) and
-                        (TickerPriceTable.priceDate.date() eq latestDate.minusDays(1))
+                        (PredictionTable.predictionDate.date() eq latestPredictionDate) and
+                        (TickerPriceTable.priceDate.date() eq latestPriceDate)
             }
             .limit(1)
             .map { row ->
