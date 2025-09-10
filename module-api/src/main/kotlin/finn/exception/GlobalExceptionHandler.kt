@@ -38,9 +38,8 @@ class GlobalExceptionHandler() {
 
     private fun printException(e: Exception) {
         val origin = e.stackTrace[0]
-        log.error(
-            "[예외 발생] 클래스: {} / 메서드: {}\n[메시지] {}\n[스택-트레이스]",
-            origin.className, origin.methodName, e.message, e
-        )
+        log.error(e) {
+            "[예외 발생] 클래스: ${origin.className} / 메서드: ${origin.methodName}\n[메시지] ${e.message}\n[스택-트레이스]"
+        }
     }
 }
