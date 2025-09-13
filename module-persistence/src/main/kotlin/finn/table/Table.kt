@@ -2,6 +2,7 @@ package finn.table
 
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.Index
 import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.javatime.datetime
 
@@ -39,6 +40,10 @@ object ArticleTickerTable : UUIDTable("article_ticker") {
     val reasoning = text("reasoning").nullable()
     val publishedDate = datetime("published_date")
     val createdAt = datetime("created_at")
+
+    init {
+        Index(listOf(tickerId), false, "article_ticker_ticker_id_idx")
+    }
 }
 
 object PredictionTable : UUIDTable("predictions") {
