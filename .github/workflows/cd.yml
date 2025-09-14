@@ -79,7 +79,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e # 스크립트 실행 중 오류 발생 시 즉시 중단
-
+            
+            # ⭐️ 1. GitHub Actions에서 만든 이미지 이름을 EC2의 쉘 변수로 export
+            export SPRING_APP_IMAGE=${{ env.IMAGE_NAME }}
+            
+            # UID/GID 경고 해결을 위해 변수 설정
+            export UID=1000
+            export GID=1000
+            
             # ⭐️ 2. GitHub Actions의 Secrets를 사용하여 .env-prod 파일을 서버에 동적으로 생성
             cat <<EOF > .env-prod
             SPRING_PROFILES_ACTIVE=prod
