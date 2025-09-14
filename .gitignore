@@ -264,3 +264,11 @@ gradle-app.setting
 .env-dev
 .env-prod
 .env-local
+
+# # Grafana runtime data volume
+# Grafana의 데이터베이스, 로그, 플러그인 등 실행 데이터
+grafana-data/
+
+# # Prometheus data volume
+# Prometheus의 시계열 데이터 (TSDB)
+prometheus-data/

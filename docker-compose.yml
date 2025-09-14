@@ -3,7 +3,9 @@ version: '3.8'
 services:
   # Spring Boot Application
   spring-app:
-    build: . # 현재 디렉토리의 Dockerfile을 사용하여 이미지 빌드
+    # ⭐️ CI/CD에서는 미리 빌드된 이미지를 사용하므로 build 대신 image를 사용합니다.
+    # 변수(${SPRING_APP_IMAGE})는 GitHub Actions에서 전달합니다.
+    image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref_name }}-${{ github.sha }}
     container_name: spring-app
     ports:
       - "8080:8080"
