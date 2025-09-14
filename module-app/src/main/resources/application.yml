@@ -32,7 +32,7 @@ management:
     web:
       exposure:
         include: "prometheus"
-        
+
 ---
 # dev, default
 spring:
