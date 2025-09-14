@@ -33,6 +33,12 @@ subprojects {
         implementation 'org.jetbrains.kotlin:kotlin-reflect'
         implementation 'org.springframework.boot:spring-boot-starter'
 
+        // Spring Actuator
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+        // Prometheus
+        runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
         // kotest
         testImplementation 'io.kotest:kotest-runner-junit5:5.9.1'
         testImplementation 'io.kotest:kotest-assertions-core:5.9.1'

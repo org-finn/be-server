@@ -27,8 +27,17 @@ spring:
         access-key: ${AWS_ACCESS_KEY_ID}
         secret-key: ${AWS_SECRET_ACCESS_KEY}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
 ---
-# ?? ?? ??? (dev, default)
+# dev, default
 spring:
   config:
     activate:
@@ -49,7 +58,7 @@ logging:
     root: DEBUG
 
 ---
-# ?? ?? ??? (prod)
+# prod
 spring:
   config:
     activate:

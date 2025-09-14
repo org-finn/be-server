@@ -1,0 +1,6 @@
+scrape_configs:
+  - job_name: 'artickerMonitoring'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['spring-app:8080'] # Docker Compose에서 사용할 서비스 이름과 포트

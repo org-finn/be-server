@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Spring Boot Application
+  spring-app:
+    build: . # 현재 디렉토리의 Dockerfile을 사용하여 이미지 빌드
+    container_name: spring-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env-dev
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml # 로컬 설정 파일을 컨테이너에 마운트
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    user: "$UID:$GID"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus # Prometheus가 먼저 실행된 후 Grafana가 실행되도록 설정
