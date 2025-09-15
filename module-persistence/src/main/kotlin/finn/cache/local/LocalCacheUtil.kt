@@ -13,10 +13,7 @@ class LocalCacheUtil(private val cache: Cache<String, CacheEntry<*>>) : CacheUti
     }
 
     override fun <T> get(key: String, classType: Class<T>): T? {
-        val entry: CacheEntry<*>? = cache.getIfPresent(key)
-        if (entry == null) {
-            return null
-        }
+        val entry: CacheEntry<*> = cache.getIfPresent(key) ?: return null
 
         if (entry.isExpired()) {
             cache.invalidate(key)
@@ -26,10 +23,9 @@ class LocalCacheUtil(private val cache: Cache<String, CacheEntry<*>>) : CacheUti
         try {
             return classType.cast(entry.value)!!
         } catch (e: ClassCastException) {
-            log.error(
-                "[LocalCacheUtil]: Local Cache에서 값 가져오기 실패, key: {}, error: {}", key,
-                e.message
-            )
+            log.error {
+                "[LocalCacheUtil]: Local Cache에서 값 가져오기 실패, key: $key, error: $e.message"
+            }
             return null
         }
     }

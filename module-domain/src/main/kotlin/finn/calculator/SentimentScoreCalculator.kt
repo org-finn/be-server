@@ -8,7 +8,7 @@ import kotlin.math.roundToInt
  */
 
 fun calculateScore(
-    todayScores: List<Int>,
+    recentScores: List<Int>,
     positiveArticleCount: Long,
     neutralArticleCount: Long,
     negativeArticleCount: Long
@@ -18,7 +18,7 @@ fun calculateScore(
 
     // 뉴스가 없는 경우, 기존 점수들의 평균을 반환 (기존 점수도 없으면 중립 50점)
     if (totalArticleCount == 0L) {
-        return if (todayScores.isEmpty()) 50 else todayScores.average().roundToInt()
+        return if (recentScores.isEmpty()) 50 else recentScores.average().roundToInt()
     }
 
     // 긍정(+1), 부정(-1)을 기반으로 원시 점수(-1.0 ~ 1.0) 계산
@@ -33,7 +33,7 @@ fun calculateScore(
     // 2-1. 기존 점수(scores)의 가중 합계와 가중치 총합을 계산합니다.
     var weightedSumOfOldScores = 0.0
     var totalWeightOfOldScores = 0.0
-    todayScores.forEachIndexed { index, score ->
+    recentScores.forEachIndexed { index, score ->
         // 오래된 점수일수록 낮은 가중치(1)를, 최신 점수일수록 높은 가중치(scores.size)를 부여합니다.
         val weight = (index + 1).toDouble() // 가중치: 1, 2, 3, ...
         weightedSumOfOldScores += score * weight
@@ -41,7 +41,7 @@ fun calculateScore(
     }
 
     // 2-2. 새로운 뉴스 점수는 가장 최신 데이터이므로 가장 높은 가중치를 부여합니다.
-    val ArticleScoreWeight = (todayScores.size + 1).toDouble()
+    val ArticleScoreWeight = (recentScores.size + 1).toDouble()
 
     // 2-3. 최종 가중 합계와 가중치 총합을 계산합니다.
     val finalWeightedSum = weightedSumOfOldScores + (normalizedArticleScore * ArticleScoreWeight)

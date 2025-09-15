@@ -168,7 +168,7 @@ internal class PredictionRepositoryImplTest(
                 negativeArticleCount = 1L,
                 neutralArticleCount = 2L,
                 predictionDate = latestDate,
-                todayScores = listOf(50, 55) // 예시 점수
+                recentScores = listOf(50, 55) // 예시 점수
             )
 
             Then("데이터가 성공적으로 저장되어야 한다") {
@@ -194,7 +194,7 @@ internal class PredictionRepositoryImplTest(
                 negativeArticleCount = 0L,
                 neutralArticleCount = 0L,
                 predictionDate = latestDate,
-                todayScores = listOf(70) // 기존 점수
+                recentScores = listOf(70) // 기존 점수
             )
             val updatedPrediction = transaction {
                 predictionRepository.updatePrediction(predictionToUpdate)

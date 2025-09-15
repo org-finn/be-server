@@ -24,10 +24,10 @@ class PredictionC private constructor(
             tickerId: UUID, tickerCode: String, shortCompanyName: String,
             positiveArticleCount: Long, negativeArticleCount: Long,
             neutralArticleCount: Long, predictionDate: LocalDateTime,
-            todayScores: List<Int>
+            recentScores: List<Int>
         ): PredictionC {
             val calculatedScore = getSentimentScore(
-                todayScores,
+                recentScores,
                 positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
             val strategy = getStrategyFromScore(calculatedScore)
@@ -47,13 +47,13 @@ class PredictionC private constructor(
         }
 
         fun getSentimentScore(
-            todayScores: List<Int>,
+            recentScores: List<Int>,
             positiveArticleCount: Long,
             neutralArticleCount: Long,
             negativeArticleCount: Long,
         ): Int {
             return calculateScore(
-                todayScores,
+                recentScores,
                 positiveArticleCount, neutralArticleCount, negativeArticleCount
             )
         }

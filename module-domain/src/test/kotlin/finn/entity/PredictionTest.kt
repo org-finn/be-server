@@ -28,7 +28,7 @@ internal class PredictionTest : BehaviorSpec({
         val positiveCount = 10L
         val negativeCount = 2L
         val neutralCount = 5L
-        val todayScores = listOf(60, 65, 70)
+        val recentScores = listOf(60, 65, 70)
         val calculatedScore = 69 // 계산기가 반환할 가짜 점수
 
 
@@ -41,7 +41,7 @@ internal class PredictionTest : BehaviorSpec({
                 negativeArticleCount = negativeCount,
                 neutralArticleCount = neutralCount,
                 predictionDate = testDate,
-                todayScores = todayScores,
+                recentScores = recentScores,
             )
 
             Then("계산된 점수와 그에 맞는 전략으로 Prediction 객체가 생성되어야 한다") {
@@ -94,7 +94,7 @@ internal class PredictionTest : BehaviorSpec({
                 tickerCode = testTickerCode,
                 shortCompanyName = testCompanyName,
                 predictionDate = testDate,
-                todayScores = emptyList(),
+                recentScores = emptyList(),
             )
 
             Then("긍정 뉴스 개수(positiveArticleCount)를 반환해야 한다") {
@@ -113,7 +113,7 @@ internal class PredictionTest : BehaviorSpec({
                 tickerCode = testTickerCode,
                 shortCompanyName = testCompanyName,
                 predictionDate = testDate,
-                todayScores = emptyList(),
+                recentScores = emptyList(),
             )
             Then("중립 뉴스 개수(neutralArticleCount)를 반환해야 한다") {
                 predictionQ.getArticleCountAlongWithStrategy() shouldBe 10

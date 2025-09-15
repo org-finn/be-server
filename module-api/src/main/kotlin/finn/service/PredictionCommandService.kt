@@ -20,7 +20,7 @@ class PredictionCommandService(
         negativeArticleCount : Long,
         neutralArticleCount : Long
     ) {
-        val todayScores = predictionRepository.getRecentSentimentScoreList(tickerId)
+        val recentScores = predictionRepository.getRecentSentimentScoreList(tickerId)
 
         val predictionC = PredictionC.create(
             tickerId,
@@ -30,7 +30,7 @@ class PredictionCommandService(
             negativeArticleCount,
             neutralArticleCount,
             predictionDate.toLocalDateTime(),
-            todayScores
+            recentScores
         )
 
         predictionRepository.updatePrediction(predictionC)
