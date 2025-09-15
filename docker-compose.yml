@@ -11,6 +11,13 @@ services:
       - "8080:8080"
     env_file:
       - .env-prod
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-region: "ap-northeast-2"
+        awslogs-group: "articker-ec2-server-main-logs"
+        awslogs-create-group: "true"
+        awslogs-stream-prefix: "spring-app"
 
   # Prometheus
   prometheus:
