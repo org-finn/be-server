@@ -228,8 +228,8 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Gradle ###
-.gradle
-**/build/
+.gradle/
+build/
 !src/**/build/
 
 # Ignore Gradle GUI config
@@ -256,11 +256,19 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,intellij,kotlin,gradle,linux,java
 
-# .idea
-.idea/
+# IDEA
+.idea
 
 # env
 .env
 .env-dev
 .env-prod
 .env-local
+
+# # Grafana runtime data volume
+# Grafana의 데이터베이스, 로그, 플러그인 등 실행 데이터
+grafana-data/
+
+# # Prometheus data volume
+# Prometheus의 시계열 데이터 (TSDB)
+prometheus-data/

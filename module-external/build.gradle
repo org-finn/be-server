@@ -1,0 +1,49 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+    id 'org.springframework.boot' version '3.5.4'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'finn'
+version = '0.0.1-SNAPSHOT'
+description = 'module-external'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':module-common')
+
+    // AWS S3
+    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"))
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
+    implementation('org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE')
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll '-Xjsr305=strict'
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+tasks.register("prepareKotlinBuildScriptModel") {}

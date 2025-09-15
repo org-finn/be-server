@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: module-app
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 30000
+      max-lifetime: 180000
+      connection-timeout: 30000
+  exposed:
+    generate-ddl: false
+    show-sql: true
+    default-transaction-isolation: ${TRANSACTION_ISOLATION_LEVEL}
+  profiles:
+    # ???? ???? ??? (?? ? ??)
+    active: dev
+
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION} # AWS 리전
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+---
+# dev, default
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+cors:
+  allowed-origins: '*'
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  override-with-generic-response: false
+
+logging:
+  level:
+    root: DEBUG
+
+---
+# prod
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+
+cors:
+  allowed-origins: 'https://articker.kr'
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
