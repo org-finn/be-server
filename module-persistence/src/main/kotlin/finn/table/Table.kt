@@ -58,6 +58,10 @@ object PredictionTable : UUIDTable("predictions") {
     val shortCompanyName = varchar("short_company_name", 100)
     val tickerId = uuid("ticker_id")
     val createdAt = datetime("created_at")
+    init {
+        uniqueIndex("predictions_ticker_id_prediction_date_unique_key",
+            tickerId, predictionDate)
+    }
 }
 
 object TickerPriceTable : UUIDTable("ticker_prices") {
