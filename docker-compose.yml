@@ -17,7 +17,7 @@ services:
         awslogs-region: "ap-northeast-2"
         awslogs-group: "articker-ec2-server-main-logs"
         awslogs-create-group: "true"
-        awslogs-stream-prefix: "spring-app"
+        awslogs-stream: "spring-app"
 
   # Prometheus
   prometheus:
