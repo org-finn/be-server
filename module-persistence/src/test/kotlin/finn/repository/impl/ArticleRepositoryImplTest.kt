@@ -34,6 +34,7 @@ internal class ArticleRepositoryImplTest(
                 code = "TEST"
                 fullCompanyName = "Test Company Inc."
                 shortCompanyName = "Test"
+                shortCompanyNameKr = "테스트"
                 country = "USA"
                 marketCap = 100000L
                 exchangeCode = "code"
