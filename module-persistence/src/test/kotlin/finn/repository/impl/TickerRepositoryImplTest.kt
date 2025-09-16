@@ -23,12 +23,13 @@ internal class TickerRepositoryImplTest(
         transaction {
             TickerTable.deleteAll()
 
-            // 미국 기업 테스트 데이터 삽입
+            // 미국 기업 테스트 데이터 삽입 (한글명 추가)
             TickerTable.insert {
                 it[id] = UUID.randomUUID()
                 it[code] = "AAPL"
                 it[fullCompanyName] = "Apple Inc."
                 it[shortCompanyName] = "Apple"
+                it[shortCompanyNameKr] = "애플"
                 it[country] = "USA"
                 it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
@@ -38,6 +39,7 @@ internal class TickerRepositoryImplTest(
                 it[code] = "AMZN"
                 it[fullCompanyName] = "Amazon.com Inc."
                 it[shortCompanyName] = "Amazon"
+                it[shortCompanyNameKr] = "아마존"
                 it[country] = "USA"
                 it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
@@ -47,6 +49,7 @@ internal class TickerRepositoryImplTest(
                 it[code] = "MSFT"
                 it[fullCompanyName] = "Microsoft Corporation"
                 it[shortCompanyName] = "Microsoft"
+                it[shortCompanyNameKr] = "마이크로소프트"
                 it[country] = "USA"
                 it[exchangeCode] = "CODE"
                 it[createdAt] = LocalDateTime.now()
@@ -89,6 +92,30 @@ internal class TickerRepositoryImplTest(
 
             Then("결과가 없는 빈 리스트를 반환해야 한다") {
                 result.shouldBeEmpty()
+            }
+        }
+
+        When("'애플'로 검색하면") {
+            val keyword = "애플"
+            val result = transaction {
+                tickerRepository.getTickerListBySearchKeyword(keyword)
+            }
+
+            Then("'애'로 시작하는 Ticker 한 개(애플)를 반환해야 한다") {
+                result shouldHaveSize 1
+                result.first().shortCompanyNameKr() shouldBe "애플"
+            }
+        }
+
+        When("'아마'로 검색하면") {
+            val keyword = "아마"
+            val result = transaction {
+                tickerRepository.getTickerListBySearchKeyword(keyword)
+            }
+
+            Then("'아마'로 시작하는 Ticker 한 개(아마존)를 반환해야 한다") {
+                result shouldHaveSize 1
+                result.first().shortCompanyNameKr() shouldBe "아마존"
             }
         }
     }
