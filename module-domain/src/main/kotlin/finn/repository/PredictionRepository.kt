@@ -1,10 +1,10 @@
 package finn.repository
 
-import finn.entity.command.PredictionC
 import finn.entity.query.PredictionQ
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
+import java.time.LocalDateTime
 import java.util.*
 
 interface PredictionRepository {
@@ -14,7 +14,12 @@ interface PredictionRepository {
 
     fun getRecentSentimentScoreList(tickerId: UUID): List<Int>
 
-    fun savePrediction(prediction: PredictionC)
-
-    fun updatePrediction(prediction: PredictionC) : PredictionQ
+    fun updatePredictionByArticle(
+        tickerId: UUID,
+        predictionDate: LocalDateTime,
+        positiveArticleCount: Long,
+        negativeArticleCount: Long,
+        neutralArticleCount: Long,
+        score: Int
+    ) : PredictionQ
 }
