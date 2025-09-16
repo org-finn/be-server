@@ -1,5 +1,6 @@
 package finn.service
 
+import finn.filter.TickerSearchFilter
 import finn.queryDto.TickerSearchQueryDto
 import finn.repository.TickerRepository
 import io.kotest.core.spec.style.BehaviorSpec
@@ -42,9 +43,11 @@ internal class TickerQueryServiceTest : BehaviorSpec({
     // 2. 모킹할 의존성을 선언합니다.
     lateinit var tickerRepository: TickerRepository
 
+    val tickerSearchFilter = TickerSearchFilter()
+
     // 3. 테스트에 사용할 가짜 데이터 목록을 미리 정의합니다.
     val fakeTickerList = listOf(
-        TickerSearchQueryDtoImpl(shortCompanyName = "Apple", shortCompanyNameKr = "애플"),
+        TickerSearchQueryDtoImpl(shortCompanyName = "AMD", shortCompanyNameKr = "암드"),
         TickerSearchQueryDtoImpl(shortCompanyName = "Amazon", shortCompanyNameKr = "아마존"),
         TickerSearchQueryDtoImpl(
             shortCompanyName = "Microsoft",
@@ -60,19 +63,19 @@ internal class TickerQueryServiceTest : BehaviorSpec({
     Given("TickerQueryService와 mock Repository가 준비되었을 때") {
         // 4. mock 객체와 서비스 인스턴스를 생성합니다.
         tickerRepository = mockk()
-        tickerQueryService = TickerQueryService(tickerRepository)
+        tickerQueryService = TickerQueryService(tickerRepository, tickerSearchFilter)
 
         // 5. repository의 findAll()이 호출되면, 미리 정의한 가짜 데이터를 반환하도록 설정합니다.
         every { tickerRepository.findAll() } returns fakeTickerList
 
         Context("getTickerSearchList 메서드는") {
 
-            When("'A'로 검색하면") {
-                val result = tickerQueryService.getTickerSearchList("A")
+            When("'Am'로 검색하면") {
+                val result = tickerQueryService.getTickerSearchList("Am")
 
-                Then("'A'로 시작하는 Ticker 두 개(Apple, Amazon)를 반환해야 한다") {
+                Then("'A'로 시작하는 Ticker 두 개(Amazon, AMD)를 반환해야 한다") {
                     result shouldHaveSize 2
-                    result.any { it.shortCompanyName() == "Apple" } shouldBe true
+                    result.any { it.shortCompanyName() == "AMD" } shouldBe true
                     result.any { it.shortCompanyName() == "Amazon" } shouldBe true
                 }
             }
