@@ -5,17 +5,24 @@ import finn.mapper.toDomain
 import finn.queryDto.TickerSearchQueryDto
 import finn.repository.TickerRepository
 import finn.repository.exposed.TickerExposedRepository
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Repository
 
 @Repository
 class TickerRepositoryImpl(
-    private val tickerExposedRepository: TickerExposedRepository
+    private val tickerExposedRepository: TickerExposedRepository,
 ) : TickerRepository {
-    override fun getTickerListBySearchKeyword(keyword: String): List<TickerSearchQueryDto> {
-        return tickerExposedRepository.findTickerListBySearchKeyword(keyword)
+
+    companion object {
+        private const val TICKER_LIST_CACHE_KEY = "'tickers:all'"
     }
 
     override fun getTickerByTickerCode(tickerCode: String): Ticker {
         return toDomain(tickerExposedRepository.findByTickerCode(tickerCode))
+    }
+
+    @Cacheable("tickerSearchList", key = TICKER_LIST_CACHE_KEY)
+    override fun findAll(): List<TickerSearchQueryDto> {
+        return tickerExposedRepository.findAll()
     }
 }
