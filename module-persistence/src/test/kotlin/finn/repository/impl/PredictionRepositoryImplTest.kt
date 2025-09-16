@@ -39,6 +39,7 @@ internal class PredictionRepositoryImplTest(
                 it[code] = "AAAA"
                 it[fullCompanyName] = "Company A Inc."
                 it[shortCompanyName] = "Company A"
+                it[shortCompanyNameKr] = "A 회사"
                 it[country] = "USA"
                 it[marketCap] = 1000L
                 it[category] = "Technology"
@@ -51,6 +52,7 @@ internal class PredictionRepositoryImplTest(
                 it[code] = "BBBB"
                 it[fullCompanyName] = "Company B Inc."
                 it[shortCompanyName] = "Company B"
+                it[shortCompanyNameKr] = "B 회사"
                 it[country] = "USA"
                 it[marketCap] = 2000L
                 it[category] = "Technology"

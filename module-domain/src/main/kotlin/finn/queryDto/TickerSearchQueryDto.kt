@@ -10,5 +10,7 @@ interface TickerSearchQueryDto {
 
     fun shortCompanyName(): String
 
+    fun shortCompanyNameKr(): String
+
     fun fullCompanyName(): String
 }
