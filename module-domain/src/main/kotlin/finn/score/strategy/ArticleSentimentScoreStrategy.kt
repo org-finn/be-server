@@ -1,6 +1,6 @@
 package finn.score.strategy
 
-import finn.score.PredictionTask
+import finn.score.task.ArticlePredictionTask
 import org.springframework.stereotype.Component
 import kotlin.math.roundToInt
 
@@ -10,15 +10,15 @@ import kotlin.math.roundToInt
  */
 
 @Component
-class ArticleSentimentScoreStrategy : SentimentScoreStrategy {
+class ArticleSentimentScoreStrategy : SentimentScoreStrategy<ArticlePredictionTask> {
 
     override fun supports(type: String): Boolean = type == "article"
 
-    override suspend fun calculate(task: PredictionTask): Int {
-        val newPositiveArticleCount = (task.payload["positiveArticleCount"] as Int).toLong()
-        val newNegativeArticleCount = (task.payload["negativeArticleCount"] as Int).toLong()
-        val newNeutralArticleCount = (task.payload["neutralArticleCount"] as Int).toLong()
-        val previousScore = task.payload["previousScore"] as Int
+    override suspend fun calculate(task: ArticlePredictionTask): Int {
+        val newPositiveArticleCount = task.payload.positiveArticleCount
+        val newNegativeArticleCount = task.payload.negativeArticleCount
+        val newNeutralArticleCount = task.payload.neutralArticleCount
+        val previousScore = task.payload.previousScore
 
         var scoreChange = 0.0
 

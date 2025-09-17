@@ -1,26 +1,26 @@
 package finn.score.strategy
 
 import finn.exception.CriticalDataOmittedException
-import finn.score.PredictionTask
+import finn.score.task.InitPredictionTask
 import org.springframework.stereotype.Component
 import kotlin.math.roundToInt
 
 @Component
-class PredictionInitSentimentScoreStrategy : SentimentScoreStrategy {
+class PredictionInitSentimentScoreStrategy : SentimentScoreStrategy<InitPredictionTask> {
 
     override fun supports(type: String): Boolean = type == "init"
 
     /**
      * PredictionTask의 payload에 담긴 데이터를 기반으로 초기 점수를 계산합니다.
      */
-    override suspend fun calculate(task: PredictionTask): Int {
-        val recentScores = task.payload["recentScores"] as List<Int>
+    override suspend fun calculate(task: InitPredictionTask): Int {
+        val recentScores = task.payload.recentScores
 
-        val todayMacd = task.payload["todayMacd"] as Map<String, Double>
-        val yesterdayMacd = task.payload["yesterdayMacd"] as Map<String, Double>
-        val todayMa = task.payload["todayMa"] as Map<String, Double>
-        val yesterdayMa = task.payload["yesterdayMa"] as Map<String, Double>
-        val todayRsi = task.payload["todayRsi"] as Double
+        val todayMacd = task.payload.todayMacd
+        val yesterdayMacd = task.payload.yesterdayMacd
+        val todayMa = task.payload.todayMa
+        val yesterdayMa = task.payload.yesterdayMa
+        val todayRsi = task.payload.todayRsi
 
         // --- 점수 계산 로직 수행 ---
 

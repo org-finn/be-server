@@ -1,11 +1,13 @@
 package finn.handler
 
-import finn.score.PredictionTask
+import finn.exception.NotSupportedTypeException
+import finn.score.strategy.ArticleSentimentScoreStrategy
 import finn.score.strategy.StrategyFactory
+import finn.score.task.ArticlePredictionTask
+import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Component
-import java.time.OffsetDateTime
 
 @Component
 class ArticlePredictionHandler(
@@ -17,18 +19,24 @@ class ArticlePredictionHandler(
 
     @ExposedTransactional
     override suspend fun handle(task: PredictionTask) {
+        if (task !is ArticlePredictionTask) {
+            throw NotSupportedTypeException("Unsupported prediction task type in Article Prediction: ${task.type}")
+        }
         val tickerId = task.tickerId
 
         val strategy = strategyFactory.findStrategy(task.type)
-        task.payload["previousScore"] = predictionService.getTodaySentimentScore(tickerId)
+        if (strategy !is ArticleSentimentScoreStrategy) {
+            throw NotSupportedTypeException("Unsupported prediction strategy in Article Prediction: ${strategy.javaClass}")
+        }
+        task.payload.previousScore = predictionService.getTodaySentimentScore(tickerId)
         val score = strategy.calculate(task)
 
         predictionService.updatePredictionByArticle(
             tickerId,
-            OffsetDateTime.parse(task.payload["predictionDate"] as String),
-            (task.payload["positiveArticleCount"] as Int).toLong(),
-            (task.payload["negativeArticleCount"] as Int).toLong(),
-            (task.payload["neutralArticleCount"] as Int).toLong(),
+            task.payload.predictionDate,
+            task.payload.positiveArticleCount,
+            task.payload.negativeArticleCount,
+            task.payload.neutralArticleCount,
             score
         )
     }

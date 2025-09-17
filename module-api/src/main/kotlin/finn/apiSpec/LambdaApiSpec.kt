@@ -2,7 +2,7 @@ package finn.apiSpec
 
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.response.SuccessResponse
-import finn.score.PredictionTask
+import finn.score.task.PredictionTask
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping

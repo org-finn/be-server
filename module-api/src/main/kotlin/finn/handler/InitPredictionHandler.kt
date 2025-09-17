@@ -1,11 +1,13 @@
 package finn.handler
 
-import finn.score.PredictionTask
+import finn.exception.NotSupportedTypeException
+import finn.score.strategy.PredictionInitSentimentScoreStrategy
 import finn.score.strategy.StrategyFactory
+import finn.score.task.InitPredictionTask
+import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Component
-import java.time.OffsetDateTime
 
 @Component
 class InitPredictionHandler(
@@ -17,13 +19,19 @@ class InitPredictionHandler(
 
     @ExposedTransactional
     override suspend fun handle(task: PredictionTask) {
+        if (task !is InitPredictionTask) {
+            throw NotSupportedTypeException("Unsupported prediction task type in Init Prediction: ${task.type}")
+        }
         val tickerId = task.tickerId
-        val tickerCode = task.payload["tickerCode"] as String
-        val shortCompanyName = task.payload["shortCompanyName"] as String
-        val predictionDate = task.payload["predictionDate"] as OffsetDateTime
+        val tickerCode = task.payload.tickerCode
+        val shortCompanyName = task.payload.shortCompanyName
+        val predictionDate = task.payload.predictionDate
 
         val strategy = strategyFactory.findStrategy(task.type)
-        task.payload["recentScores"] = predictionService.getRecentSentimentScores(tickerId)
+        if (strategy !is PredictionInitSentimentScoreStrategy) {
+            throw NotSupportedTypeException("Unsupported prediction strategy in Init Prediction: ${strategy.javaClass}")
+        }
+        task.payload.recentScores = predictionService.getRecentSentimentScores(tickerId)
         val score = strategy.calculate(task)
 
         predictionService.createPrediction(

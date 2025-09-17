@@ -6,7 +6,7 @@ import finn.handler.PredictionHandlerFactory
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle.ArticleRealTimeInsightRequest
-import finn.score.PredictionTask
+import finn.score.task.PredictionTask
 import finn.service.ArticleCommandService
 import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging

@@ -4,7 +4,7 @@ import finn.apiSpec.LambdaApiSpec
 import finn.orchestrator.LambdaOrchestrator
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.response.SuccessResponse
-import finn.score.PredictionTask
+import finn.score.task.PredictionTask
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
