@@ -44,11 +44,12 @@ class LambdaOrchestrator(
     fun updatePrediction(task: PredictionTask) {
         val tickerId = task.tickerId
         val tickerMutex = mutexes.computeIfAbsent(tickerId.toString()) { Mutex() }
+        val type = task.type
 
         scope.launch {
             tickerMutex.withLock {
                 log.debug { "락 획득 성공. ${tickerId}: 예측을 수행합니다." }
-                val handler = handlerFactory.findHandler("article")
+                val handler = handlerFactory.findHandler(type)
                 handler.handle(task)
                 log.debug { "${tickerId}: 예측 수행완료. 락을 반납합니다." }
             }
