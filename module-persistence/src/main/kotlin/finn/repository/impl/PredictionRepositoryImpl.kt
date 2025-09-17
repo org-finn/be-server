@@ -57,6 +57,10 @@ class PredictionRepositoryImpl(
         return predictionExposedRepository.findTodaySentimentScoreByTickerId(tickerId)
     }
 
+    override fun getRecentScore(tickerId: UUID): Int {
+        return predictionExposedRepository.findTodaySentimentScore(tickerId)
+    }
+
     override fun updatePredictionByArticle(
         tickerId: UUID,
         predictionDate: LocalDateTime,

@@ -15,52 +15,28 @@ class ArticleSentimentScoreStrategy : SentimentScoreStrategy {
     override fun supports(type: String): Boolean = type == "article"
 
     override suspend fun calculate(task: PredictionTask): Int {
-        val positiveArticleCount = (task.payload["positiveArticleCount"] as Int).toLong()
-        val negativeArticleCount = (task.payload["negativeArticleCount"] as Int).toLong()
-        val neutralArticleCount = (task.payload["neutralArticleCount"] as Int).toLong()
-        val recentScores = task.payload["recentScores"] as List<Int>
+        val newPositiveArticleCount = (task.payload["positiveArticleCount"] as Int).toLong()
+        val newNegativeArticleCount = (task.payload["negativeArticleCount"] as Int).toLong()
+        val newNeutralArticleCount = (task.payload["neutralArticleCount"] as Int).toLong()
+        val previousScore = task.payload["previousScore"] as Int
 
-        val totalArticleCount = positiveArticleCount + neutralArticleCount + negativeArticleCount
+        var scoreChange = 0.0
 
-        // 뉴스가 없는 경우, 기존 점수들의 평균을 반환 (기존 점수도 없으면 중립 50점)
-        if (totalArticleCount == 0L) {
-            return if (recentScores.isEmpty()) 50 else recentScores.average().roundToInt()
+        // 긍정 뉴스에 대한 비선형적 점수 증가
+        // 1개: +3, 2개: +3+4=+7, 3개: +3+4+5=+12
+        for (i in 0 until newPositiveArticleCount) {
+            scoreChange += (3.0 + i)
         }
 
-        // 긍정(+1), 부정(-1)을 기반으로 원시 점수(-1.0 ~ 1.0) 계산
-        val rawArticleScore = (positiveArticleCount - negativeArticleCount).toDouble()
-        val averageArticleScore = rawArticleScore / totalArticleCount
-
-        // -1.0 ~ 1.0 범위를 0 ~ 100 범위로 정규화
-        val normalizedArticleScore = ((averageArticleScore + 1) / 2) * 100
-
-        // --- 2. 시간 순서에 따라 가중 평균 계산 ---
-
-        // 2-1. 기존 점수(scores)의 가중 합계와 가중치 총합을 계산합니다.
-        var weightedSumOfOldScores = 0.0
-        var totalWeightOfOldScores = 0.0
-        recentScores.forEachIndexed { index, score ->
-            // 오래된 점수일수록 낮은 가중치(1)를, 최신 점수일수록 높은 가중치(scores.size)를 부여합니다.
-            val weight = (index + 1).toDouble() // 가중치: 1, 2, 3, ...
-            weightedSumOfOldScores += score * weight
-            totalWeightOfOldScores += weight
+        // 부정 뉴스에 대한 비선형적 점수 감소
+        // 1개: -3, 2개: -3-4=-7, 3개: -3-4-5=-12
+        for (i in 0 until newNegativeArticleCount) {
+            scoreChange -= (3.0 + i)
         }
 
-        // 2-2. 새로운 뉴스 점수는 가장 최신 데이터이므로 가장 높은 가중치를 부여합니다.
-        val ArticleScoreWeight = (recentScores.size + 1).toDouble()
+        val newScore = previousScore + scoreChange
 
-        // 2-3. 최종 가중 합계와 가중치 총합을 계산합니다.
-        val finalWeightedSum = weightedSumOfOldScores + (normalizedArticleScore * ArticleScoreWeight)
-        val finalTotalWeight = totalWeightOfOldScores + ArticleScoreWeight
-
-        // 2-4. 가중 평균을 계산합니다.
-        val finalScore = if (finalTotalWeight == 0.0) {
-            // scores 리스트가 비어있으면 뉴스 점수가 유일한 데이터이므로 그대로 사용합니다.
-            normalizedArticleScore
-        } else {
-            finalWeightedSum / finalTotalWeight
-        }
-
-        return finalScore.roundToInt()
+        // 점수는 항상 0과 100 사이의 값을 유지하도록 강제
+        return newScore.coerceIn(0.0, 100.0).roundToInt()
     }
 }

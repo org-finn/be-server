@@ -27,4 +27,8 @@ class PredictionCommandService(
     fun getRecentSentimentScores(tickerId: UUID): List<Int> {
         return predictionRepository.getRecentSentimentScoreList(tickerId)
     }
+
+    fun getTodaySentimentScore(tickerId: UUID): Int {
+        return predictionRepository.getRecentScore(tickerId)
+    }
 }

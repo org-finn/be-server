@@ -20,7 +20,7 @@ class ArticlePredictionHandler(
         val tickerId = task.tickerId
 
         val strategy = strategyFactory.findStrategy(task.type)
-        task.payload["recentScores"] = predictionService.getRecentSentimentScores(tickerId)
+        task.payload["previousScore"] = predictionService.getTodaySentimentScore(tickerId)
         val score = strategy.calculate(task)
 
         predictionService.updatePredictionByArticle(

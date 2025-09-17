@@ -285,4 +285,19 @@ class PredictionExposedRepository {
                 row[PredictionTable.score]
             }
     }
+
+    fun findTodaySentimentScore(tickerId: UUID): Int {
+        val today = LocalDate.now(ZoneId.of("America/New_York"))
+
+        return PredictionTable
+            .select(PredictionTable.score)
+            .where {
+                (PredictionTable.tickerId eq tickerId) and
+                        (PredictionTable.predictionDate.date() eq today)
+            }
+            .map { row ->
+                row[PredictionTable.score]
+            }.singleOrNull()
+            ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
+    }
 }
