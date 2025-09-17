@@ -1,5 +1,7 @@
 package finn.entity.query
 
+import finn.exception.DomainPolicyViolationException
+
 enum class PredictionStrategy(
     val strategy: String,
     val left: Int,
@@ -14,7 +16,8 @@ enum class PredictionStrategy(
 
     companion object {
         fun findByStrategy(strategy: String): PredictionStrategy {
-            return PredictionStrategy.entries.find { it.strategy == strategy }!!
+            return PredictionStrategy.entries.find { it.strategy == strategy }
+                ?: throw DomainPolicyViolationException("${strategy}: 유효하지 않은 예측 전략입니다.")
         }
     }
 

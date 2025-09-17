@@ -1,9 +1,8 @@
 package finn.repository.impl
 
-import finn.entity.command.PredictionC
 import finn.entity.query.PredictionQ
+import finn.entity.query.PredictionStrategy
 import finn.exception.CriticalDataPollutedException
-import finn.insertDto.PredictionToInsert
 import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
@@ -11,12 +10,34 @@ import finn.queryDto.PredictionQueryDto
 import finn.repository.PredictionRepository
 import finn.repository.exposed.PredictionExposedRepository
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 import java.util.*
 
 @Repository
 class PredictionRepositoryImpl(
     private val predictionExposedRepository: PredictionExposedRepository
 ) : PredictionRepository {
+
+    override fun save(
+        tickerId: UUID,
+        tickerCode: String,
+        shortCompanyName: String,
+        sentiment: Int,
+        strategy: PredictionStrategy,
+        score: Int,
+        predictionDate: LocalDateTime
+    ) {
+        predictionExposedRepository.save(
+            tickerId,
+            tickerCode,
+            shortCompanyName,
+            sentiment,
+            strategy.strategy,
+            score,
+            predictionDate
+        )
+    }
+
     override fun getPredictionList(
         page: Int,
         size: Int,
@@ -58,36 +79,23 @@ class PredictionRepositoryImpl(
         return predictionExposedRepository.findTodaySentimentScoreByTickerId(tickerId)
     }
 
-    override fun savePrediction(prediction: PredictionC) {
-        val predictionToInsert = PredictionToInsert(
-            prediction.tickerId,
-            prediction.tickerCode,
-            prediction.shortCompanyName,
-            prediction.positiveArticleCount,
-            prediction.negativeArticleCount,
-            prediction.neutralArticleCount,
-            prediction.sentimentScore,
-            prediction.sentiment,
-            prediction.predictionStrategy.strategy,
-            prediction.predictionDate
-        )
-        predictionExposedRepository.save(predictionToInsert)
+    override fun getRecentScore(tickerId: UUID): Int {
+        return predictionExposedRepository.findTodaySentimentScore(tickerId)
     }
 
-    override fun updatePrediction(prediction: PredictionC): PredictionQ {
-        val predictionToUpdate = PredictionToInsert(
-            prediction.tickerId,
-            prediction.tickerCode,
-            prediction.shortCompanyName,
-            prediction.positiveArticleCount,
-            prediction.negativeArticleCount,
-            prediction.neutralArticleCount,
-            prediction.sentimentScore,
-            prediction.sentiment,
-            prediction.predictionStrategy.strategy,
-            prediction.predictionDate
+    override fun updatePredictionByArticle(
+        tickerId: UUID,
+        predictionDate: LocalDateTime,
+        positiveArticleCount: Long,
+        negativeArticleCount: Long,
+        neutralArticleCount: Long,
+        score: Int
+    ): PredictionQ {
+        return toDomain(
+            predictionExposedRepository.updateByArticle(
+                tickerId, predictionDate, positiveArticleCount, negativeArticleCount,
+                neutralArticleCount, score
+            )
         )
-        val updatedPrediction = predictionExposedRepository.update(predictionToUpdate)
-        return toDomain(updatedPrediction)
     }
 }

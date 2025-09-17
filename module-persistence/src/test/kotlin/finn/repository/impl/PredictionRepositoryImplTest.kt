@@ -1,6 +1,5 @@
 import finn.TestApplication
-import finn.entity.PredictionExposed
-import finn.entity.command.PredictionC
+import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
 import finn.repository.PredictionRepository
 import finn.table.PredictionTable
@@ -10,7 +9,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
@@ -39,6 +37,7 @@ internal class PredictionRepositoryImplTest(
                 it[code] = "AAAA"
                 it[fullCompanyName] = "Company A Inc."
                 it[shortCompanyName] = "Company A"
+                it[shortCompanyNameKr] = "A 회사"
                 it[country] = "USA"
                 it[marketCap] = 1000L
                 it[category] = "Technology"
@@ -51,6 +50,7 @@ internal class PredictionRepositoryImplTest(
                 it[code] = "BBBB"
                 it[fullCompanyName] = "Company B Inc."
                 it[shortCompanyName] = "Company B"
+                it[shortCompanyNameKr] = "B 회사"
                 it[country] = "USA"
                 it[marketCap] = 2000L
                 it[category] = "Technology"
@@ -67,7 +67,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
-                it[strategy] = "STRONG_BUY"
+                it[strategy] = "강한 매수"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
                 it[createdAt] = LocalDateTime.now()
@@ -81,7 +81,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
-                it[strategy] = "STRONG_BUY"
+                it[strategy] = "강한 매수"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
                 it[createdAt] = LocalDateTime.now()
@@ -96,7 +96,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 1L
                 it[neutralArticleCount] = 2L
                 it[sentiment] = 1
-                it[strategy] = "STRONG_BUY"
+                it[strategy] = "강한 매수"
                 it[tickerCode] = "BBBB"
                 it[shortCompanyName] = "Company B"
                 it[createdAt] = LocalDateTime.now()
@@ -157,53 +157,55 @@ internal class PredictionRepositoryImplTest(
         }
     }
 
-    Given("savePrediction 메서드는") {
-        When("새로운 예측 데이터를 저장하면") {
-            val newTickerId = UUID.randomUUID()
-            val newPrediction = PredictionC.create(
-                tickerId = newTickerId,
-                tickerCode = "NEWCO",
-                shortCompanyName = "New Company",
-                positiveArticleCount = 5L,
-                negativeArticleCount = 1L,
-                neutralArticleCount = 2L,
-                predictionDate = latestDate,
-                todayScores = listOf(50, 55) // 예시 점수
-            )
+    Given("updatePredictionByArticle 메서드는") {
+        When("존재하는 예측 데이터에 업데이트를 요청하면") {
+            // 기존 데이터: positive=10, negative=3, neutral=5, score=70
+            val newPositiveCount = 5L
+            val newNegativeCount = 2L
+            val newNeutralCount = 1L
+            val newScore = 75
 
-            Then("데이터가 성공적으로 저장되어야 한다") {
-                val found = transaction {
-                    predictionRepository.savePrediction(newPrediction)
-                    PredictionExposed.find { PredictionTable.tickerId eq newTickerId }
-                        .singleOrNull()
-                }
-                found shouldNotBe null
-                found?.score shouldBe newPrediction.sentimentScore
-                found?.strategy shouldBe newPrediction.predictionStrategy.strategy
+            // 업데이트 실행
+            val updatedPrediction = transaction {
+                predictionRepository.updatePredictionByArticle(
+                    tickerId = ticker1Id,
+                    predictionDate = latestDate,
+                    positiveArticleCount = newPositiveCount,
+                    negativeArticleCount = newNegativeCount,
+                    neutralArticleCount = newNeutralCount,
+                    score = newScore
+                )
+            }
+
+            Then("기사 개수는 누적되고 점수는 갱신되어야 한다") {
+                updatedPrediction.tickerId shouldBe ticker1Id
+
+                // 기사 개수는 기존 값에 새로운 값이 더해져야 함
+                updatedPrediction.positiveArticleCount shouldBe 10L + newPositiveCount // 15
+                updatedPrediction.negativeArticleCount shouldBe 3L + newNegativeCount // 5
+                updatedPrediction.neutralArticleCount shouldBe 5L + newNeutralCount   // 6
+
+                // 점수는 새로운 값으로 덮어쓰기 되어야 함
+                updatedPrediction.sentimentScore shouldBe newScore // 75
             }
         }
-    }
 
-    Given("updatePrediction 메서드는") {
-        When("기존 예측 데이터가 존재할 때 업데이트를 시도하면") {
-            val predictionToUpdate = PredictionC.create(
-                tickerId = ticker1Id, // beforeEach에서 생성된 ticker1
-                tickerCode = "AAAA",
-                shortCompanyName = "Company A",
-                positiveArticleCount = 5L, // 추가할 뉴스 개수
-                negativeArticleCount = 0L,
-                neutralArticleCount = 0L,
-                predictionDate = latestDate,
-                todayScores = listOf(70) // 기존 점수
-            )
-            val updatedPrediction = transaction {
-                predictionRepository.updatePrediction(predictionToUpdate)
-            }
-            Then("기존 데이터의 뉴스 개수가 누적되어 업데이트되어야 한다") {
-                updatedPrediction shouldNotBe null
-                // 기존 10L + 새로운 5L
-                updatedPrediction.positiveArticleCount shouldBe 15L
-                updatedPrediction.tickerId shouldBe ticker1Id
+        When("존재하지 않는 예측 데이터에 업데이트를 요청하면") {
+            val nonExistentTickerId = UUID.randomUUID()
+
+            Then("CriticalDataOmittedException 예외가 발생해야 한다") {
+                shouldThrow<CriticalDataOmittedException> {
+                    transaction {
+                        predictionRepository.updatePredictionByArticle(
+                            tickerId = nonExistentTickerId,
+                            predictionDate = latestDate,
+                            positiveArticleCount = 1L,
+                            negativeArticleCount = 1L,
+                            neutralArticleCount = 1L,
+                            score = 50
+                        )
+                    }
+                }
             }
         }
     }

@@ -2,7 +2,6 @@ package finn.repository.exposed
 
 import finn.entity.PredictionExposed
 import finn.exception.CriticalDataOmittedException
-import finn.insertDto.PredictionToInsert
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
@@ -24,6 +23,28 @@ import java.util.*
 class PredictionExposedRepository {
     companion object {
         private val log = KotlinLogging.logger {}
+    }
+
+    fun save(  tickerId: UUID,
+               tickerCode: String,
+               shortCompanyName: String,
+               sentiment: Int,
+               strategy: String,
+               score: Int,
+               predictionDate: LocalDateTime) : PredictionExposed {
+        return PredictionExposed.new {
+            this.predictionDate = predictionDate
+            this.positiveArticleCount = 0L
+            this.negativeArticleCount = 0L
+            this.neutralArticleCount = 0L
+            this.sentiment = sentiment
+            this.strategy = strategy
+            this.score = score
+            this.tickerCode = tickerCode
+            this.shortCompanyName = shortCompanyName
+            this.tickerId = tickerId
+            this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
+        }
     }
 
     private data class PredictionQueryDtoImpl(
@@ -252,55 +273,52 @@ class PredictionExposedRepository {
             ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 
-    fun save(prediction: PredictionToInsert): PredictionExposed {
-        val savedPrediction = PredictionExposed.new {
-            predictionDate = prediction.predictionDate
-            positiveArticleCount = prediction.positiveArticleCount
-            negativeArticleCount = prediction.negativeArticleCount
-            neutralArticleCount = prediction.neutralArticleCount
-            sentiment = prediction.sentiment
-            strategy = prediction.strategy
-            score = prediction.sentimentScore
-            tickerCode = prediction.tickerCode
-            shortCompanyName = prediction.shortCompanyName
-            tickerId = prediction.tickerId
-            createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        }
-        log.debug { "${savedPrediction.tickerCode}:예측 데이터를 성공적으로 저장하였습니다." }
-        return savedPrediction
-    }
-
-    fun update(prediction: PredictionToInsert): PredictionExposed {
-        val updatedPrediction = PredictionExposed.findSingleByAndUpdate(
-            (PredictionTable.tickerId eq prediction.tickerId)
-                    and (PredictionTable.predictionDate.date() eq prediction.predictionDate.toLocalDate())
+    fun updateByArticle(
+        tickerId: UUID,
+        predictionDate: LocalDateTime,
+        newPositiveArticleCount: Long,
+        newNegativeArticleCount: Long,
+        newNeutralArticleCount: Long,
+        score: Int
+    ): PredictionExposed {
+        return PredictionExposed.findSingleByAndUpdate(
+            (PredictionTable.tickerId eq tickerId) and (PredictionTable.predictionDate eq predictionDate)
         ) {
-            it.sentiment = prediction.sentiment
-            it.score = prediction.sentimentScore
-            it.strategy = prediction.strategy
-            it.positiveArticleCount += prediction.positiveArticleCount
-            it.negativeArticleCount += prediction.negativeArticleCount
-            it.neutralArticleCount += prediction.neutralArticleCount
-        } ?: save(prediction) // 만약 데이터가 없을 시, 새로 생성하도록 수정
-
-        log.debug { "${updatedPrediction.tickerCode}:예측 데이터를 성공적으로 업데이트하였습니다." }
-        return updatedPrediction
+            it.positiveArticleCount += newPositiveArticleCount
+            it.negativeArticleCount += newNegativeArticleCount
+            it.neutralArticleCount += newNeutralArticleCount
+            it.score = score
+        } ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 
-    // 최근 7일 간의 prediction score를 반환(추세 반영 목적)
+    // 최근 6일 간의 prediction score를 반환(추세 반영 목적)
     fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
-        val sevenDaysAgo = today.minusDays(6) // 오늘을 포함하여 7일 전
+        val sevenDaysAgo = today.minusDays(6) // 오늘을 제외한 이전 6일
 
         return PredictionTable
             .select(PredictionTable.score)
             .where {
                 (PredictionTable.tickerId eq tickerId) and
-                        (PredictionTable.predictionDate.date() greaterEq sevenDaysAgo) and
-                        (PredictionTable.predictionDate.date() lessEq today)
+                        (PredictionTable.predictionDate.date() greaterEq sevenDaysAgo)
             }
             .map { row ->
                 row[PredictionTable.score]
             }
+    }
+
+    fun findTodaySentimentScore(tickerId: UUID): Int {
+        val today = LocalDate.now(ZoneId.of("America/New_York"))
+
+        return PredictionTable
+            .select(PredictionTable.score)
+            .where {
+                (PredictionTable.tickerId eq tickerId) and
+                        (PredictionTable.predictionDate.date() eq today)
+            }
+            .map { row ->
+                row[PredictionTable.score]
+            }.singleOrNull()
+            ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 }

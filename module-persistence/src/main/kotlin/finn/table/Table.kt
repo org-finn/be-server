@@ -12,6 +12,7 @@ object TickerTable : UUIDTable("ticker") {
     val fullCompanyName = varchar("full_company_name", 100)
     val country = varchar("country", 100)
     val shortCompanyName = varchar("short_company_name", 100)
+    val shortCompanyNameKr = varchar("short_company_name_kr", 100)
     val category = varchar("category", 50).nullable()
     val marketCap = long("market_cap").nullable()
     val exchangeCode = varchar("exchange_code", 20)

@@ -4,6 +4,7 @@ import finn.entity.TickerExposed
 import finn.queryDto.TickerSearchQueryDto
 import finn.table.TickerTable
 import org.jetbrains.exposed.sql.lowerCase
+import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
 import java.util.*
 
@@ -14,11 +15,13 @@ class TickerExposedRepository {
         val tickerId: UUID,
         val tickerCode: String,
         val shortCompanyName: String,
+        val shortCompanyNameKr: String,
         val fullCompanyName: String
     ) : TickerSearchQueryDto {
         override fun tickerId(): UUID = this.tickerId
         override fun tickerCode(): String = this.tickerCode
         override fun shortCompanyName(): String = this.shortCompanyName
+        override fun shortCompanyNameKr(): String = this.shortCompanyNameKr
         override fun fullCompanyName(): String = this.fullCompanyName
     }
 
@@ -34,6 +37,7 @@ class TickerExposedRepository {
                     tickerId = row[TickerTable.id].value,
                     tickerCode = row[TickerTable.code],
                     shortCompanyName = row[TickerTable.shortCompanyName],
+                    shortCompanyNameKr = row[TickerTable.shortCompanyNameKr],
                     fullCompanyName = row[TickerTable.fullCompanyName]
                 )
             }
@@ -49,5 +53,18 @@ class TickerExposedRepository {
             TickerTable.id, TickerTable.code
         ).where { TickerTable.code inList tickerCodeList }
             .associate { it[TickerTable.code] to it[TickerTable.id].value }
+    }
+
+    fun findAll(): List<TickerSearchQueryDto> {
+        return TickerTable.selectAll()
+            .map { row ->
+                TickerSearchQueryDtoImpl(
+                    tickerId = row[TickerTable.id].value,
+                    tickerCode = row[TickerTable.code],
+                    shortCompanyName = row[TickerTable.shortCompanyName],
+                    shortCompanyNameKr = row[TickerTable.shortCompanyNameKr],
+                    fullCompanyName = row[TickerTable.fullCompanyName]
+                )
+            }
     }
 }

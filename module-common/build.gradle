@@ -23,6 +23,9 @@ dependencies {
 
     // Logging(공개 설정)
     api('io.github.oshai:kotlin-logging-jvm:7.0.3')
+
+    // jackson
+    api("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
 
 kotlin {

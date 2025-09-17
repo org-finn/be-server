@@ -13,6 +13,7 @@ class TickerExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var fullCompanyName by TickerTable.fullCompanyName
     var country by TickerTable.country
     var shortCompanyName by TickerTable.shortCompanyName
+    var shortCompanyNameKr by TickerTable.shortCompanyNameKr
     var category by TickerTable.category
     var marketCap by TickerTable.marketCap
     var exchangeCode by TickerTable.exchangeCode

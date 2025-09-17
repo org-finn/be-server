@@ -2,25 +2,36 @@ package finn.orchestrator
 
 import finn.entity.command.ArticleC
 import finn.entity.command.ArticleInsight
+import finn.handler.PredictionHandlerFactory
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle.ArticleRealTimeInsightRequest
-import finn.request.lambda.LambdaPredictionRequest
+import finn.score.task.PredictionTask
 import finn.service.ArticleCommandService
-import finn.service.PredictionCommandService
 import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Service
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 @ExposedTransactional(readOnly = true)
 class LambdaOrchestrator(
     private val articleService: ArticleCommandService,
-    private val predictionService: PredictionCommandService,
+    private val handlerFactory: PredictionHandlerFactory
 ) {
     companion object {
         private val log = KotlinLogging.logger {}
     }
+
+    // SupervisorJob을 추가하여 자식의 실패가 부모에게 영향을 주지 않도록 설정
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val mutexes = ConcurrentHashMap<String, Mutex>()
 
     @ExposedTransactional
     fun saveArticle(request: LambdaArticleRealTimeRequest) {
@@ -30,23 +41,18 @@ class LambdaOrchestrator(
         articleService.saveArticleList(article, insights)
     }
 
-    @ExposedTransactional
-    fun savePrediction(request: LambdaPredictionRequest) {
-        val tickerId = request.tickerId
-        val tickerCode = request.tickerCode
-        val shortCompanyName = request.shortCompanyName
-        val predictionDate = request.predictionDate
+    fun updatePrediction(task: PredictionTask) {
+        val tickerId = task.tickerId
+        val tickerMutex = mutexes.computeIfAbsent(tickerId.toString()) { Mutex() }
 
-        log.debug { "${tickerCode}: 예측을 수행하여 저장합니다." }
-        predictionService.savePrediction(
-            tickerId,
-            tickerCode,
-            shortCompanyName,
-            predictionDate,
-            request.positiveArticleCount,
-            request.negativeArticleCount,
-            request.neutralArticleCount
-        )
+        scope.launch {
+            tickerMutex.withLock {
+                log.debug { "락 획득 성공. ${tickerId}: 예측을 수행합니다." }
+                val handler = handlerFactory.findHandler("article")
+                handler.handle(task)
+                log.debug { "${tickerId}: 예측 수행완료. 락을 반납합니다." }
+            }
+        }
     }
 
     fun createArticle(article: LambdaArticle): ArticleC {
