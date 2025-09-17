@@ -1,6 +1,7 @@
 package finn.repository.impl
 
 import finn.entity.query.PredictionQ
+import finn.entity.query.PredictionStrategy
 import finn.exception.CriticalDataPollutedException
 import finn.mapper.toDomain
 import finn.paging.PageResponse
@@ -16,6 +17,27 @@ import java.util.*
 class PredictionRepositoryImpl(
     private val predictionExposedRepository: PredictionExposedRepository
 ) : PredictionRepository {
+
+    override fun save(
+        tickerId: UUID,
+        tickerCode: String,
+        shortCompanyName: String,
+        sentiment: Int,
+        strategy: PredictionStrategy,
+        score: Int,
+        predictionDate: LocalDateTime
+    ) {
+        predictionExposedRepository.save(
+            tickerId,
+            tickerCode,
+            shortCompanyName,
+            sentiment,
+            strategy.strategy,
+            score,
+            predictionDate
+        )
+    }
+
     override fun getPredictionList(
         page: Int,
         size: Int,

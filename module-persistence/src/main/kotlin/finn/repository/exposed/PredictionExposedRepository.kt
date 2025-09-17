@@ -25,6 +25,28 @@ class PredictionExposedRepository {
         private val log = KotlinLogging.logger {}
     }
 
+    fun save(  tickerId: UUID,
+               tickerCode: String,
+               shortCompanyName: String,
+               sentiment: Int,
+               strategy: String,
+               score: Int,
+               predictionDate: LocalDateTime) : PredictionExposed {
+        return PredictionExposed.new {
+            this.predictionDate = predictionDate
+            this.positiveArticleCount = 0L
+            this.negativeArticleCount = 0L
+            this.neutralArticleCount = 0L
+            this.sentiment = sentiment
+            this.strategy = strategy
+            this.score = score
+            this.tickerCode = tickerCode
+            this.shortCompanyName = shortCompanyName
+            this.tickerId = tickerId
+            this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
+        }
+    }
+
     private data class PredictionQueryDtoImpl(
         val predictionDate: LocalDateTime,
         val tickerId: UUID,
@@ -269,17 +291,16 @@ class PredictionExposedRepository {
         } ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 
-    // 최근 7일 간의 prediction score를 반환(추세 반영 목적)
+    // 최근 6일 간의 prediction score를 반환(추세 반영 목적)
     fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
-        val sevenDaysAgo = today.minusDays(6) // 오늘을 포함하여 7일 전
+        val sevenDaysAgo = today.minusDays(6) // 오늘을 제외한 이전 6일
 
         return PredictionTable
             .select(PredictionTable.score)
             .where {
                 (PredictionTable.tickerId eq tickerId) and
-                        (PredictionTable.predictionDate.date() greaterEq sevenDaysAgo) and
-                        (PredictionTable.predictionDate.date() lessEq today)
+                        (PredictionTable.predictionDate.date() greaterEq sevenDaysAgo)
             }
             .map { row ->
                 row[PredictionTable.score]
