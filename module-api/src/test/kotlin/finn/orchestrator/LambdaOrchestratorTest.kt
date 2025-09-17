@@ -1,23 +1,23 @@
 import finn.entity.command.ArticleC
+import finn.handler.PredictionHandlerFactory
 import finn.orchestrator.LambdaOrchestrator
 import finn.request.lambda.LambdaArticleRealTimeRequest
-import finn.request.lambda.LambdaPredictionRequest
 import finn.service.ArticleCommandService
 import finn.service.PredictionCommandService
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.*
 import java.time.OffsetDateTime
-import java.util.*
 
 internal class LambdaOrchestratorTest : BehaviorSpec({
 
     // 의존성 Mocking
     val articleService = mockk<ArticleCommandService>(relaxed = true)
     val predictionService = mockk<PredictionCommandService>(relaxed = true)
+    val handlerFactory = mockk<PredictionHandlerFactory>(relaxed = true)
     mockkObject(ArticleC.Companion)
 
     // 테스트 대상(SUT) 인스턴스 생성
-    val orchestrator = LambdaOrchestrator(articleService, predictionService)
+    val orchestrator = LambdaOrchestrator(articleService, handlerFactory)
 
     afterEach {
         clearMocks(articleService, predictionService)
@@ -74,37 +74,4 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
         }
     }
 
-    // --- savePrediction 메서드 테스트 ---
-    Context("savePrediction 메서드는") {
-        Given("예측 저장 요청이 주어졌을 때") {
-            val request = LambdaPredictionRequest(
-                tickerId = UUID.randomUUID(),
-                tickerCode = "AAPL",
-                shortCompanyName = "Apple",
-                predictionDate = OffsetDateTime.now(),
-                positiveArticleCount = 10,
-                negativeArticleCount = 2,
-                neutralArticleCount = 5,
-                createdAt = OffsetDateTime.now(),
-            )
-
-            When("savePrediction을 호출하면") {
-                orchestrator.savePrediction(request)
-
-                Then("predictionService.savePrediction을 정확한 인자와 함께 호출해야 한다") {
-                    verify(exactly = 1) {
-                        predictionService.savePrediction(
-                            request.tickerId,
-                            request.tickerCode,
-                            request.shortCompanyName,
-                            request.predictionDate,
-                            request.positiveArticleCount,
-                            request.negativeArticleCount,
-                            request.neutralArticleCount
-                        )
-                    }
-                }
-            }
-        }
-    }
 })

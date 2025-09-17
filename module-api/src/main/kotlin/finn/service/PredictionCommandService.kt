@@ -1,6 +1,6 @@
 package finn.service
 
-import finn.entity.command.PredictionC
+import finn.converter.SentimentConverter
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
@@ -8,31 +8,49 @@ import java.util.*
 
 @Service
 class PredictionCommandService(
+    private val sentimentConverter: SentimentConverter,
     private val predictionRepository: PredictionRepository,
 ) {
 
-    fun savePrediction(
+    fun createPrediction(
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
-        predictionDate: OffsetDateTime,
-        positiveArticleCount : Long,
-        negativeArticleCount : Long,
-        neutralArticleCount : Long
+        score: Int,
+        predictionDate: OffsetDateTime
     ) {
-        val todayScores = predictionRepository.getRecentSentimentScoreList(tickerId)
-
-        val predictionC = PredictionC.create(
+        val strategy = sentimentConverter.getStrategyFromScore(score)
+        val sentiment = sentimentConverter.getSentiment(strategy)
+        predictionRepository.save(
             tickerId,
             tickerCode,
             shortCompanyName,
-            positiveArticleCount,
-            negativeArticleCount,
-            neutralArticleCount,
-            predictionDate.toLocalDateTime(),
-            todayScores
+            sentiment,
+            strategy,
+            score,
+            predictionDate.toLocalDateTime()
         )
+    }
 
-        predictionRepository.updatePrediction(predictionC)
+    fun updatePredictionByArticle(
+        tickerId: UUID,
+        predictionDate: OffsetDateTime,
+        positiveArticleCount: Long,
+        negativeArticleCount: Long,
+        neutralArticleCount: Long,
+        score: Int
+    ) {
+        predictionRepository.updatePredictionByArticle(
+            tickerId, predictionDate.toLocalDateTime(),
+            positiveArticleCount, negativeArticleCount, neutralArticleCount, score
+        )
+    }
+
+    fun getRecentSentimentScores(tickerId: UUID): List<Int> {
+        return predictionRepository.getRecentSentimentScoreList(tickerId)
+    }
+
+    fun getTodaySentimentScore(tickerId: UUID): Int {
+        return predictionRepository.getRecentScore(tickerId)
     }
 }

@@ -1,7 +1,8 @@
 package finn.apiSpec
 
 import finn.request.lambda.LambdaArticleRealTimeRequest
-import finn.request.lambda.LambdaPredictionRequest
+import finn.response.SuccessResponse
+import finn.score.task.PredictionTask
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,5 +14,5 @@ interface LambdaApiSpec {
     fun processArticleRealTime(@RequestBody articleRequest: LambdaArticleRealTimeRequest)
 
     @PostMapping("/prediction")
-    fun processPrediction(@RequestBody predictionRequest: LambdaPredictionRequest)
+    fun processPrediction(@RequestBody task: PredictionTask) : SuccessResponse<Unit>
 }

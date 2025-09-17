@@ -3,7 +3,8 @@ package finn.controller
 import finn.apiSpec.LambdaApiSpec
 import finn.orchestrator.LambdaOrchestrator
 import finn.request.lambda.LambdaArticleRealTimeRequest
-import finn.request.lambda.LambdaPredictionRequest
+import finn.response.SuccessResponse
+import finn.score.task.PredictionTask
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -14,7 +15,8 @@ class LambdaController(
         lambdaOrchestrator.saveArticle(articleRequest)
     }
 
-    override fun processPrediction(predictionRequest: LambdaPredictionRequest) {
-        lambdaOrchestrator.savePrediction(predictionRequest)
+    override fun processPrediction(task: PredictionTask): SuccessResponse<Unit> {
+        lambdaOrchestrator.updatePrediction(task)
+        return SuccessResponse("200 OK", "예측 요청을 성공적으로 요청하였습니다.", null)
     }
 }
