@@ -34,6 +34,8 @@ interface PredictionRepository {
         positiveArticleCount: Long,
         negativeArticleCount: Long,
         neutralArticleCount: Long,
-        score: Int
+        score: Int,
+        sentiment: Int,
+        strategy: String
     ): PredictionQ
 }

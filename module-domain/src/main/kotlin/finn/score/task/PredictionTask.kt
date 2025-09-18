@@ -2,7 +2,9 @@ package finn.score.task
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import java.time.OffsetDateTime
 import java.util.*
+import kotlin.properties.Delegates
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,       // 타입을 식별하기 위해 이름을 사용
@@ -18,4 +20,43 @@ import java.util.*
 sealed class PredictionTask {
     abstract val tickerId: UUID
     abstract val type: String
+}
+
+
+data class ArticlePredictionTask(
+    override val tickerId: UUID,
+    val payload: ArticlePayload
+) : PredictionTask() {
+    override val type: String = "article"
+
+    data class ArticlePayload(
+        val predictionDate: OffsetDateTime,
+        val positiveArticleCount: Long,
+        val negativeArticleCount: Long,
+        val neutralArticleCount: Long,
+        val createdAt: OffsetDateTime,
+    ) {
+        var previousScore: Int by Delegates.notNull()
+    }
+}
+
+data class InitPredictionTask(
+    override val tickerId: UUID,
+    val payload: InitPayload
+) : PredictionTask() {
+    override val type: String = "init"
+
+    data class InitPayload(
+        val tickerCode: String,
+        val shortCompanyName: String,
+        val predictionDate: OffsetDateTime,
+        val todayMacd: Map<String, Double>,
+        val yesterdayMacd: Map<String, Double>,
+        val todayMa: Map<String, Double>,
+        val yesterdayMa: Map<String, Double>,
+        val todayRsi: Double,
+        val createdAt: OffsetDateTime,
+    ) {
+        lateinit var recentScores: List<Int>
+    }
 }

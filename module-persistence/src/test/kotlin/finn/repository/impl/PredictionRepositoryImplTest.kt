@@ -173,7 +173,9 @@ internal class PredictionRepositoryImplTest(
                     positiveArticleCount = newPositiveCount,
                     negativeArticleCount = newNegativeCount,
                     neutralArticleCount = newNeutralCount,
-                    score = newScore
+                    score = newScore,
+                    sentiment = 1,
+                    strategy = "약한 매수"
                 )
             }
 
@@ -202,7 +204,9 @@ internal class PredictionRepositoryImplTest(
                             positiveArticleCount = 1L,
                             negativeArticleCount = 1L,
                             neutralArticleCount = 1L,
-                            score = 50
+                            score = 50,
+                            sentiment = 0,
+                            strategy = "관망"
                         )
                     }
                 }
