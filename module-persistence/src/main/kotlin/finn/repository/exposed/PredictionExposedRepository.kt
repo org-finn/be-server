@@ -25,13 +25,15 @@ class PredictionExposedRepository {
         private val log = KotlinLogging.logger {}
     }
 
-    fun save(  tickerId: UUID,
-               tickerCode: String,
-               shortCompanyName: String,
-               sentiment: Int,
-               strategy: String,
-               score: Int,
-               predictionDate: LocalDateTime) : PredictionExposed {
+    fun save(
+        tickerId: UUID,
+        tickerCode: String,
+        shortCompanyName: String,
+        sentiment: Int,
+        strategy: String,
+        score: Int,
+        predictionDate: LocalDateTime
+    ): PredictionExposed {
         return PredictionExposed.new {
             this.predictionDate = predictionDate
             this.positiveArticleCount = 0L
@@ -279,7 +281,9 @@ class PredictionExposedRepository {
         newPositiveArticleCount: Long,
         newNegativeArticleCount: Long,
         newNeutralArticleCount: Long,
-        score: Int
+        score: Int,
+        sentiment: Int,
+        strategy: String
     ): PredictionExposed {
         return PredictionExposed.findSingleByAndUpdate(
             (PredictionTable.tickerId eq tickerId) and (PredictionTable.predictionDate eq predictionDate)
@@ -288,6 +292,8 @@ class PredictionExposedRepository {
             it.negativeArticleCount += newNegativeArticleCount
             it.neutralArticleCount += newNeutralArticleCount
             it.score = score
+            it.sentiment = sentiment
+            it.strategy = strategy
         } ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 

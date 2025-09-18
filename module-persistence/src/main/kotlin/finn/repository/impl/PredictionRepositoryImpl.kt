@@ -89,12 +89,14 @@ class PredictionRepositoryImpl(
         positiveArticleCount: Long,
         negativeArticleCount: Long,
         neutralArticleCount: Long,
-        score: Int
+        score: Int,
+        sentiment: Int,
+        strategy: String
     ): PredictionQ {
         return toDomain(
             predictionExposedRepository.updateByArticle(
                 tickerId, predictionDate, positiveArticleCount, negativeArticleCount,
-                neutralArticleCount, score
+                neutralArticleCount, score, sentiment, strategy
             )
         )
     }

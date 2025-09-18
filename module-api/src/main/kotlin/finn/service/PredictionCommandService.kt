@@ -38,11 +38,14 @@ class PredictionCommandService(
         positiveArticleCount: Long,
         negativeArticleCount: Long,
         neutralArticleCount: Long,
-        score: Int
+        score: Int,
     ) {
+        val strategy = sentimentConverter.getStrategyFromScore(score)
+        val sentiment = sentimentConverter.getSentiment(strategy)
         predictionRepository.updatePredictionByArticle(
             tickerId, predictionDate.toLocalDateTime(),
-            positiveArticleCount, negativeArticleCount, neutralArticleCount, score
+            positiveArticleCount, negativeArticleCount, neutralArticleCount, score,
+            sentiment, strategy.strategy
         )
     }
 
