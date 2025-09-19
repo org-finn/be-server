@@ -29,7 +29,7 @@ class LambdaOrchestrator(
         private val log = KotlinLogging.logger {}
     }
 
-    // SupervisorJob을 추가하여 자식의 실패가 부모에게 영향을 주지 않도록 설정
+    // SupervisorJob을 추가하여 특정 자식의 실패가 다른 자식들에게 영향을 주지 않도록 설정
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutexes = ConcurrentHashMap<String, Mutex>()
 
