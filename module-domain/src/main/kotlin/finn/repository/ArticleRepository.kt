@@ -9,9 +9,15 @@ import java.util.*
 
 interface ArticleRepository {
 
-    fun getArticleDataForPredictionDetail(tickerId: UUID) : List<ArticleDataQueryDto>
+    fun getArticleDataForPredictionDetail(tickerId: UUID): List<ArticleDataQueryDto>
 
-    fun getArticleList(page: Int, size: Int, filter: String, sort:String) : PageResponse<ArticleQ>
+    fun getArticleList(
+        page: Int,
+        size: Int,
+        tickerId: UUID?,
+        sentiment: String?,
+        sort: String
+    ): PageResponse<ArticleQ>
 
-    fun saveArticle(article: ArticleC, insights: List<ArticleInsight>) : UUID?
+    fun saveArticle(article: ArticleC, insights: List<ArticleInsight>): UUID?
 }
