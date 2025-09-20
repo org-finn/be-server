@@ -1,6 +1,7 @@
 package finn.paging
 
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Pattern
 import java.util.*
 
 data class ArticlePageRequest(
@@ -10,19 +11,25 @@ data class ArticlePageRequest(
     override val size: Int = 10,
     @field:Schema(
         description = "종목 필터링 기준",
-        defaultValue = ""
     )
-    val tickerId: UUID,
+    val tickerId: UUID? = null,
     @field:Schema(
         description = "감정 필터링 기준",
-        defaultValue = "all",
-        allowableValues = ["all", "positive", "negative"]
+        allowableValues = ["positive", "negative"]
     )
-    val sentiment: String,
+    @field:Pattern(
+        regexp = "^(positive|negative)$",
+        message = "sentiment 값은 ''positive', 'negative' 중 하나여야 합니다."
+    )
+    val sentiment: String? = null,
     @field:Schema(
         description = "정렬 기준",
         defaultValue = "recent",
         allowableValues = ["recent"]
+    )
+    @field:Pattern(
+        regexp = "^(recent)$",
+        message = "sort 값은 recent만 허용합니다."
     )
     val sort: String
 ) : PageRequest

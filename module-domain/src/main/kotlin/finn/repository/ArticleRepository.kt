@@ -14,8 +14,8 @@ interface ArticleRepository {
     fun getArticleList(
         page: Int,
         size: Int,
-        tickerId: UUID,
-        sentiment: String,
+        tickerId: UUID?,
+        sentiment: String?,
         sort: String
     ): PageResponse<ArticleQ>
 
