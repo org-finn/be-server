@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
+import java.util.*
 
 @SpringBootTest(classes = [TestApplication::class])
 internal class ArticleRepositoryImplTest(
@@ -170,8 +171,71 @@ internal class ArticleRepositoryImplTest(
                 result.content[0].title shouldBe "가장 최신 긍정 뉴스"
             }
         }
+
+        When("tickerId로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = ticker.id.value,
+                    sentiment = null,
+                    sort = "recent"
+                )
+            }
+            Then("해당 tickerId를 가진 뉴스만을 반환해야 한다") {
+                result.content shouldHaveSize 5
+                result.content[0].tickers?.contains(ticker.shortCompanyName)
+            }
+        }
+
+        When("sentiment가 'positive'로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = null,
+                    sentiment = "positive",
+                    sort = "recent"
+                )
+            }
+            Then("sentiment가 'positive'인 뉴스만 반환해야 한다") {
+                result.content shouldHaveSize 2
+                result.content[0].title shouldBe "가장 최신 긍정 뉴스"
+                result.content[1].title shouldBe "세 번째 최신 긍정 뉴스"
+            }
+        }
+
+        When("tickerId와 sentiment 모두로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = ticker.id.value,
+                    sentiment = "negative",
+                    sort = "recent"
+                )
+            }
+            Then("두 조건을 모두 만족하는 뉴스만 반환해야 한다") {
+                result.content shouldHaveSize 2
+                result.content[0].tickers?.contains(ticker.shortCompanyName)
+                result.content[0].title shouldBe "두 번째 최신 부정 뉴스"
+                result.content[1].title shouldBe "네 번째 최신 부정 뉴스"
+            }
+        }
+
+        When("존재하지 않는 tickerId로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = UUID.randomUUID(), // 임의의 UUID
+                    sentiment = null,
+                    sort = "recent"
+                )
+            }
+            Then("빈 리스트가 반환되어야 한다") {
+                result.content.isEmpty() shouldBe true
+            }
+        }
     }
-
-
-
 })
