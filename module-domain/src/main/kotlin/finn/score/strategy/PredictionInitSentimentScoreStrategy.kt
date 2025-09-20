@@ -36,7 +36,7 @@ class PredictionInitSentimentScoreStrategy : SentimentScoreStrategy<InitPredicti
         val todayBaseScore = yesterdayScore + macdScore + maScore + rsiScore
 
         // EMA 공식을 적용하여 최종 점수 계산 (추세 반영)
-        return applyEma(todayBaseScore, yesterdayScore)
+        return applyEma(todayBaseScore, recentScores)
     }
 
     private fun getYesterdayScore(scores: List<Int>): Int {
@@ -103,10 +103,25 @@ class PredictionInitSentimentScoreStrategy : SentimentScoreStrategy<InitPredicti
     /**
     EMA 공식을 적용한 최근 7일 점수 모멘텀 계산
      */
-    private fun applyEma(todayScore: Int, yesterdayScore: Int): Int {
-        val n = 7
-        val alpha = 2.0 / (n + 1)
-        val finalScore = (todayScore * alpha) + (yesterdayScore * (1 - alpha))
-        return finalScore.roundToInt().coerceIn(0, 100)
+    private fun applyEma(todayScore: Int, recentScores: List<Int>, period: Int = 7): Int {
+        val allScores = recentScores + todayScore
+
+        // 기간을 채울 데이터가 부족하면, 단순 평균을 반환
+        if (allScores.size < period) {
+            return allScores.average().roundToInt().coerceIn(0, 100)
+        }
+
+        val alpha = 2.0 / (period + 1)
+
+        // 1. 첫 'period' 개 데이터의 단순 이동 평균(SMA)을 사용하여 초기 EMA를 계산
+        var ema = allScores.take(period).average()
+
+        // 2. 나머지 데이터가 있다면, EMA를 반복적으로 계산
+        for (i in period until allScores.size) {
+            val currentScore = allScores[i].toDouble()
+            ema = (currentScore * alpha) + (ema * (1 - alpha))
+        }
+
+        return ema.roundToInt().coerceIn(0, 100)
     }
 }
