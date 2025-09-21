@@ -9,7 +9,6 @@ import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle.ArticleRea
 import finn.score.task.PredictionTask
 import finn.service.ArticleCommandService
 import finn.transaction.ExposedTransactional
-import finn.transaction.SuspendExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -45,9 +44,7 @@ class LambdaOrchestrator(
         articleService.saveArticleList(article, insights)
     }
 
-    @SuspendExposedTransactional
     fun updatePrediction(task: PredictionTask) {
-        println("Inside handle method, this is: ${this.javaClass.name}")
         val tickerId = task.tickerId
         val type = task.type
         val handler = handlerFactory.findHandler(type)

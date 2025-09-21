@@ -2,6 +2,7 @@ package finn.aop
 
 import finn.transaction.SuspendExposedTransactional
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
@@ -17,7 +18,7 @@ import java.sql.Connection
 class SuspendTransactionalAspect {
 
     @Around("@within(finn.transaction.SuspendExposedTransactional) || @annotation(finn.transaction.SuspendExposedTransactional)")
-    suspend fun manageSuspendTransaction(joinPoint: ProceedingJoinPoint): Any? {
+    fun manageSuspendTransaction(joinPoint: ProceedingJoinPoint): Any? {
         val signature = joinPoint.signature as MethodSignature
         val method = signature.method
 
@@ -31,15 +32,15 @@ class SuspendTransactionalAspect {
             TransactionManager.currentOrNull()?.db?.transactionManager?.defaultIsolationLevel
                 ?: Connection.TRANSACTION_READ_COMMITTED
 
-        // 2. newSuspendedTransaction을 사용합니다.
-        return newSuspendedTransaction(Dispatchers.IO, transactionIsolation = isolation) {
-            // 2. 블록 내부에서 현재 트랜잭션의 readOnly 속성을 직접 설정합니다.
-            if (isReadOnly) {
-                this.connection.readOnly = true
+        // newSuspendedTransaction을 runBlocking(한 스레드를 블로킹)으로 감싸서 호출
+        return runBlocking {
+            newSuspendedTransaction(Dispatchers.IO, transactionIsolation = isolation) {
+                // 블록 내부에서 현재 트랜잭션의 readOnly 속성을 직접 설정
+                if (isReadOnly) {
+                    this.connection.readOnly = true
+                }
+                joinPoint.proceed()
             }
-
-            // 3. proceed() 호출 자체가 suspend 호출이 됩니다.
-            joinPoint.proceed()
         }
     }
 }

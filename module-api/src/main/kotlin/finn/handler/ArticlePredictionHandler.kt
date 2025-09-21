@@ -6,9 +6,11 @@ import finn.score.strategy.StrategyFactory
 import finn.score.task.ArticlePredictionTask
 import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
+import finn.transaction.SuspendExposedTransactional
 import org.springframework.stereotype.Component
 
 @Component
+@SuspendExposedTransactional
 class ArticlePredictionHandler(
     private val predictionService: PredictionCommandService,
     private val strategyFactory: StrategyFactory
@@ -37,5 +39,6 @@ class ArticlePredictionHandler(
             task.payload.neutralArticleCount,
             score
         )
+        println("end job in handler")
     }
 }
