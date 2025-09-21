@@ -275,7 +275,7 @@ class PredictionExposedRepository {
             ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 
-    fun updateByArticle(
+    suspend fun updateByArticle(
         tickerId: UUID,
         predictionDate: LocalDateTime,
         newPositiveArticleCount: Long,
@@ -313,7 +313,7 @@ class PredictionExposedRepository {
             }
     }
 
-    fun findTodaySentimentScore(tickerId: UUID): Int {
+    suspend fun findTodaySentimentScore(tickerId: UUID): Int {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
 
         return PredictionTable

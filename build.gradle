@@ -33,6 +33,9 @@ subprojects {
         implementation 'org.jetbrains.kotlin:kotlin-reflect'
         implementation 'org.springframework.boot:spring-boot-starter'
 
+        // Spring AOP
+        implementation 'org.springframework.boot:spring-boot-starter-aop'
+
         // Spring Actuator
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
 

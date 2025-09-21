@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
@@ -166,7 +167,7 @@ internal class PredictionRepositoryImplTest(
             val newScore = 75
 
             // 업데이트 실행
-            val updatedPrediction = transaction {
+            val updatedPrediction = newSuspendedTransaction {
                 predictionRepository.updatePredictionByArticle(
                     tickerId = ticker1Id,
                     predictionDate = latestDate,
@@ -196,8 +197,8 @@ internal class PredictionRepositoryImplTest(
             val nonExistentTickerId = UUID.randomUUID()
 
             Then("CriticalDataOmittedException 예외가 발생해야 한다") {
-                shouldThrow<CriticalDataOmittedException> {
-                    transaction {
+                    newSuspendedTransaction {
+                        shouldThrow<CriticalDataOmittedException> {
                         predictionRepository.updatePredictionByArticle(
                             tickerId = nonExistentTickerId,
                             predictionDate = latestDate,

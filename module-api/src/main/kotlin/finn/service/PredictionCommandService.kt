@@ -32,7 +32,7 @@ class PredictionCommandService(
         )
     }
 
-    fun updatePredictionByArticle(
+    suspend fun updatePredictionByArticle(
         tickerId: UUID,
         predictionDate: OffsetDateTime,
         positiveArticleCount: Long,
@@ -53,7 +53,7 @@ class PredictionCommandService(
         return predictionRepository.getRecentSentimentScoreList(tickerId)
     }
 
-    fun getTodaySentimentScore(tickerId: UUID): Int {
+    suspend fun getTodaySentimentScore(tickerId: UUID): Int {
         return predictionRepository.getRecentScore(tickerId)
     }
 }

@@ -26,9 +26,9 @@ interface PredictionRepository {
 
     fun getRecentSentimentScoreList(tickerId: UUID): List<Int>
 
-    fun getRecentScore(tickerId: UUID): Int
+    suspend fun getRecentScore(tickerId: UUID): Int
 
-    fun updatePredictionByArticle(
+    suspend fun updatePredictionByArticle(
         tickerId: UUID,
         predictionDate: LocalDateTime,
         positiveArticleCount: Long,

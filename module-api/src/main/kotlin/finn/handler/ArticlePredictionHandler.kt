@@ -6,7 +6,6 @@ import finn.score.strategy.StrategyFactory
 import finn.score.task.ArticlePredictionTask
 import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
-import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Component
 
 @Component
@@ -17,7 +16,6 @@ class ArticlePredictionHandler(
 
     override fun supports(type: String): Boolean = type == "article"
 
-    @ExposedTransactional
     override suspend fun handle(task: PredictionTask) {
         if (task !is ArticlePredictionTask) {
             throw NotSupportedTypeException("Unsupported prediction task type in Article Prediction: ${task.type}")
