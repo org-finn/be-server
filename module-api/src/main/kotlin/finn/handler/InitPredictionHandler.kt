@@ -6,7 +6,7 @@ import finn.score.strategy.StrategyFactory
 import finn.score.task.InitPredictionTask
 import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
-import finn.transaction.ExposedTransactional
+import finn.transaction.SuspendExposedTransactional
 import org.springframework.stereotype.Component
 
 @Component
@@ -17,7 +17,7 @@ class InitPredictionHandler(
 
     override fun supports(type: String): Boolean = type == "init"
 
-    @ExposedTransactional
+    @SuspendExposedTransactional
     override suspend fun handle(task: PredictionTask) {
         if (task !is InitPredictionTask) {
             throw NotSupportedTypeException("Unsupported prediction task type in Init Prediction: ${task.type}")

@@ -12,7 +12,7 @@ class PredictionCommandService(
     private val predictionRepository: PredictionRepository,
 ) {
 
-    fun createPrediction(
+    suspend fun createPrediction(
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
@@ -49,7 +49,7 @@ class PredictionCommandService(
         )
     }
 
-    fun getRecentSentimentScores(tickerId: UUID): List<Int> {
+    suspend fun getRecentSentimentScores(tickerId: UUID): List<Int> {
         return predictionRepository.getRecentSentimentScoreList(tickerId)
     }
 

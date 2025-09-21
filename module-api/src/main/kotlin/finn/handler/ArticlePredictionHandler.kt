@@ -10,7 +10,6 @@ import finn.transaction.SuspendExposedTransactional
 import org.springframework.stereotype.Component
 
 @Component
-@SuspendExposedTransactional
 class ArticlePredictionHandler(
     private val predictionService: PredictionCommandService,
     private val strategyFactory: StrategyFactory
@@ -18,6 +17,7 @@ class ArticlePredictionHandler(
 
     override fun supports(type: String): Boolean = type == "article"
 
+    @SuspendExposedTransactional
     override suspend fun handle(task: PredictionTask) {
         if (task !is ArticlePredictionTask) {
             throw NotSupportedTypeException("Unsupported prediction task type in Article Prediction: ${task.type}")

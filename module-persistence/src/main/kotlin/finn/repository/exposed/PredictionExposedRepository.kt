@@ -25,7 +25,7 @@ class PredictionExposedRepository {
         private val log = KotlinLogging.logger {}
     }
 
-    fun save(
+    suspend fun save(
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
@@ -67,7 +67,7 @@ class PredictionExposedRepository {
         override fun articleCount(): Long = this.articleCount
     }
 
-    fun findALlPredictionByPopular(page: Int, size: Int): PageResponse<PredictionQueryDto> {
+    fun findAllPredictionByPopular(page: Int, size: Int): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -119,7 +119,7 @@ class PredictionExposedRepository {
         )
     }
 
-    fun findALlPredictionBySentimentScore(
+    fun findAllPredictionBySentimentScore(
         page: Int,
         size: Int,
         isDownward: Boolean
@@ -298,7 +298,7 @@ class PredictionExposedRepository {
     }
 
     // 최근 6일 간의 prediction score를 반환(추세 반영 목적)
-    fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
+    suspend fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
         val sevenDaysAgo = today.minusDays(6) // 오늘을 제외한 이전 6일
 

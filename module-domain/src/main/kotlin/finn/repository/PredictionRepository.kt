@@ -10,7 +10,7 @@ import java.util.*
 
 interface PredictionRepository {
 
-    fun save(
+    suspend fun save(
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
@@ -24,7 +24,7 @@ interface PredictionRepository {
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto
 
-    fun getRecentSentimentScoreList(tickerId: UUID): List<Int>
+    suspend fun getRecentSentimentScoreList(tickerId: UUID): List<Int>
 
     suspend fun getRecentScore(tickerId: UUID): Int
 

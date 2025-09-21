@@ -217,7 +217,7 @@ internal class PredictionRepositoryImplTest(
 
     Given("getRecentSentimentScoreList 메서드는") {
         When("특정 티커 A의 최근 7일간 점수 조회를 요청하면") {
-            val result = transaction {
+            val result = newSuspendedTransaction {
                 predictionRepository.getRecentSentimentScoreList(ticker1Id)
             }
 
