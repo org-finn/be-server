@@ -6,8 +6,10 @@ import finn.score.strategy.StrategyFactory
 import finn.score.task.ArticlePredictionTask
 import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
-import finn.transaction.SuspendExposedTransactional
+import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Component
+import java.sql.Connection
 
 @Component
 class ArticlePredictionHandler(
@@ -17,28 +19,32 @@ class ArticlePredictionHandler(
 
     override fun supports(type: String): Boolean = type == "article"
 
-    @SuspendExposedTransactional
     override suspend fun handle(task: PredictionTask) {
-        if (task !is ArticlePredictionTask) {
-            throw NotSupportedTypeException("Unsupported prediction task type in Article Prediction: ${task.type}")
-        }
-        val tickerId = task.tickerId
+        newSuspendedTransaction(
+            context = Dispatchers.IO,
+            transactionIsolation = Connection.TRANSACTION_READ_COMMITTED
+        ) {
+            if (task !is ArticlePredictionTask) {
+                throw NotSupportedTypeException("Unsupported prediction task type in Article Prediction: ${task.type}")
+            }
+            val tickerId = task.tickerId
 
-        val strategy = strategyFactory.findStrategy(task.type)
-        if (strategy !is ArticleSentimentScoreStrategy) {
-            throw NotSupportedTypeException("Unsupported prediction strategy in Article Prediction: ${strategy.javaClass}")
-        }
-        task.payload.previousScore = predictionService.getTodaySentimentScore(tickerId)
-        val score = strategy.calculate(task)
+            val strategy = strategyFactory.findStrategy(task.type)
+            if (strategy !is ArticleSentimentScoreStrategy) {
+                throw NotSupportedTypeException("Unsupported prediction strategy in Article Prediction: ${strategy.javaClass}")
+            }
+            task.payload.previousScore = predictionService.getTodaySentimentScore(tickerId)
+            val score = strategy.calculate(task)
 
-        predictionService.updatePredictionByArticle(
-            tickerId,
-            task.payload.predictionDate,
-            task.payload.positiveArticleCount,
-            task.payload.negativeArticleCount,
-            task.payload.neutralArticleCount,
-            score
-        )
-        println("end job in handler")
+            predictionService.updatePredictionByArticle(
+                tickerId,
+                task.payload.predictionDate,
+                task.payload.positiveArticleCount,
+                task.payload.negativeArticleCount,
+                task.payload.neutralArticleCount,
+                score
+            )
+            println("end job in handler")
+        }
     }
 }
