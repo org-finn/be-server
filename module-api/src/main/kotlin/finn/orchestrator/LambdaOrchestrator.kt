@@ -7,8 +7,8 @@ import finn.lock.CoroutineReadWriteLock
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle.ArticleRealTimeInsightRequest
-import finn.score.task.PredictionTask
 import finn.service.ArticleCommandService
+import finn.task.PredictionTask
 import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope

@@ -1,11 +1,11 @@
 package finn.handler
 
 import finn.exception.NotSupportedTypeException
-import finn.score.strategy.PredictionInitSentimentScoreStrategy
-import finn.score.strategy.StrategyFactory
-import finn.score.task.InitPredictionTask
-import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
+import finn.strategy.PredictionInitSentimentScoreStrategy
+import finn.strategy.StrategyFactory
+import finn.task.InitPredictionTask
+import finn.task.PredictionTask
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Component

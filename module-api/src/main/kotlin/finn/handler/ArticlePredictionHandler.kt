@@ -1,11 +1,11 @@
 package finn.handler
 
 import finn.exception.NotSupportedTypeException
-import finn.score.strategy.ArticleSentimentScoreStrategy
-import finn.score.strategy.StrategyFactory
-import finn.score.task.ArticlePredictionTask
-import finn.score.task.PredictionTask
 import finn.service.PredictionCommandService
+import finn.strategy.ArticleSentimentScoreStrategy
+import finn.strategy.StrategyFactory
+import finn.task.ArticlePredictionTask
+import finn.task.PredictionTask
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Component
@@ -44,7 +44,6 @@ class ArticlePredictionHandler(
                 task.payload.neutralArticleCount,
                 score
             )
-            println("end job in handler")
         }
     }
 }

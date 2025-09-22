@@ -1,4 +1,4 @@
-package finn.score.task
+package finn.task
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -59,4 +59,17 @@ data class InitPredictionTask(
     ) {
         lateinit var recentScores: List<Int>
     }
+}
+
+data class ExponentPredictionTask(
+    override val tickerId: UUID,
+    val payload: ExponentPayload
+) : PredictionTask() {
+    override val type: String = "exponent"
+
+    data class ExponentPayload(
+        val exponentCode: String,
+        val value: Double,
+        val date: OffsetDateTime
+    )
 }
