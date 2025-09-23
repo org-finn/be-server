@@ -1,8 +1,11 @@
 package finn.repository
 
+import finn.task.ExponentPredictionTask.ExponentListPayload.ExponentPayload
 import java.time.LocalDateTime
-import java.util.*
 
 interface ExponentRepository {
-    suspend fun getRealTimeRecentExponentByCode(exponentId: UUID, priceDate: LocalDateTime): Double
+    suspend fun getRealTimeRecentExponentByCode(
+        exponents: List<ExponentPayload>,
+        priceDate: LocalDateTime
+    )
 }
