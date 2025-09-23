@@ -28,7 +28,7 @@ class ExponentSentimentScoreStrategy : SentimentScoreStrategy<ExponentPrediction
 
         var adjustmentScore = 0
 
-        // 3. 나스닥 선물 변화율에 따른 점수를 계산합니다.
+        // 3. 나스닥 100 변화율에 따른 점수를 계산합니다.
         adjustmentScore += when {
             nasdaqChangePercent > 0.3 -> 3
             nasdaqChangePercent > 0.1 -> 1
@@ -37,12 +37,12 @@ class ExponentSentimentScoreStrategy : SentimentScoreStrategy<ExponentPrediction
             else -> 0
         }
 
-        // 4. VIX(변동성) 변화율에 따른 점수를 계산합니다.
-        adjustmentScore += when {
-            vixChangePercent < -2.0 -> 2 // VIX 하락은 긍정 신호
-            vixChangePercent > 2.0 -> -2 // VIX 상승은 부정 신호
-            else -> 0
-        }
+//        // 4. VIX(변동성) 변화율에 따른 점수를 계산합니다.
+//        adjustmentScore += when {
+//            vixChangePercent < -2.0 -> 2 // VIX 하락은 긍정 신호
+//            vixChangePercent > 2.0 -> -2 // VIX 상승은 부정 신호
+//            else -> 0
+//        }
 
         return adjustmentScore
     }
