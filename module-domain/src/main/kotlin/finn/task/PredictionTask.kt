@@ -65,17 +65,23 @@ data class InitPredictionTask(
 
 data class ExponentPredictionTask(
     override val tickerId: UUID,
-    val payload: ExponentPayload
+    val payload: ExponentListPayload
 ) : PredictionTask() {
     override val type: String = "exponent"
 
-    data class ExponentPayload(
-        val exponentId: UUID,
-        val value: Double,
+    data class ExponentListPayload(
+        val exponents: List<ExponentPayload>,
         val priceDate: LocalDateTime,
         val predictionDate: LocalDateTime
     ) {
-        var previousValue: Double by Delegates.notNull()
+        data class ExponentPayload(
+            val exponentId: UUID,
+            val code: String,
+            val value: Double,
+        ) {
+            var previousValue: Double by Delegates.notNull()
+        }
+
         lateinit var previousScores: List<TickerScore>
     }
 }

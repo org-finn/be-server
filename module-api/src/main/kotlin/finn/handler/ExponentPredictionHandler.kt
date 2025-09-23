@@ -8,7 +8,6 @@ import finn.service.PredictionQueryService
 import finn.strategy.ExponentSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.ExponentPredictionTask
-import finn.task.ExponentPredictionUnitTask
 import finn.task.PredictionTask
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -36,27 +35,23 @@ class ExponentPredictionHandler(
             // 모든 ticker score 가져옴
             task.payload.previousScores = predictionQueryService.getAllTickerTodaySentimentScore()
 
-            // 30분 전 exponent 가져옴
-            val exponentId = task.payload.exponentId
+            // 30분 전 exponents 가져옴
+            val exponents = task.payload.exponents
             val date = task.payload.priceDate
-            task.payload.previousValue = exponentService.getRecentExponent(exponentId, date)
+            exponentService.getRecentExponent(exponents, date) // exponents previousValue에 set
 
             val strategy = strategyFactory.findStrategy(task.type)
             if (strategy !is ExponentSentimentScoreStrategy) {
                 throw NotSupportedTypeException("Unsupported prediction strategy in Exponent Prediction: ${strategy.javaClass}")
             }
-            
-            // ticker 별로 Indiv Task를 생성하여 하나씩 넘김
-            val calculatedScoreList = emptyList<TickerScore>()
-            task.payload.previousScores.forEach {
-                val unitTask = ExponentPredictionUnitTask(
-                    task.tickerId,
-                    ExponentPredictionUnitTask.ExponentUnitPayload(it.tickerId, it.score)
-                )
-                val score = strategy.calculate(unitTask)
-                calculatedScoreList.plus(TickerScore(it.tickerId, score))
-            }
 
+            // 추가로 조정해야하는 점수를 모든 티커 점수에 더하는 식으로 구현
+            val adjustmentScore = strategy.calculate(task)
+            val calculatedScoreList = mutableListOf<TickerScore>()
+            task.payload.previousScores.forEach { prevScore ->
+                val newScore = (prevScore.score + adjustmentScore).coerceIn(0, 100)
+                calculatedScoreList.add(TickerScore(prevScore.tickerId, newScore))
+            }
 
             // Prediction update
             val predictionDate = task.payload.predictionDate
