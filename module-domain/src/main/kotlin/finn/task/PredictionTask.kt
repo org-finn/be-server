@@ -16,7 +16,8 @@ import kotlin.properties.Delegates
 @JsonSubTypes(
     // "type" 필드의 값에 따라 어떤 클래스를 생성할지 매핑
     JsonSubTypes.Type(value = InitPredictionTask::class, name = "init"),
-    JsonSubTypes.Type(value = ArticlePredictionTask::class, name = "article")
+    JsonSubTypes.Type(value = ArticlePredictionTask::class, name = "article"),
+    JsonSubTypes.Type(value = ExponentPredictionTask::class, name = "exponent")
     // 다른 Task가 추가되면 여기에 계속 추가
 )
 sealed class PredictionTask {
@@ -84,16 +85,4 @@ data class ExponentPredictionTask(
 
         lateinit var previousScores: List<TickerScore>
     }
-}
-
-data class ExponentPredictionUnitTask(
-    override val tickerId: UUID,
-    val payload: ExponentUnitPayload
-) : PredictionTask() {
-    override val type: String = "exponent"
-
-    data class ExponentUnitPayload(
-        val tickerId: UUID,
-        val score: Int
-    )
 }
