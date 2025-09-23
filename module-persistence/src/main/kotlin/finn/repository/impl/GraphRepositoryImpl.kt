@@ -44,6 +44,6 @@ class GraphRepositoryImpl(
         gte: Int?,
         missing: List<Int>?
     ): TickerRealTimeGraphQueryDto {
-        return tickerPriceRealTimeDynamoDbRepository.getLatestRealTimeData(tickerId, gte, missing)
+        return tickerPriceRealTimeDynamoDbRepository.findLatestRealTimeData(tickerId, gte, missing)
     }
 }

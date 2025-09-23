@@ -43,7 +43,7 @@ class TickerPriceRealTimeDynamoDbRepository(
         override fun maxLen(): Int = this.maxLen
     }
     
-    fun getLatestRealTimeData(
+    fun findLatestRealTimeData(
         tickerId: UUID,
         gte: Int?,
         missing: List<Int>?

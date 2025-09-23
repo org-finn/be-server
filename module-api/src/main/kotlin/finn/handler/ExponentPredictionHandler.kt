@@ -37,9 +37,9 @@ class ExponentPredictionHandler(
             task.payload.previousScores = predictionQueryService.getAllTickerTodaySentimentScore()
 
             // 30분 전 exponent 가져옴
-            val exponentCode = task.payload.exponentCode
+            val exponentId = task.payload.exponentId
             val date = task.payload.priceDate
-            task.payload.previousValue = exponentService.getRecentExponent(exponentCode, date)
+            task.payload.previousValue = exponentService.getRecentExponent(exponentId, date)
 
             val strategy = strategyFactory.findStrategy(task.type)
             if (strategy !is ExponentSentimentScoreStrategy) {

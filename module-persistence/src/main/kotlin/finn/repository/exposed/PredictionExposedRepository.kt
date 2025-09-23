@@ -1,6 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.PredictionExposed
+import finn.entity.TickerScore
 import finn.exception.CriticalDataOmittedException
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
@@ -297,8 +298,23 @@ class PredictionExposedRepository {
         } ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 
+    suspend fun updateByExponent(
+        predictionDate: LocalDateTime,
+        scores: List<TickerScore>
+    ) {
+        scores.forEach { scoreData ->
+            PredictionTable.update({
+                (PredictionTable.tickerId eq scoreData.tickerId) and (PredictionTable.predictionDate eq predictionDate)
+            }) {
+                it[score] = scoreData.score
+                it[sentiment] = scoreData.sentiment
+                it[strategy] = scoreData.strategy.name
+            }
+        }
+    }
+
     // 최근 6일 간의 prediction score를 반환(추세 반영 목적)
-    suspend fun findTodaySentimentScoreByTickerId(tickerId: UUID): List<Int> {
+    suspend fun findTodaySentimentScoreListByTickerId(tickerId: UUID): List<Int> {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
         val sevenDaysAgo = today.minusDays(6) // 오늘을 제외한 이전 6일
 
@@ -313,7 +329,7 @@ class PredictionExposedRepository {
             }
     }
 
-    suspend fun findTodaySentimentScore(tickerId: UUID): Int {
+    suspend fun findTodaySentimentScoreByTickerId(tickerId: UUID): Int {
         val today = LocalDate.now(ZoneId.of("America/New_York"))
 
         return PredictionTable
@@ -326,5 +342,21 @@ class PredictionExposedRepository {
                 row[PredictionTable.score]
             }.singleOrNull()
             ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
+    }
+
+    suspend fun findTodaySentimentScoreList(): List<TickerScore> {
+        val today = LocalDate.now(ZoneId.of("America/New_York"))
+
+        return PredictionTable
+            .select(PredictionTable.tickerId, PredictionTable.score)
+            .where {
+                (PredictionTable.predictionDate.date() eq today)
+            }
+            .map { row ->
+                TickerScore(
+                    row[PredictionTable.tickerId],
+                    row[PredictionTable.score]
+                )
+            }
     }
 }

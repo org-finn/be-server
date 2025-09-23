@@ -70,7 +70,7 @@ data class ExponentPredictionTask(
     override val type: String = "exponent"
 
     data class ExponentPayload(
-        val exponentCode: String,
+        val exponentId: UUID,
         val value: Double,
         val priceDate: LocalDateTime,
         val predictionDate: LocalDateTime

@@ -77,22 +77,22 @@ class PredictionRepositoryImpl(
     }
 
     override suspend fun getRecentSentimentScoreList(tickerId: UUID): List<Int> {
-        return predictionExposedRepository.findTodaySentimentScoreByTickerId(tickerId)
+        return predictionExposedRepository.findTodaySentimentScoreListByTickerId(tickerId)
     }
 
     override suspend fun getRecentScoreByTickerId(tickerId: UUID): Int {
-        return predictionExposedRepository.findTodaySentimentScore(tickerId)
+        return predictionExposedRepository.findTodaySentimentScoreByTickerId(tickerId)
     }
 
     override suspend fun getAllTickerRecentScore(): List<TickerScore> {
-        TODO("Not yet implemented")
+        return predictionExposedRepository.findTodaySentimentScoreList()
     }
 
     override suspend fun updatePredictionByExponent(
         predictionDate: LocalDateTime,
         scores: List<TickerScore>
     ) {
-        TODO("Not yet implemented")
+        predictionExposedRepository.updateByExponent(predictionDate, scores)
     }
 
     override suspend fun updatePredictionByArticle(
