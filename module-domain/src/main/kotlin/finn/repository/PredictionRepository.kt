@@ -1,5 +1,6 @@
 package finn.repository
 
+import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
 import finn.entity.query.PredictionStrategy
 import finn.paging.PageResponse
@@ -26,7 +27,9 @@ interface PredictionRepository {
 
     suspend fun getRecentSentimentScoreList(tickerId: UUID): List<Int>
 
-    suspend fun getRecentScore(tickerId: UUID): Int
+    suspend fun getAllTickerRecentScore(): List<TickerScore>
+
+    suspend fun getRecentScoreByTickerId(tickerId: UUID): Int
 
     suspend fun updatePredictionByArticle(
         tickerId: UUID,
@@ -38,4 +41,9 @@ interface PredictionRepository {
         sentiment: Int,
         strategy: String
     ): PredictionQ
+
+    suspend fun updatePredictionByExponent(
+        predictionDate: LocalDateTime,
+        scores: List<TickerScore>
+    )
 }

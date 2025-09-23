@@ -2,6 +2,7 @@ package finn.handler
 
 import finn.exception.NotSupportedTypeException
 import finn.service.PredictionCommandService
+import finn.service.PredictionQueryService
 import finn.strategy.ArticleSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.ArticlePredictionTask
@@ -13,7 +14,8 @@ import java.sql.Connection
 
 @Component
 class ArticlePredictionHandler(
-    private val predictionService: PredictionCommandService,
+    private val predictionCommandService: PredictionCommandService,
+    private val predictionQueryService: PredictionQueryService,
     private val strategyFactory: StrategyFactory
 ) : PredictionHandler {
 
@@ -33,10 +35,10 @@ class ArticlePredictionHandler(
             if (strategy !is ArticleSentimentScoreStrategy) {
                 throw NotSupportedTypeException("Unsupported prediction strategy in Article Prediction: ${strategy.javaClass}")
             }
-            task.payload.previousScore = predictionService.getTodaySentimentScore(tickerId)
+            task.payload.previousScore = predictionQueryService.getTodaySentimentScore(tickerId)
             val score = strategy.calculate(task)
 
-            predictionService.updatePredictionByArticle(
+            predictionCommandService.updatePredictionByArticle(
                 tickerId,
                 task.payload.predictionDate,
                 task.payload.positiveArticleCount,

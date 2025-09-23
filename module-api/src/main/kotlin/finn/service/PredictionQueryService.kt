@@ -1,5 +1,6 @@
 package finn.service
 
+import finn.entity.TickerScore
 import finn.paging.PageResponse
 import finn.paging.PredictionPageRequest
 import finn.queryDto.PredictionDetailQueryDto
@@ -21,5 +22,17 @@ class PredictionQueryService(private val predictionRepository: PredictionReposit
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
         return predictionRepository.getPredictionDetail(tickerId)
+    }
+
+    suspend fun getRecentSentimentScores(tickerId: UUID): List<Int> {
+        return predictionRepository.getRecentSentimentScoreList(tickerId)
+    }
+
+    suspend fun getTodaySentimentScore(tickerId: UUID): Int {
+        return predictionRepository.getRecentScoreByTickerId(tickerId)
+    }
+
+    suspend fun getAllTickerTodaySentimentScore() : List<TickerScore> {
+        return predictionRepository.getAllTickerRecentScore()
     }
 }

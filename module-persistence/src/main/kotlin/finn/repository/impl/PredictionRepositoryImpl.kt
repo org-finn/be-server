@@ -1,5 +1,6 @@
 package finn.repository.impl
 
+import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
 import finn.entity.query.PredictionStrategy
 import finn.exception.CriticalDataPollutedException
@@ -79,8 +80,19 @@ class PredictionRepositoryImpl(
         return predictionExposedRepository.findTodaySentimentScoreByTickerId(tickerId)
     }
 
-    override suspend fun getRecentScore(tickerId: UUID): Int {
+    override suspend fun getRecentScoreByTickerId(tickerId: UUID): Int {
         return predictionExposedRepository.findTodaySentimentScore(tickerId)
+    }
+
+    override suspend fun getAllTickerRecentScore(): List<TickerScore> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updatePredictionByExponent(
+        predictionDate: LocalDateTime,
+        scores: List<TickerScore>
+    ) {
+        TODO("Not yet implemented")
     }
 
     override suspend fun updatePredictionByArticle(

@@ -2,6 +2,7 @@ package finn.handler
 
 import finn.exception.NotSupportedTypeException
 import finn.service.PredictionCommandService
+import finn.service.PredictionQueryService
 import finn.strategy.PredictionInitSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.InitPredictionTask
@@ -13,7 +14,8 @@ import java.sql.Connection
 
 @Component
 class InitPredictionHandler(
-    private val predictionService: PredictionCommandService,
+    private val predictionCommandService: PredictionCommandService,
+    private val predictionQueryService: PredictionQueryService,
     private val strategyFactory: StrategyFactory
 ) : PredictionHandler {
 
@@ -36,10 +38,10 @@ class InitPredictionHandler(
             if (strategy !is PredictionInitSentimentScoreStrategy) {
                 throw NotSupportedTypeException("Unsupported prediction strategy in Init Prediction: ${strategy.javaClass}")
             }
-            task.payload.recentScores = predictionService.getRecentSentimentScores(tickerId)
+            task.payload.recentScores = predictionQueryService.getRecentSentimentScores(tickerId)
             val score = strategy.calculate(task)
 
-            predictionService.createPrediction(
+            predictionCommandService.createPrediction(
                 tickerId,
                 tickerCode,
                 shortCompanyName,
