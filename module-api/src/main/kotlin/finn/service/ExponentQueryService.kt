@@ -9,6 +9,6 @@ class ExponentQueryService(
     private val exponentRepository: ExponentRepository
 ) {
     suspend fun getRecentExponent(code: String, priceDate: LocalDateTime): Double {
-        return exponentRepository.getRecentExponentByCode(code, priceDate)
+        return exponentRepository.getRealTimeRecentExponentByCode(code, priceDate)
     }
 }

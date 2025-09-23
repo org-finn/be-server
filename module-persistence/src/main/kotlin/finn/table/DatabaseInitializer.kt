@@ -16,6 +16,7 @@ class DatabaseInitializer : ApplicationRunner {
         val tables =
             arrayOf(
                 TickerTable,
+                ExponentTable,
                 ArticleTable,
                 PredictionTable,
                 TickerPriceTable,

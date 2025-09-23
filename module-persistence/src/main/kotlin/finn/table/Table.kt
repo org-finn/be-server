@@ -19,6 +19,12 @@ object TickerTable : UUIDTable("ticker") {
     val createdAt = datetime("created_at")
 }
 
+object ExponentTable : UUIDTable("exponent") {
+    val code = varchar("code", 20).uniqueIndex()
+    val name = varchar("name", 100)
+    val country = varchar("country", 100)
+}
+
 object ArticleTable : UUIDTable("article") {
     val publishedDate = datetime("published_date")
     val title = text("title")

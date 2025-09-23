@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 class ExponentRepositoryImpl(
 
 ) : ExponentRepository {
-    override suspend fun getRecentExponentByCode(
+    override suspend fun getRealTimeRecentExponentByCode(
         code: String,
         priceDate: LocalDateTime
     ): Double {
