@@ -4,11 +4,9 @@ import finn.TestApplication
 import finn.entity.ArticleExposed
 import finn.entity.ArticleTickerExposed
 import finn.entity.TickerExposed
-import finn.exception.CriticalDataPollutedException
 import finn.repository.ArticleRepository
 import finn.table.ArticleTable
 import finn.table.TickerTable
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -16,6 +14,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
+import java.util.*
 
 @SpringBootTest(classes = [TestApplication::class])
 internal class ArticleRepositoryImplTest(
@@ -156,46 +155,13 @@ internal class ArticleRepositoryImplTest(
     }
 
     Context("getArticleList 메서드는") {
-//        When("filter가 'positive'일 때") {
-//            val result = transaction {
-//                articleRepository.getArticleList(
-//                    page = 0,
-//                    size = 10,
-//                    filter = "positive",
-//                    sort = "recent"
-//                )
-//            }
-//
-//            Then("긍정적인 뉴스(3개)만 최신순으로 반환해야 한다") {
-//                result.content shouldHaveSize 3
-//                result.content.all { it.sentiment == "positive" } shouldBe true
-//                result.content[0].title shouldBe "가장 최신 긍정 뉴스"
-//            }
-//        }
-//
-//        When("filter가 'negative'일 때") {
-//            val result = transaction {
-//                articleRepository.getArticleList(
-//                    page = 0,
-//                    size = 10,
-//                    filter = "negative",
-//                    sort = "recent"
-//                )
-//            }
-//
-//            Then("부정적인 뉴스(2개)만 최신순으로 반환해야 한다") {
-//                result.content shouldHaveSize 2
-//                result.content.all { it.sentiment == "negative" } shouldBe true
-//                result.content[0].title shouldBe "두 번째 최신 부정 뉴스"
-//            }
-//        }
-
         When("filter가 'all'이고 size가 3일 때") {
             val result = transaction {
                 articleRepository.getArticleList(
                     page = 0,
                     size = 3,
-                    filter = "all",
+                    tickerId = null,
+                    sentiment = null,
                     sort = "recent"
                 )
             }
@@ -206,21 +172,69 @@ internal class ArticleRepositoryImplTest(
             }
         }
 
-        When("filter가 지원하지 않는 옵션일 때") {
-            val invalidFilter = "unsupported_option"
+        When("tickerId로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = ticker.id.value,
+                    sentiment = null,
+                    sort = "recent"
+                )
+            }
+            Then("해당 tickerId를 가진 뉴스만을 반환해야 한다") {
+                result.content shouldHaveSize 5
+                result.content[0].tickers?.contains(ticker.shortCompanyName)
+            }
+        }
 
-            Then("ServerErrorCriticalDataPollutedException 예외가 발생해야 한다") {
-                // shouldThrow 블록 안에서 예외가 발생하면 테스트 성공
-                shouldThrow<CriticalDataPollutedException> {
-                    transaction {
-                        articleRepository.getArticleList(
-                            page = 0,
-                            size = 10,
-                            filter = invalidFilter,
-                            sort = "recent"
-                        )
-                    }
-                }
+        When("sentiment가 'positive'로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = null,
+                    sentiment = "positive",
+                    sort = "recent"
+                )
+            }
+            Then("sentiment가 'positive'인 뉴스만 반환해야 한다") {
+                result.content shouldHaveSize 2
+                result.content[0].title shouldBe "가장 최신 긍정 뉴스"
+                result.content[1].title shouldBe "세 번째 최신 긍정 뉴스"
+            }
+        }
+
+        When("tickerId와 sentiment 모두로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = ticker.id.value,
+                    sentiment = "negative",
+                    sort = "recent"
+                )
+            }
+            Then("두 조건을 모두 만족하는 뉴스만 반환해야 한다") {
+                result.content shouldHaveSize 2
+                result.content[0].tickers?.contains(ticker.shortCompanyName)
+                result.content[0].title shouldBe "두 번째 최신 부정 뉴스"
+                result.content[1].title shouldBe "네 번째 최신 부정 뉴스"
+            }
+        }
+
+        When("존재하지 않는 tickerId로 필터링하면") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerId = UUID.randomUUID(), // 임의의 UUID
+                    sentiment = null,
+                    sort = "recent"
+                )
+            }
+            Then("빈 리스트가 반환되어야 한다") {
+                result.content.isEmpty() shouldBe true
             }
         }
     }

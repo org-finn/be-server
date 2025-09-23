@@ -30,11 +30,11 @@ dependencies {
     implementation project(':module-domain')
     implementation project(':module-external')
 
+    // Exposed Spring Boot Starter(Suspend Tx)
+    implementation("org.jetbrains.exposed:exposed-spring-boot-starter:0.52.0")
+
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-
-    // Ko-routine
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
     runtimeOnly("org.postgresql:postgresql")
 

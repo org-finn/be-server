@@ -8,9 +8,8 @@ import finn.queryDto.ArticleDataQueryDto
 import finn.table.ArticleTable
 import finn.table.ArticleTickerTable
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insertIgnore
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -58,6 +57,8 @@ class ArticleExposedRepository {
     }
 
     fun findAllArticleList(
+        tickerId: UUID?,
+        sentiment: String?,
         page: Int,
         size: Int
     ): PageResponse<ArticleExposed> {
@@ -65,10 +66,29 @@ class ArticleExposedRepository {
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        val results = ArticleExposed.all()
-            .orderBy(ArticleTable.publishedDate to SortOrder.DESC)
+        // 기본 쿼리 생성
+        var query = if (tickerId == null && sentiment == null) {
+            ArticleTable.selectAll()
+        } else {
+            ArticleTable.join(
+                ArticleTickerTable, JoinType.INNER,
+                ArticleTable.id, ArticleTickerTable.articleId
+            ).selectAll()
+        }
+
+        // tickerId가 Null이 아닐 경우에만 where 조건 추가
+        if (tickerId != null) {
+            query = query.andWhere { ArticleTickerTable.tickerId eq tickerId }
+        }
+
+        // sentiment가 Null이 아닐 경우에만 where 조건 추가
+        if (sentiment != null) {
+            query = query.andWhere { ArticleTickerTable.sentiment eq sentiment }
+        }
+
+        val results = query.orderBy(ArticleTable.publishedDate, SortOrder.DESC)
             .limit(itemsToFetch, offset)
-            .toList()
+            .map { ArticleExposed.wrapRow(it) }
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 

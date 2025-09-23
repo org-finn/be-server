@@ -1,5 +1,6 @@
 import finn.entity.command.ArticleC
 import finn.handler.PredictionHandlerFactory
+import finn.lock.CoroutineReadWriteLock
 import finn.orchestrator.LambdaOrchestrator
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.service.ArticleCommandService
@@ -14,10 +15,11 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
     val articleService = mockk<ArticleCommandService>(relaxed = true)
     val predictionService = mockk<PredictionCommandService>(relaxed = true)
     val handlerFactory = mockk<PredictionHandlerFactory>(relaxed = true)
+    val coroutineReadWriteLock = mockk<CoroutineReadWriteLock>(relaxed = true)
     mockkObject(ArticleC.Companion)
 
     // 테스트 대상(SUT) 인스턴스 생성
-    val orchestrator = LambdaOrchestrator(articleService, handlerFactory)
+    val orchestrator = LambdaOrchestrator(articleService, handlerFactory, coroutineReadWriteLock)
 
     afterEach {
         clearMocks(articleService, predictionService)

@@ -1,5 +1,6 @@
 package finn.repository.impl
 
+import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
 import finn.entity.query.PredictionStrategy
 import finn.exception.CriticalDataPollutedException
@@ -18,7 +19,7 @@ class PredictionRepositoryImpl(
     private val predictionExposedRepository: PredictionExposedRepository
 ) : PredictionRepository {
 
-    override fun save(
+    override suspend fun save(
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
@@ -44,18 +45,18 @@ class PredictionRepositoryImpl(
         sort: String
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = when (sort) {
-            "popular" -> predictionExposedRepository.findALlPredictionByPopular(
+            "popular" -> predictionExposedRepository.findAllPredictionByPopular(
                 page,
                 size
             )
 
-            "upward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
+            "upward" -> predictionExposedRepository.findAllPredictionBySentimentScore(
                 page,
                 size,
                 false
             )
 
-            "downward" -> predictionExposedRepository.findALlPredictionBySentimentScore(
+            "downward" -> predictionExposedRepository.findAllPredictionBySentimentScore(
                 page,
                 size,
                 true
@@ -75,15 +76,26 @@ class PredictionRepositoryImpl(
         return predictionExposedRepository.findPredictionWithPriceInfoById(tickerId)
     }
 
-    override fun getRecentSentimentScoreList(tickerId: UUID): List<Int> {
+    override suspend fun getRecentSentimentScoreList(tickerId: UUID): List<Int> {
+        return predictionExposedRepository.findTodaySentimentScoreListByTickerId(tickerId)
+    }
+
+    override suspend fun getRecentScoreByTickerId(tickerId: UUID): Int {
         return predictionExposedRepository.findTodaySentimentScoreByTickerId(tickerId)
     }
 
-    override fun getRecentScore(tickerId: UUID): Int {
-        return predictionExposedRepository.findTodaySentimentScore(tickerId)
+    override suspend fun getAllTickerRecentScore(): List<TickerScore> {
+        return predictionExposedRepository.findTodaySentimentScoreList()
     }
 
-    override fun updatePredictionByArticle(
+    override suspend fun updatePredictionByExponent(
+        predictionDate: LocalDateTime,
+        scores: List<TickerScore>
+    ) {
+        predictionExposedRepository.updateByExponent(predictionDate, scores)
+    }
+
+    override suspend fun updatePredictionByArticle(
         tickerId: UUID,
         predictionDate: LocalDateTime,
         positiveArticleCount: Long,

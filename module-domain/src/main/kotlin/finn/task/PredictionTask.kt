@@ -1,7 +1,9 @@
-package finn.score.task
+package finn.task
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import finn.entity.TickerScore
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.properties.Delegates
@@ -59,4 +61,39 @@ data class InitPredictionTask(
     ) {
         lateinit var recentScores: List<Int>
     }
+}
+
+data class ExponentPredictionTask(
+    override val tickerId: UUID,
+    val payload: ExponentListPayload
+) : PredictionTask() {
+    override val type: String = "exponent"
+
+    data class ExponentListPayload(
+        val exponents: List<ExponentPayload>,
+        val priceDate: LocalDateTime,
+        val predictionDate: LocalDateTime
+    ) {
+        data class ExponentPayload(
+            val exponentId: UUID,
+            val code: String,
+            val value: Double,
+        ) {
+            var previousValue: Double by Delegates.notNull()
+        }
+
+        lateinit var previousScores: List<TickerScore>
+    }
+}
+
+data class ExponentPredictionUnitTask(
+    override val tickerId: UUID,
+    val payload: ExponentUnitPayload
+) : PredictionTask() {
+    override val type: String = "exponent"
+
+    data class ExponentUnitPayload(
+        val tickerId: UUID,
+        val score: Int
+    )
 }

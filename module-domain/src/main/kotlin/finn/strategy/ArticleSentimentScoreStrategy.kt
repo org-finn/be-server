@@ -1,6 +1,6 @@
-package finn.score.strategy
+package finn.strategy
 
-import finn.score.task.ArticlePredictionTask
+import finn.task.ArticlePredictionTask
 import org.springframework.stereotype.Component
 import kotlin.math.roundToInt
 

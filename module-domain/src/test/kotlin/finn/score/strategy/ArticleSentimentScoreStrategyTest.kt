@@ -1,5 +1,5 @@
-import finn.score.strategy.ArticleSentimentScoreStrategy
-import finn.score.task.ArticlePredictionTask
+import finn.strategy.ArticleSentimentScoreStrategy
+import finn.task.ArticlePredictionTask
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

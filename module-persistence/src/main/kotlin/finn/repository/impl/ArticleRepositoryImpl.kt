@@ -3,7 +3,6 @@ package finn.repository.impl
 import finn.entity.command.ArticleC
 import finn.entity.command.ArticleInsight
 import finn.entity.query.ArticleQ
-import finn.exception.CriticalDataPollutedException
 import finn.insertDto.ArticleToInsert
 import finn.mapper.toDomain
 import finn.paging.PageResponse
@@ -24,20 +23,18 @@ class ArticleRepositoryImpl(
     override fun getArticleList(
         page: Int,
         size: Int,
-        filter: String,
+        tickerId: UUID?,
+        sentiment: String?,
         sort: String
     ): PageResponse<ArticleQ> {
-        val ArticleExposedList = when (filter) {
-            "all" -> articleExposedRepository.findAllArticleList(page, size)
-
-            else -> throw CriticalDataPollutedException("filter: $filter, 지원하지 않는 옵션입니다.")
-        }
-        return PageResponse(ArticleExposedList.content.map { it ->
+        val articleExposedList =
+            articleExposedRepository.findAllArticleList(tickerId, sentiment, page, size)
+        return PageResponse(articleExposedList.content.map {
             toDomain(it)
-        }.toList(), page, size, ArticleExposedList.hasNext)
+        }.toList(), page, size, articleExposedList.hasNext)
     }
 
-    override fun saveArticle(article: ArticleC, insights: List<ArticleInsight>) : UUID? {
+    override fun saveArticle(article: ArticleC, insights: List<ArticleInsight>): UUID? {
         val articleToInsert = ArticleToInsert(
             article.title, article.description, article.thumbnailUrl, article.contentUrl,
             article.publishedDate, article.source, article.distinctId,
