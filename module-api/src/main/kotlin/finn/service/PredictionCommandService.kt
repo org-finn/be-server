@@ -1,8 +1,10 @@
 package finn.service
 
 import finn.converter.SentimentConverter
+import finn.entity.TickerScore
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -12,7 +14,7 @@ class PredictionCommandService(
     private val predictionRepository: PredictionRepository,
 ) {
 
-    fun createPrediction(
+    suspend fun createPrediction(
         tickerId: UUID,
         tickerCode: String,
         shortCompanyName: String,
@@ -32,7 +34,7 @@ class PredictionCommandService(
         )
     }
 
-    fun updatePredictionByArticle(
+    suspend fun updatePredictionByArticle(
         tickerId: UUID,
         predictionDate: OffsetDateTime,
         positiveArticleCount: Long,
@@ -49,11 +51,18 @@ class PredictionCommandService(
         )
     }
 
-    fun getRecentSentimentScores(tickerId: UUID): List<Int> {
-        return predictionRepository.getRecentSentimentScoreList(tickerId)
+    suspend fun updatePredictionByExponent(
+        predictionDate: LocalDateTime,
+        scores: List<TickerScore>
+    ) {
+        scores.forEach {
+            it.strategy = sentimentConverter.getStrategyFromScore(it.score)
+            it.sentiment = sentimentConverter.getSentiment(it.strategy)
+        }
+
+        predictionRepository.updatePredictionByExponent(
+            predictionDate, scores
+        )
     }
 
-    fun getTodaySentimentScore(tickerId: UUID): Int {
-        return predictionRepository.getRecentScore(tickerId)
-    }
 }

@@ -1,7 +1,7 @@
-package finn.score.strategy
+package finn.strategy
 
 import finn.exception.CriticalDataOmittedException
-import finn.score.task.InitPredictionTask
+import finn.task.InitPredictionTask
 import org.springframework.stereotype.Component
 import kotlin.math.roundToInt
 

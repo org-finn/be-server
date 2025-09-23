@@ -1,4 +1,4 @@
-package finn.score.strategy
+package finn.strategy
 
 interface SentimentScoreStrategy<P> {
     // 자신의 타입과 일치하는지 확인

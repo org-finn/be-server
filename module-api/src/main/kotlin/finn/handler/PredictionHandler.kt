@@ -1,6 +1,6 @@
 package finn.handler
 
-import finn.score.task.PredictionTask
+import finn.task.PredictionTask
 
 interface PredictionHandler {
     fun supports(type: String): Boolean

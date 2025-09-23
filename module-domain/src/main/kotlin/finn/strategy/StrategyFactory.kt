@@ -1,4 +1,4 @@
-package finn.score.strategy
+package finn.strategy
 
 import finn.exception.DomainPolicyViolationException
 import org.springframework.stereotype.Component
