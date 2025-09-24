@@ -3,7 +3,6 @@ package finn.task
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import finn.entity.TickerScore
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.properties.Delegates
@@ -72,8 +71,8 @@ data class ExponentPredictionTask(
 
     data class ExponentListPayload(
         val exponents: List<ExponentPayload>,
-        val priceDate: LocalDateTime,
-        val predictionDate: LocalDateTime
+        val priceDate: OffsetDateTime,
+        val predictionDate: OffsetDateTime
     ) {
         data class ExponentPayload(
             val exponentId: UUID,
