@@ -1,9 +1,9 @@
-name: Deploy to EC2 Articker Prod Server
+name: Deploy to EC2 Articker Dev Server
 
 on:
   push:
     branches:
-      - main
+      - dev
     paths-ignore:
       - 'README.md'
 
@@ -65,9 +65,9 @@ jobs:
       - name: Copy configuration to EC2
         uses: appleboy/scp-action@v1.0.0
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.DEV_EC2_HOST }}
+          username: ${{ secrets.DEV_EC2_USERNAME }}
+          key: ${{ secrets.DEV_EC2_SSH_KEY }}
           # ⭐️ docker-compose.yml과 prometheus 디렉토리 전체를 복사
           source: "docker-compose.yml,prometheus"
           target: "/home/ubuntu"
@@ -76,27 +76,27 @@ jobs:
       - name: Deploy to EC2 instance
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.DEV_EC2_HOST }}
+          username: ${{ secrets.DEV_EC2_USERNAME }}
+          key: ${{ secrets.DEV_EC2_SSH_KEY }}
           script: |
             set -e # 스크립트 실행 중 오류 발생 시 즉시 중단
             
             # ⭐️ 1. GitHub Actions에서 만든 이미지 이름을 EC2의 쉘 변수로 export
             export SPRING_APP_IMAGE=${{ env.IMAGE_NAME }}
             
-            # ⭐️ 2. GitHub Actions의 Secrets를 사용하여 .env-prod 파일을 서버에 동적으로 생성
-            cat <<EOF > .env-prod
-            SPRING_PROFILES_ACTIVE=prod
-            DB_HOST=${{ secrets.PROD_DB_HOST }}
-            DB_PORT=${{ secrets.PROD_DB_PORT }}
-            DB_NAME=${{ secrets.PROD_DB_NAME }}
-            DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-            TRANSACTION_ISOLATION_LEVEL=${{ secrets.PROD_TRANSACTION_ISOLATION_LEVEL }}
-            AWS_REGION=${{ secrets.AWS_REGION }}
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            # ⭐️ 2. GitHub Actions의 Secrets를 사용하여 .env-dev 파일을 서버에 동적으로 생성
+            cat <<EOF > .env-dev
+            SPRING_PROFILES_ACTIVE=dev
+            DB_HOST=${{ secrets.DEV_DB_HOST }}
+            DB_PORT=${{ secrets.DEV_DB_PORT }}
+            DB_NAME=${{ secrets.DEV_DB_NAME }}
+            DB_USERNAME=${{ secrets.DEV_DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}
+            TRANSACTION_ISOLATION_LEVEL=${{ secrets.DEV_TRANSACTION_ISOLATION_LEVEL }}
+            AWS_REGION=${{ secrets.DEV_AWS_REGION }}
+            AWS_ACCESS_KEY_ID=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
             EOF
             
             # ⭐️ 3. Docker Hub에서 최신 이미지 가져오기
@@ -105,11 +105,11 @@ jobs:
 
             # ⭐️ 4. docker compose로 컨테이너 실행
             # 기존 컨테이너가 있다면 중지
-            docker compose down
-            docker compose up -d --force-recreate
+            docker compose -f docker-compose-dev.yml down
+            docker compose -f docker-compose-dev.yml up -d --force-recreate
 
-            # ⭐️ 5. 보안을 위해 생성했던 .env-prod 파일 즉시 삭제
-            rm .env-prod
+            # ⭐️ 5. 보안을 위해 생성했던 .env-dev 파일 즉시 삭제
+            rm .env-dev
 
             # ⭐️ 6. 사용하지 않는 Docker 이미지 정리
             docker image prune -a -f

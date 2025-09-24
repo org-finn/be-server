@@ -37,11 +37,13 @@ server:
     mbeanregistry:
       enabled: true
 ---
-# dev, default
+# dev, local
 spring:
   config:
     activate:
-      on-profile: "dev"
+      on-profile:
+        - dev
+        - local
 cors:
   allowed-origins: '*'
 
