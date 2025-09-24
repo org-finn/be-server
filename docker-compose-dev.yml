@@ -15,7 +15,7 @@ services:
       driver: "awslogs"
       options:
         awslogs-region: "ap-northeast-2"
-        awslogs-group: "articker-ec2-server-main-logs"
+        awslogs-group: "articker-ec2-server-dev-logs"
         awslogs-create-group: "true"
         awslogs-stream: "spring-app"
 
