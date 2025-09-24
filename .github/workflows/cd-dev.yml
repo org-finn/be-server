@@ -68,8 +68,8 @@ jobs:
           host: ${{ secrets.DEV_EC2_HOST }}
           username: ${{ secrets.DEV_EC2_USERNAME }}
           key: ${{ secrets.DEV_EC2_SSH_KEY }}
-          # ⭐️ docker-compose.yml과 prometheus 디렉토리 전체를 복사
-          source: "docker-compose.yml,prometheus"
+          # ⭐️ docker-compose-dev.yml과 prometheus 디렉토리 전체를 복사
+          source: "docker-compose-dev.yml,prometheus"
           target: "/home/ubuntu"
 
       # 7-2. EC2에 접속하여 배포 스크립트 실행
