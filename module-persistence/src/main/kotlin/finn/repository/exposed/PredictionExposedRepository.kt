@@ -308,7 +308,7 @@ class PredictionExposedRepository {
             }) {
                 it[score] = scoreData.score
                 it[sentiment] = scoreData.sentiment
-                it[strategy] = scoreData.strategy.name
+                it[strategy] = scoreData.strategy.strategy
             }
         }
     }
