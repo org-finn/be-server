@@ -4,7 +4,6 @@ import finn.converter.SentimentConverter
 import finn.entity.TickerScore
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -52,7 +51,7 @@ class PredictionCommandService(
     }
 
     suspend fun updatePredictionByExponent(
-        predictionDate: LocalDateTime,
+        predictionDate: OffsetDateTime,
         scores: List<TickerScore>
     ) {
         scores.forEach {
@@ -61,7 +60,7 @@ class PredictionCommandService(
         }
 
         predictionRepository.updatePredictionByExponent(
-            predictionDate, scores
+            predictionDate.toLocalDateTime(), scores
         )
     }
 

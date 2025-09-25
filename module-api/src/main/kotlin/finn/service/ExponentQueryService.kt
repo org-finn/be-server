@@ -3,7 +3,7 @@ package finn.service
 import finn.repository.ExponentRepository
 import finn.task.ExponentPredictionTask.ExponentListPayload.ExponentPayload
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 @Service
 class ExponentQueryService(
@@ -11,8 +11,8 @@ class ExponentQueryService(
 ) {
     suspend fun getRecentExponent(
         exponents: List<ExponentPayload>,
-        priceDate: LocalDateTime
+        priceDate: OffsetDateTime
     ) {
-        exponentRepository.getRealTimeRecentExponentByCode(exponents, priceDate)
+        exponentRepository.getRealTimeRecentExponentByCode(exponents, priceDate.toLocalDateTime())
     }
 }
