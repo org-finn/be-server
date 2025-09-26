@@ -52,23 +52,23 @@ class LambdaOrchestrator(
         scope.launch {
             if (tickerId == wildcard) {
                 // 와일드카드(*) 작업: 쓰기 락(Write Lock)을 사용
-                log.debug { "글로벌 작업(*) 시작. 쓰기 락 획득 시도..." }
+                log.info { "글로벌 작업(*) 시작. 쓰기 락 획득 시도..." }
                 coroutineReadWriteLock.write {
-                    log.debug { "쓰기 락 획득 성공. 모든 개별 티커 작업을 막고 전체 예측을 수행합니다." }
+                    log.info { "쓰기 락 획득 성공. 모든 개별 티커 작업을 막고 전체 예측을 수행합니다." }
                     handler.handle(task)
-                    log.debug { "전체 예측 수행 완료. 쓰기 락을 반납합니다." }
+                    log.info { "전체 예측 수행 완료. 쓰기 락을 반납합니다." }
                 }
             } else {
                 // 개별 티커 작업: 글로벌 읽기 락(Read Lock) + 개별 Mutex를 함께 사용
-                log.debug { "개별 작업(${tickerId}) 시작. 읽기 락 획득 시도..." }
+                log.info { "개별 작업(${tickerId}) 시작. 읽기 락 획득 시도..." }
                 coroutineReadWriteLock.read {
-                    log.debug { "읽기 락 획득 성공. (${tickerId}) 이제 개별 뮤텍스를 획득합니다." }
+                    log.info { "읽기 락 획득 성공. (${tickerId}) 이제 개별 뮤텍스를 획득합니다." }
                     // 읽기 락(티커별 작업) 안에서 동일 티커 간의 충돌을 막기 위해 개별 뮤텍스를 사용
                     val tickerMutex = mutexes.computeIfAbsent(tickerId) { Mutex() }
                     tickerMutex.withLock {
-                        log.debug { "개별 락 획득 성공. (${tickerId}): 예측을 수행합니다." }
+                        log.info { "개별 락 획득 성공. (${tickerId}): 예측을 수행합니다." }
                         handler.handle(task)
-                        log.debug { "(${tickerId}): 예측 수행 완료. 개별 락을 반납합니다." }
+                        log.info { "(${tickerId}): 예측 수행 완료. 개별 락을 반납합니다." }
                     }
                 }
             }
