@@ -62,7 +62,6 @@ class LambdaOrchestrator(
                 // 개별 티커 작업: 글로벌 읽기 락(Read Lock) + 개별 Mutex를 함께 사용
                 log.info { "개별 작업(${tickerId}) 시작. 읽기 락 획득 시도..." }
                 coroutineReadWriteLock.read {
-                    log.info { "읽기 락 획득 성공. (${tickerId}) 이제 개별 뮤텍스를 획득합니다." }
                     // 읽기 락(티커별 작업) 안에서 동일 티커 간의 충돌을 막기 위해 개별 뮤텍스를 사용
                     val tickerMutex = mutexes.computeIfAbsent(tickerId) { Mutex() }
                     tickerMutex.withLock {
