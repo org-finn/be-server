@@ -26,6 +26,7 @@ class CoroutineReadWriteLock(maxReaders: Int = Int.MAX_VALUE) {
         // 쓰기 락을 획득할 수 있어야 읽기 락 획득 가능
         try {
             writeLock.lock()
+            log.info {"읽기 작업에서 쓰기 락 획득 성공"}
             readLock.acquire()
             log.info {"읽기 작업에서 읽기 락 획득 성공"}
         } finally {
