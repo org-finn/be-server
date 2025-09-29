@@ -68,6 +68,7 @@ internal class TickerQueryServiceTest : BehaviorSpec({
         // 5. repository의 findAll()이 호출되면, 미리 정의한 가짜 데이터를 반환하도록 설정합니다.
         every { tickerRepository.findAll() } returns fakeTickerList
 
+        @OptIn(io.kotest.common.ExperimentalKotest::class)
         Context("getTickerSearchList 메서드는") {
 
             When("'Am'로 검색하면") {
