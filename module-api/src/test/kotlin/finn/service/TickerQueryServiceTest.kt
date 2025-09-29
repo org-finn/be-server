@@ -1,7 +1,7 @@
 package finn.service
 
 import finn.filter.TickerSearchFilter
-import finn.queryDto.TickerSearchQueryDto
+import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -13,10 +13,10 @@ import java.util.*
 
 internal class TickerQueryServiceTest : BehaviorSpec({
 
-    data class TickerSearchQueryDtoImpl(
+    data class TickerQueryDtoImpl(
         val shortCompanyName: String,
         val shortCompanyNameKr: String
-    ) : TickerSearchQueryDto {
+    ) : TickerQueryDto {
         override fun shortCompanyName(): String {
             return this.shortCompanyName
         }
@@ -47,13 +47,13 @@ internal class TickerQueryServiceTest : BehaviorSpec({
 
     // 3. 테스트에 사용할 가짜 데이터 목록을 미리 정의합니다.
     val fakeTickerList = listOf(
-        TickerSearchQueryDtoImpl(shortCompanyName = "AMD", shortCompanyNameKr = "암드"),
-        TickerSearchQueryDtoImpl(shortCompanyName = "Amazon", shortCompanyNameKr = "아마존"),
-        TickerSearchQueryDtoImpl(
+        TickerQueryDtoImpl(shortCompanyName = "AMD", shortCompanyNameKr = "암드"),
+        TickerQueryDtoImpl(shortCompanyName = "Amazon", shortCompanyNameKr = "아마존"),
+        TickerQueryDtoImpl(
             shortCompanyName = "Microsoft",
             shortCompanyNameKr = "마이크로소프트"
         ),
-        TickerSearchQueryDtoImpl(
+        TickerQueryDtoImpl(
             shortCompanyName = "Tesla",
             shortCompanyNameKr = "테슬라"
         )
@@ -68,6 +68,7 @@ internal class TickerQueryServiceTest : BehaviorSpec({
         // 5. repository의 findAll()이 호출되면, 미리 정의한 가짜 데이터를 반환하도록 설정합니다.
         every { tickerRepository.findAll() } returns fakeTickerList
 
+        @OptIn(io.kotest.common.ExperimentalKotest::class)
         Context("getTickerSearchList 메서드는") {
 
             When("'Am'로 검색하면") {

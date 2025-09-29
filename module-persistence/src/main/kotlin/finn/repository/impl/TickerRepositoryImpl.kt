@@ -2,7 +2,7 @@ package finn.repository.impl
 
 import finn.entity.query.Ticker
 import finn.mapper.toDomain
-import finn.queryDto.TickerSearchQueryDto
+import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import finn.repository.exposed.TickerExposedRepository
 import org.springframework.cache.annotation.Cacheable
@@ -22,7 +22,7 @@ class TickerRepositoryImpl(
     }
 
     @Cacheable("tickerSearchList", key = TICKER_LIST_CACHE_KEY)
-    override fun findAll(): List<TickerSearchQueryDto> {
+    override fun findAll(): List<TickerQueryDto> {
         return tickerExposedRepository.findAll()
     }
 }
