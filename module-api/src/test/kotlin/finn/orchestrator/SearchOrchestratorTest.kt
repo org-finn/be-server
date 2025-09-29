@@ -2,7 +2,7 @@ package finn.orchestrator
 
 import finn.exception.DomainPolicyViolationException
 import finn.mapper.toDto
-import finn.queryDto.TickerSearchQueryDto
+import finn.queryDto.TickerQueryDto
 import finn.service.TickerQueryService
 import finn.validator.checkKeywordValid
 import io.kotest.assertions.throwables.shouldThrow
@@ -24,7 +24,7 @@ internal class SearchOrchestratorTest : BehaviorSpec({
     Given("유효한 검색 키워드가 주어졌을 때") {
         val keyword = "ap"
         // 1. 반환될 리스트에 포함될 개별 DTO를 Mocking합니다.
-        val mockDto = mockk<TickerSearchQueryDto>()
+        val mockDto = mockk<TickerQueryDto>()
         every { mockDto.tickerId() } returns UUID.randomUUID()
         every { mockDto.tickerCode() } returns "AAPL"
         every { mockDto.shortCompanyName() } returns "Apple"

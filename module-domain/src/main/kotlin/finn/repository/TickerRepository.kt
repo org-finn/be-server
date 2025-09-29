@@ -1,11 +1,11 @@
 package finn.repository
 
 import finn.entity.query.Ticker
-import finn.queryDto.TickerSearchQueryDto
+import finn.queryDto.TickerQueryDto
 
 interface TickerRepository {
 
     fun getTickerByTickerCode(tickerCode: String): Ticker
 
-    fun findAll(): List<TickerSearchQueryDto>
+    fun findAll(): List<TickerQueryDto>
 }

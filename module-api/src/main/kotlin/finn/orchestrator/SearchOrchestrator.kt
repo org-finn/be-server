@@ -1,6 +1,6 @@
 package finn.orchestrator
 
-import finn.mapper.toDto
+import finn.mapper.SearchDtoMapper
 import finn.response.search.TickerSearchPreviewListResponse
 import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
@@ -16,6 +16,6 @@ class SearchOrchestrator(
     fun getTickerSearchPreviewList(keyword: String?): TickerSearchPreviewListResponse {
         checkKeywordValid(keyword)
         val tickerDto = tickerQueryService.getTickerSearchList(keyword!!)
-        return toDto(tickerDto)
+        return SearchDtoMapper.toDto(tickerDto)
     }
 }

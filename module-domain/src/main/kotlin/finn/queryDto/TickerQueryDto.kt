@@ -2,7 +2,7 @@ package finn.queryDto
 
 import java.util.*
 
-interface TickerSearchQueryDto {
+interface TickerQueryDto {
 
     fun tickerId(): UUID
 
