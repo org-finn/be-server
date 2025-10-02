@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
 @Component
-@Profile("dev", "test")// dev, 테스트 환경에서만 활성화
+@Profile("local", "test")// dev, 테스트 환경에서만 활성화
 class DatabaseInitializer : ApplicationRunner {
     // 애플리케이션이 준비되면 이 run 메서드가 자동으로 호출됩니다.
     override fun run(args: ApplicationArguments?) {

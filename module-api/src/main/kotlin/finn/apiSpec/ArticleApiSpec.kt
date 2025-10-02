@@ -4,6 +4,7 @@ import finn.paging.ArticlePageRequest
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
 import finn.response.article.ArticleListResponse
+import finn.response.article.ArticleTickerFilteringListResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -34,4 +35,17 @@ interface ArticleApiSpec {
     fun getArticleList(
         @ParameterObject pageRequest: ArticlePageRequest
     ): SuccessResponse<ArticleListResponse>
+
+    @Operation(
+        summary = "뉴스 필터링 티커 목록 조회", description = "필터링 조건에 사용되는 티커 리스트를 조회합니다."
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "티커 목록을 성공적으로 조회하였습니다."
+        )]
+    )
+    @GetMapping("/ticker-list")
+    fun getFilteringTickerList(): SuccessResponse<ArticleTickerFilteringListResponse>
+
 }

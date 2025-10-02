@@ -1,7 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.TickerExposed
-import finn.queryDto.TickerSearchQueryDto
+import finn.queryDto.TickerQueryDto
 import finn.table.TickerTable
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.selectAll
@@ -11,13 +11,13 @@ import java.util.*
 @Repository
 class TickerExposedRepository {
 
-    private data class TickerSearchQueryDtoImpl(
+    private data class TickerQueryDtoImpl(
         val tickerId: UUID,
         val tickerCode: String,
         val shortCompanyName: String,
         val shortCompanyNameKr: String,
         val fullCompanyName: String
-    ) : TickerSearchQueryDto {
+    ) : TickerQueryDto {
         override fun tickerId(): UUID = this.tickerId
         override fun tickerCode(): String = this.tickerCode
         override fun shortCompanyName(): String = this.shortCompanyName
@@ -25,7 +25,7 @@ class TickerExposedRepository {
         override fun fullCompanyName(): String = this.fullCompanyName
     }
 
-    fun findTickerListBySearchKeyword(keyword: String): List<TickerSearchQueryDto> {
+    fun findTickerListBySearchKeyword(keyword: String): List<TickerQueryDto> {
         return TickerTable.select(
             TickerTable.id,
             TickerTable.code,
@@ -33,7 +33,7 @@ class TickerExposedRepository {
             TickerTable.fullCompanyName
         ).where { TickerTable.shortCompanyName.lowerCase() like "${keyword.lowercase()}%" }
             .map { row ->
-                TickerSearchQueryDtoImpl(
+                TickerQueryDtoImpl(
                     tickerId = row[TickerTable.id].value,
                     tickerCode = row[TickerTable.code],
                     shortCompanyName = row[TickerTable.shortCompanyName],
@@ -55,10 +55,10 @@ class TickerExposedRepository {
             .associate { it[TickerTable.code] to it[TickerTable.id].value }
     }
 
-    fun findAll(): List<TickerSearchQueryDto> {
+    fun findAll(): List<TickerQueryDto> {
         return TickerTable.selectAll()
             .map { row ->
-                TickerSearchQueryDtoImpl(
+                TickerQueryDtoImpl(
                     tickerId = row[TickerTable.id].value,
                     tickerCode = row[TickerTable.code],
                     shortCompanyName = row[TickerTable.shortCompanyName],
