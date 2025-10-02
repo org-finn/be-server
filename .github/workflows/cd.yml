@@ -1,115 +1,79 @@
-name: Deploy to EC2 Articker Prod Server
+name: CD for Canary Deployment
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'README.md'
+  # 수동 실행 옵션(main에 푸시되어도 자동으로 실행되지 않음)
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: '배포 총 소요 시간 (시간 단위)'
+        required: true
+        default: '9'
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. 코드 체크아웃
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Define image name and tag
-        run: |
-          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${REPO_NAME}:${{ github.ref_name }}-${{ github.sha }}"
-          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
-
-      # 2. JDK 21 설치
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          java-version: '21'
-          distribution: 'corretto' # Amazon Corretto JDK 사용
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
 
-      # 3. Gradle 실행 권한 부여
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      # 4. Spring Boot 애플리케이션 빌드
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      #  Docker Buildx 설정
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      #  QEMU 설정
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      # 5. Docker Hub 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 6. Docker 이미지 빌드 및 푸시
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          # 이미지 태그: {DockerHub유저명}/{리포지토리명}:{브랜치명}-{commit해시}
-          tags: ${{ env.IMAGE_NAME }}
+      - name: Build and push to Docker Hub
+        id: build-image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          DOCKER_REPO="${{ secrets.DOCKERHUB_USERNAME }}/${REPO_NAME}"
+          docker build -t $DOCKER_REPO:$IMAGE_TAG .
+          docker push $DOCKER_REPO:$IMAGE_TAG
+          echo "IMAGE_NAME=$DOCKER_REPO:$IMAGE_TAG" >> $GITHUB_ENV
+          echo "image_name=$DOCKER_REPO:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
-      # 7-1. 필요한 설정 파일들을 EC2 서버로 복사
-      - name: Copy configuration to EC2
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          # ⭐️ docker-compose.yml과 prometheus 디렉토리 전체를 복사
-          source: "docker-compose.yml,prometheus"
-          target: "/home/ubuntu"
+      - name: Create CodeDeploy bundle
+        run: |
+          mkdir -p deploy
+          echo "${{ steps.build-image.outputs.image_name }}" > deploy/image_name.txt
+          cp appspec.yml docker-compose.yml deploy/
+          cp -r scripts deploy/
+          cd deploy && zip -r ../deploy.zip .
 
-      # 7-2. EC2에 접속하여 배포 스크립트 실행
-      - name: Deploy to EC2 instance
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e # 스크립트 실행 중 오류 발생 시 즉시 중단
-            
-            # ⭐️ 1. GitHub Actions에서 만든 이미지 이름을 EC2의 쉘 변수로 export
-            export SPRING_APP_IMAGE=${{ env.IMAGE_NAME }}
-            
-            # ⭐️ 2. GitHub Actions의 Secrets를 사용하여 .env-prod 파일을 서버에 동적으로 생성
-            cat <<EOF > .env-prod
-            SPRING_PROFILES_ACTIVE=prod
-            DB_HOST=${{ secrets.PROD_DB_HOST }}
-            DB_PORT=${{ secrets.PROD_DB_PORT }}
-            DB_NAME=${{ secrets.PROD_DB_NAME }}
-            DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-            TRANSACTION_ISOLATION_LEVEL=${{ secrets.PROD_TRANSACTION_ISOLATION_LEVEL }}
-            AWS_REGION=${{ secrets.AWS_REGION }}
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            EOF
-            
-            # ⭐️ 3. Docker Hub에서 최신 이미지 가져오기
-            # docker-compose up이 자동으로 이미지를 pull 하지만, 명시적으로 실행하는 것이 안전합니다.
-            docker pull ${{ env.IMAGE_NAME }}
+      - name: Upload CodeDeploy bundle to S3
+        run: aws s3 cp deploy.zip s3://articker-codedeploy-revisions-bucket/${{ github.sha }}.zip
 
-            # ⭐️ 4. docker compose로 컨테이너 실행
-            # 기존 컨테이너가 있다면 중지
-            docker compose down
-            docker compose up -d --force-recreate
+      - name: Start CodeDeploy deployment
+        id: start-deployment
+        run: |
+          DEPLOYMENT_ID=$(aws deploy create-deployment \
+            --application-name articker-application \
+            --deployment-group-name articker-dg-canary \
+            --s3-location bucket=articker-codedeploy-revisions-bucket,key=${{ github.sha }}.zip,bundleType=zip \
+            --query "deploymentId" --output text)
+          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
+          echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
 
-            # ⭐️ 5. 보안을 위해 생성했던 .env-prod 파일 즉시 삭제
-            rm .env-prod
+      - name: Wait for CodeDeploy to be ready
+        run: |
+          echo "Waiting for deployment ${{ env.DEPLOYMENT_ID }} to be ready..."
+          aws deploy wait deployment-successful --deployment-id ${{ env.DEPLOYMENT_ID }}
 
-            # ⭐️ 6. 사용하지 않는 Docker 이미지 정리
-            docker image prune -a -f
+      - name: Start Step Functions execution
+        run: |
+          echo "Starting Step Functions with duration: ${{ github.event.inputs.duration }} hours"
+          SFN_INPUT=$(jq -n \
+            --arg duration "${{ github.event.inputs.duration }}" \
+            --arg deploymentId "${{ steps.start-deployment.outputs.deployment_id }}" \
+            '{ "total_duration_hours": ($duration | tonumber), "detail": { "deploymentId": $deploymentId } }')
+          aws stepfunctions start-execution \
+            --state-machine-arn "${{ secrets.STATE_MACHINE_ARN }}" \
+            --input "$SFN_INPUT"
