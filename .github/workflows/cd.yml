@@ -47,50 +47,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Create CodeDeploy bundle
+      - name: Create new Launch Template Version
+        id: create_lt_version
         run: |
-          mkdir -p deploy
-          echo "${{ env.IMAGE_NAME }}" > deploy/image_name.txt
-          cp appspec.yml docker-compose.yml deploy/
-          cp -r scripts deploy/
-          cp -r prometheus deploy/
-          cd deploy && zip -r ../deploy.zip .
-
-      - name: Upload CodeDeploy bundle to S3
-        run: aws s3 cp deploy.zip s3://articker-codedeploy-revisions-bucket/${{ github.sha }}.zip
-
-      - name: Start CodeDeploy deployment
-        id: start-deployment
-        run: |
-          DEPLOYMENT_ID=$(aws deploy create-deployment \
-            --application-name articker-application \
-            --deployment-group-name articker-dg-canary \
-            --s3-location bucket=articker-codedeploy-revisions-bucket,key=${{ github.sha }}.zip,bundleType=zip \
-            --query "deploymentId" --output text)
-          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
-          echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Grant execute permission for wait script
-        run: chmod +x ./scripts/wait_for_deployment.sh
-
-      - name: Wait for CodeDeploy to be ready
-        run: ./scripts/wait_for_deployment.sh ${{ steps.start-deployment.outputs.deployment_id }}
+          VERSION=$(aws ec2 create-launch-template-version \
+          --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} \
+          --version-description "Image tag ${{ env.IMAGE_NAME }}" \
+          --source-version '$Latest' \
+          --query "LaunchTemplateVersion.VersionNumber" --output text)
+          echo "lt_version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Start Step Functions execution
         run: |
-          echo "Starting Step Functions with duration: ${{ github.event.inputs.duration }} hours"
           SFN_INPUT=$(jq -n \
             --arg duration "${{ github.event.inputs.duration }}" \
-            --arg deploymentId "${{ steps.start-deployment.outputs.deployment_id }}" \
-            '{ "total_duration_hours": ($duration | tonumber), "detail": { "deploymentId": $deploymentId } }')
+            --arg lt_version "${{ steps.create_lt_version.outputs.lt_version }}" \
+            --arg image_tag "${{ env.IMAGE_NAME }}" \
+            '{ "total_duration_hours": ($duration | tonumber), "launchTemplateVersion": $lt_version, "imageTag": $image_tag }')
           aws stepfunctions start-execution \
             --state-machine-arn "${{ secrets.STATE_MACHINE_ARN }}" \
             --input "$SFN_INPUT"
-
-      - name: Cancel CodeDeploy deployment on failure
-        if: failure() || cancelled()
-        run: |
-          echo "Workflow failed or was cancelled. Stopping CodeDeploy deployment ${{ steps.start-deployment.outputs.deployment_id }}..."
-          aws deploy stop-deployment \
-            --deployment-id ${{ steps.start-deployment.outputs.deployment_id }} \
-            --auto-rollback-enabled
