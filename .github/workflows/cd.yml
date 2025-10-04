@@ -47,50 +47,52 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Create CodeDeploy bundle
+      - name: Create new Launch Template Version
+        id: create_lt_version
         run: |
-          mkdir -p deploy
-          echo "${{ env.IMAGE_NAME }}" > deploy/image_name.txt
-          cp appspec.yml docker-compose.yml deploy/
-          cp -r scripts deploy/
-          cp -r prometheus deploy/
-          cd deploy && zip -r ../deploy.zip .
+          # 1. 최신 버전의 시작 템플릿에서 현재 User Data를 가져옵니다 (Base64 인코딩 상태).
+          BASE64_USER_DATA=$(aws ec2 describe-launch-template-versions \
+            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} \
+            --versions '$Latest' \
+            --query "LaunchTemplateVersions[0].LaunchTemplateData.UserData" \
+            --output text)
 
-      - name: Upload CodeDeploy bundle to S3
-        run: aws s3 cp deploy.zip s3://articker-codedeploy-revisions-bucket/${{ github.sha }}.zip
+          # 2. Base64로 인코딩된 User Data를 디코딩하여 셸 스크립트로 변환합니다.
+          DECODED_USER_DATA=$(echo "$BASE64_USER_DATA" | base64 --decode)
 
-      - name: Start CodeDeploy deployment
-        id: start-deployment
-        run: |
-          DEPLOYMENT_ID=$(aws deploy create-deployment \
-            --application-name articker-application \
-            --deployment-group-name articker-dg-canary \
-            --s3-location bucket=articker-codedeploy-revisions-bucket,key=${{ github.sha }}.zip,bundleType=zip \
-            --query "deploymentId" --output text)
-          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
-          echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
+          # 3. 스크립트 내의 플레이스홀더를 실제 새 이미지 태그로 교체합니다.
+          MODIFIED_USER_DATA=$(echo "$DECODED_USER_DATA" | sed "s|DOCKER_IMAGE_TAG_PLACEHOLDER|${IMAGE_NAME}|g")
 
-      - name: Grant execute permission for wait script
-        run: chmod +x ./scripts/wait_for_deployment.sh
+          # 4. 수정된 User Data를 다시 Base64로 인코딩합니다.
+          NEW_BASE64_USER_DATA=$(echo "$MODIFIED_USER_DATA" | base64 -w 0)
 
-      - name: Wait for CodeDeploy to be ready
-        run: ./scripts/wait_for_deployment.sh ${{ steps.start-deployment.outputs.deployment_id }}
+          # 5. 수정된 User Data를 담아 새 시작 템플릿 버전을 생성합니다.
+          FULL_RESPONSE=$(aws ec2 create-launch-template-version \
+            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} \
+            --version-description "Image tag ${IMAGE_NAME}" \
+            --source-version '$Latest' \
+            --launch-template-data '{"UserData": "'"$NEW_BASE64_USER_DATA"'"}')
+          
+          VERSION=$(echo "$FULL_RESPONSE" | jq -r ".LaunchTemplateVersion.VersionNumber")
+          
+          if [ -z "$VERSION" ] || [ "$VERSION" == "null" ]; then
+            echo "::error::Failed to create new launch template version. Full response: $FULL_RESPONSE"
+            exit 1
+          fi
+
+          # 6. 방금 생성한 버전을 시작 템플릿의 '기본(Default)' 버전으로 설정합니다.
+          aws ec2 modify-launch-template --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} --default-version $VERSION
+          
+          echo "Successfully created and set Launch Template Version: $VERSION as default"
+          echo "lt_version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Start Step Functions execution
         run: |
-          echo "Starting Step Functions with duration: ${{ github.event.inputs.duration }} hours"
           SFN_INPUT=$(jq -n \
             --arg duration "${{ github.event.inputs.duration }}" \
-            --arg deploymentId "${{ steps.start-deployment.outputs.deployment_id }}" \
-            '{ "total_duration_hours": ($duration | tonumber), "detail": { "deploymentId": $deploymentId } }')
+            --arg lt_version "${{ steps.create_lt_version.outputs.lt_version }}" \
+            --arg image_tag "${{ env.IMAGE_NAME }}" \
+            '{ "total_duration_hours": ($duration | tonumber), "launchTemplateVersion": ($lt_version | tonumber), "imageTag": $image_tag }')
           aws stepfunctions start-execution \
             --state-machine-arn "${{ secrets.STATE_MACHINE_ARN }}" \
             --input "$SFN_INPUT"
-
-      - name: Cancel CodeDeploy deployment on failure
-        if: failure() || cancelled()
-        run: |
-          echo "Workflow failed or was cancelled. Stopping CodeDeploy deployment ${{ steps.start-deployment.outputs.deployment_id }}..."
-          aws deploy stop-deployment \
-            --deployment-id ${{ steps.start-deployment.outputs.deployment_id }} \
-            --auto-rollback-enabled
