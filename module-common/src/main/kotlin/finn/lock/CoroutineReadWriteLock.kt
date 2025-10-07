@@ -30,23 +30,25 @@ class CoroutineReadWriteLock(
         action: suspend () -> T
     ): T? {
         return withTimeoutOrNull(timeoutMillis) {
+            // 쓰기 락을 획득할 수 있어야 읽기 락 획득 가능
+            writeLock.lock()
+            log.debug { "읽기 작업에서 쓰기 락 획득 성공" }
             try {
-                // 쓰기 락을 획득할 수 있어야 읽기 락 획득 가능
-                writeLock.lock()
-                log.info { "읽기 작업에서 쓰기 락 획득 성공" }
                 readLock.acquire()
-                log.info { "읽기 작업에서 읽기 락 획득 성공" }
-            } finally {
-                // 읽기 락을 획득하였으므로 쓰기 락 즉시 해제
+                log.debug { "읽기 작업에서 읽기 락 획득 성공" }
+            } catch (e: Exception) {
                 writeLock.unlock()
-                log.info { "읽기 작업에서 쓰기 락을 반납합니다." }
+                throw e
             }
+            // 읽기 락을 획득하였으므로 쓰기 락 즉시 해제
+            writeLock.unlock()
+            log.debug { "읽기 작업에서 쓰기 락을 반납합니다." }
 
             try {
                 action()
             } finally {
                 readLock.release()
-                log.info { "읽기 작업에서 읽기 락을 반납합니다." }
+                log.debug { "읽기 작업에서 읽기 락을 반납합니다." }
             }
         }
     }
@@ -57,19 +59,27 @@ class CoroutineReadWriteLock(
     ): T? {
         return withTimeoutOrNull(timeoutMillis) {
             try {
-                // 현재 진행 중인 모든 읽기 작업이 끝날 때까지 대기
-                // 모든 reader의 permit을 획득
-                repeat(maxReaders) { readLock.acquire() }
-                log.info { "쓰기 작업에서 모든 읽기 획득 성공" }
                 writeLock.lock()
-                log.info { "쓰기 작업에서 쓰기 락 획득 성공" }
-                action()
+                log.debug { "쓰기 작업에서 쓰기 락 획득 성공" }
+                var acquiredPermits = 0 // 성공적으로 획득한 퍼밋 수를 추적할 변수
+
+                try {
+                    // 현재 진행 중인 모든 읽기 작업이 끝날 때까지 대기
+                    // 모든 reader의 permit을 획득
+                    repeat(maxReaders) {
+                        readLock.acquire()
+                        acquiredPermits++
+                    }
+                    log.debug { "쓰기 작업에서 모든 읽기 획득 성공" }
+                    action()
+                } finally {
+                    // 모든 reader의 permit을 다시 반납
+                    repeat(acquiredPermits) { readLock.release() }
+                    log.debug { "쓰기 작업에서 모든 읽기 릴리즈 성공" }
+                }
             } finally {
-                // 모든 reader의 permit을 다시 반납
-                repeat(maxReaders) { readLock.release() }
-                log.info { "쓰기 작업에서 모든 읽기 릴리즈 성공" }
                 writeLock.unlock()
-                log.info { "쓰기 작업에서 쓰기 락을 반납합니다." }
+                log.debug { "쓰기 작업에서 쓰기 락을 반납합니다." }
             }
         }
     }
