@@ -2,7 +2,7 @@ package finn.paging
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Pattern
-import java.util.*
+import org.springframework.web.bind.annotation.RequestParam
 
 data class ArticlePageRequest(
     @field:Schema(description = "페이지 번호", defaultValue = "0")
@@ -10,9 +10,10 @@ data class ArticlePageRequest(
     @field:Schema(description = "페이지 당 데이터 개수", defaultValue = "10")
     override val size: Int = 10,
     @field:Schema(
-        description = "종목 필터링 기준",
+        description = "종목 필터링 기준 (쿼리 파라미터명: tickerCode)",
     )
-    val tickerId: UUID? = null,
+    @RequestParam("tickerCode")
+    val tickerCodes: List<String>? = null,
     @field:Schema(
         description = "감정 필터링 기준",
         allowableValues = ["positive", "negative"]
