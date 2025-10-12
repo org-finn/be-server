@@ -57,7 +57,7 @@ class ArticleExposedRepository {
     }
 
     fun findAllArticleList(
-        tickerId: UUID?,
+        tickerCodes: List<String>?,
         sentiment: String?,
         page: Int,
         size: Int
@@ -67,7 +67,7 @@ class ArticleExposedRepository {
         val itemsToFetch = limit + 1
 
         // 기본 쿼리 생성
-        var query = if (tickerId == null && sentiment == null) {
+        var query = if (tickerCodes == null && sentiment == null) {
             ArticleTable.selectAll()
         } else {
             ArticleTable.join(
@@ -76,9 +76,9 @@ class ArticleExposedRepository {
             ).selectAll()
         }
 
-        // tickerId가 Null이 아닐 경우에만 where 조건 추가
-        if (tickerId != null) {
-            query = query.andWhere { ArticleTickerTable.tickerId eq tickerId }
+        // tickerCodes가 null이 아닐 경우에만 where 조건 추가
+        if (tickerCodes != null) {
+            query = query.andWhere { ArticleTickerTable.tickerCode inList tickerCodes }
         }
 
         // sentiment가 Null이 아닐 경우에만 where 조건 추가
