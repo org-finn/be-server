@@ -1,7 +1,6 @@
 import finn.entity.command.ArticleC
 import finn.handler.PredictionHandlerFactory
 import finn.lock.CoroutineReadWriteLock
-import finn.orchestrator.LambdaOrchestrator
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.service.ArticleCommandService
 import finn.service.PredictionCommandService
