@@ -109,4 +109,4 @@ logging:
 
 sqs:
   queue:
-    name: canary-articker-prediction
+    name: ${SQS_QUEUE_NAME}
