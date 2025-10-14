@@ -1,28 +1,27 @@
 import finn.entity.command.ArticleC
-import finn.handler.PredictionHandlerFactory
-import finn.lock.CoroutineReadWriteLock
-import finn.orchestrator.LambdaOrchestrator
+import finn.orchestrator.ArticleOrchestrator
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.service.ArticleCommandService
-import finn.service.PredictionCommandService
+import finn.service.ArticleQueryService
+import finn.service.TickerQueryService
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.*
 import java.time.OffsetDateTime
 
-internal class LambdaOrchestratorTest : BehaviorSpec({
+internal class ArticleOrchestratorTest : BehaviorSpec({
 
     // 의존성 Mocking
-    val articleService = mockk<ArticleCommandService>(relaxed = true)
-    val predictionService = mockk<PredictionCommandService>(relaxed = true)
-    val handlerFactory = mockk<PredictionHandlerFactory>(relaxed = true)
-    val coroutineReadWriteLock = mockk<CoroutineReadWriteLock>(relaxed = true)
+    val articleQueryService = mockk<ArticleQueryService>(relaxed = true)
+    val articleCommandService = mockk<ArticleCommandService>(relaxed = true)
+    val tickerQueryService = mockk<TickerQueryService>(relaxed = true)
     mockkObject(ArticleC.Companion)
 
     // 테스트 대상(SUT) 인스턴스 생성
-    val orchestrator = LambdaOrchestrator(articleService, handlerFactory, coroutineReadWriteLock)
+    val orchestrator =
+        ArticleOrchestrator(articleCommandService, articleQueryService, tickerQueryService)
 
     afterEach {
-        clearMocks(articleService, predictionService)
+        clearMocks(articleQueryService, articleCommandService, tickerQueryService)
         clearStaticMockk(ArticleC::class)
     }
 
@@ -70,7 +69,7 @@ internal class LambdaOrchestratorTest : BehaviorSpec({
                 orchestrator.saveArticle(request)
 
                 Then("articleService.saveArticleList를 호출해야 한다") {
-                    verify(exactly = 1) { articleService.saveArticleList(any(), any()) }
+                    verify(exactly = 1) { articleCommandService.saveArticleList(any(), any()) }
                 }
             }
         }

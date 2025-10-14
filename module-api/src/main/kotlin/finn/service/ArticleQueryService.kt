@@ -20,7 +20,7 @@ class ArticleQueryService(private val articleRepository: ArticleRepository) {
         val pageResponse = articleRepository.getArticleList(
             pageRequest.page,
             pageRequest.size,
-            pageRequest.tickerId,
+            pageRequest.tickerCodes,
             pageRequest.sentiment,
             pageRequest.sort
         )

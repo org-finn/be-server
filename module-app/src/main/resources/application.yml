@@ -59,6 +59,10 @@ logging:
   level:
     root: DEBUG
 
+sqs:
+  queue:
+    name: ${SQS_QUEUE_NAME}
+
 ---
 # prod
 spring:
@@ -78,3 +82,31 @@ springdoc:
 logging:
   level:
     root: INFO
+
+sqs:
+  queue:
+    name: ${SQS_QUEUE_NAME}
+
+---
+# canary
+spring:
+  config:
+    activate:
+      on-profile: "canary"
+
+cors:
+  allowed-origins: 'https://articker.kr'
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
+
+sqs:
+  queue:
+    name: ${SQS_QUEUE_NAME}
