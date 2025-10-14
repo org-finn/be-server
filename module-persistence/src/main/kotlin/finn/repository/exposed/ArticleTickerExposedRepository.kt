@@ -21,6 +21,7 @@ class ArticleTickerExposedRepository {
         ) {
             this[ArticleTickerTable.articleId] = it.articleId
             this[ArticleTickerTable.tickerId] = it.tickerId
+            this[ArticleTickerTable.tickerCode] = it.tickerCode
             this[ArticleTickerTable.title] = it.title
             this[ArticleTickerTable.sentiment] = it.sentiment
             this[ArticleTickerTable.reasoning] = it.reasoning

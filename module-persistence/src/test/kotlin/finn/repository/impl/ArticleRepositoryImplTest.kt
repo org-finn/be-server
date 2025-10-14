@@ -14,7 +14,6 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
-import java.util.*
 
 @SpringBootTest(classes = [TestApplication::class])
 internal class ArticleRepositoryImplTest(
@@ -54,6 +53,7 @@ internal class ArticleRepositoryImplTest(
             ArticleTickerExposed.new {
                 this.articleId = article1.id.value
                 this.tickerId = ticker.id.value
+                this.tickerCode = ticker.code
                 this.title = article1.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
@@ -73,6 +73,7 @@ internal class ArticleRepositoryImplTest(
             ArticleTickerExposed.new {
                 this.articleId = article2.id.value
                 this.tickerId = ticker.id.value
+                this.tickerCode = ticker.code
                 this.title = article2.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
@@ -92,6 +93,7 @@ internal class ArticleRepositoryImplTest(
             ArticleTickerExposed.new {
                 this.articleId = article3.id.value
                 this.tickerId = ticker.id.value
+                this.tickerCode = ticker.code
                 this.title = article3.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
@@ -111,6 +113,7 @@ internal class ArticleRepositoryImplTest(
             ArticleTickerExposed.new {
                 this.articleId = article4.id.value
                 this.tickerId = ticker.id.value
+                this.tickerCode = ticker.code
                 this.title = article4.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
@@ -130,6 +133,7 @@ internal class ArticleRepositoryImplTest(
             ArticleTickerExposed.new {
                 this.articleId = article5.id.value
                 this.tickerId = ticker.id.value
+                this.tickerCode = ticker.code
                 this.title = article5.title
                 this.sentiment = "neutral"
                 this.reasoning = "..."
@@ -160,7 +164,7 @@ internal class ArticleRepositoryImplTest(
                 articleRepository.getArticleList(
                     page = 0,
                     size = 3,
-                    tickerId = null,
+                    tickerCodes = null,
                     sentiment = null,
                     sort = "recent"
                 )
@@ -172,17 +176,17 @@ internal class ArticleRepositoryImplTest(
             }
         }
 
-        When("tickerId로 필터링하면") {
+        When("tickerCodes로 필터링하면") {
             val result = transaction {
                 articleRepository.getArticleList(
                     page = 0,
                     size = 10,
-                    tickerId = ticker.id.value,
+                    tickerCodes = listOf(ticker.code),
                     sentiment = null,
                     sort = "recent"
                 )
             }
-            Then("해당 tickerId를 가진 뉴스만을 반환해야 한다") {
+            Then("해당 tickerCodes를 가진 뉴스만을 반환해야 한다") {
                 result.content shouldHaveSize 5
                 result.content[0].tickers?.contains(ticker.shortCompanyName)
             }
@@ -193,7 +197,7 @@ internal class ArticleRepositoryImplTest(
                 articleRepository.getArticleList(
                     page = 0,
                     size = 10,
-                    tickerId = null,
+                    tickerCodes = null,
                     sentiment = "positive",
                     sort = "recent"
                 )
@@ -205,12 +209,12 @@ internal class ArticleRepositoryImplTest(
             }
         }
 
-        When("tickerId와 sentiment 모두로 필터링하면") {
+        When("tickerCodes와 sentiment 모두로 필터링하면") {
             val result = transaction {
                 articleRepository.getArticleList(
                     page = 0,
                     size = 10,
-                    tickerId = ticker.id.value,
+                    tickerCodes = listOf(ticker.code),
                     sentiment = "negative",
                     sort = "recent"
                 )
@@ -223,12 +227,12 @@ internal class ArticleRepositoryImplTest(
             }
         }
 
-        When("존재하지 않는 tickerId로 필터링하면") {
+        When("존재하지 않는 tickerCode로 필터링하면") {
             val result = transaction {
                 articleRepository.getArticleList(
                     page = 0,
                     size = 10,
-                    tickerId = UUID.randomUUID(), // 임의의 UUID
+                    tickerCodes = listOf("NOT_EXISTED_CODE"),
                     sentiment = null,
                     sort = "recent"
                 )

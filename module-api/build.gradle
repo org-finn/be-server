@@ -33,6 +33,9 @@ dependencies {
     // Exposed Spring Boot Starter(Suspend Tx)
     implementation("org.jetbrains.exposed:exposed-spring-boot-starter:0.52.0")
 
+    // AWS SQS
+    implementation('io.awspring.cloud:spring-cloud-aws-starter-sqs:3.0.1')
+
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 

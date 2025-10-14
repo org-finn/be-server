@@ -263,6 +263,7 @@ gradle-app.setting
 .env
 .env-dev
 .env-prod
+.env-prod-canary
 .env-local
 
 # # Grafana runtime data volume

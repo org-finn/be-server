@@ -7,6 +7,7 @@ data class ArticleTickerFilteringListResponse(
 ) {
     data class ArticleTickerFilteringResponse(
         val tickerId: UUID,
-        val shortCompanyName: String
+        val shortCompanyName: String,
+        val tickerCode: String
     )
 }

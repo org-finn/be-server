@@ -32,6 +32,7 @@ class ArticleTickerRepositoryImpl(
                 articleId,
                 tickerMap[it.tickerCode]
                     ?: throw CriticalDataPollutedException("${it.tickerCode}는 지원하지 않는 종목입니다."),
+                it.tickerCode,
                 title,
                 it.sentiment,
                 it.reasoning,

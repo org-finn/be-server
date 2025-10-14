@@ -23,12 +23,12 @@ class ArticleRepositoryImpl(
     override fun getArticleList(
         page: Int,
         size: Int,
-        tickerId: UUID?,
+        tickerCodes: List<String>?,
         sentiment: String?,
         sort: String
     ): PageResponse<ArticleQ> {
         val articleExposedList =
-            articleExposedRepository.findAllArticleList(tickerId, sentiment, page, size)
+            articleExposedRepository.findAllArticleList(tickerCodes, sentiment, page, size)
         return PageResponse(articleExposedList.content.map {
             toDomain(it)
         }.toList(), page, size, articleExposedList.hasNext)
