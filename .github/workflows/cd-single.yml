@@ -89,6 +89,7 @@ jobs:
             AWS_REGION=${{ secrets.AWS_REGION }}
             AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            SQS_QUEUE_NAME=${{ secrets.SQS_QUEUE_NAME }}
             EOF
             
             # ⭐️ 3. Docker Hub에서 최신 이미지 가져오기
@@ -96,8 +97,16 @@ jobs:
             docker pull ${{ env.IMAGE_NAME }}
 
             # ⭐️ 4. docker compose로 컨테이너 실행
+            
+            # 이름 충돌을 방지하기 위해 기존 컨테이너를 이름으로 직접 중지 및 제거
+            echo "Stopping and removing potentially conflicting containers by name..."
+            docker stop spring-app prometheus grafana || true
+            docker rm spring-app prometheus grafana || true
+            
             # 기존 컨테이너가 있다면 중지
             docker compose down
+            
+            # 새 컨테이너 실행
             docker compose up -d --force-recreate
 
             # ⭐️ 5. 보안을 위해 생성했던 .env-prod 파일 즉시 삭제
