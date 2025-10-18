@@ -32,11 +32,11 @@ services:
 
   # Grafana
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana-oss:latest
     container_name: grafana
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana-data:/var/lib/grafana
+      - /mnt/efs/grafana-data:/var/lib/grafana
     depends_on:
       - prometheus # Prometheus가 먼저 실행된 후 Grafana가 실행되도록 설정
