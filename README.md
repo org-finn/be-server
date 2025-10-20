@@ -100,7 +100,7 @@ Articker는 이러한 투자자들의 행동 패턴에 착안하여, 복잡한 �
 <img width="2048" height="1163" alt="image" src="https://github.com/user-attachments/assets/5a5ba74e-0521-4fb4-a93b-f24c47fe4a19" />
 
 ### CI/CD 아키텍처
-<img width="2048" height="1340" alt="image" src="https://github.com/user-attachments/assets/d440b1d8-786c-43a6-83f1-e7c3838d0e71" />
+<img width="2048" height="1469" alt="image" src="https://github.com/user-attachments/assets/66a5f3a1-323e-4786-ba98-f8b944b9be65" />
 
 
 ## 모듈 구조
