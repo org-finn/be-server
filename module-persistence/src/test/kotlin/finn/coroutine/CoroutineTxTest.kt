@@ -61,7 +61,7 @@ class CoroutineTxTest(
                         newSuspendedTransaction(context = Dispatchers.IO) {
                             virtualService.updatePredictionByArticleWithDelay(
                                 testTickerId, pDate, 1, 5, 13,
-                                100, 1, "강한 매수", delayMillis = 5000L
+                                100, 1, "강한 호재", delayMillis = 5000L
                             )
                         }
                     }
@@ -85,7 +85,7 @@ class CoroutineTxTest(
                         newSuspendedTransaction(context = Dispatchers.IO) {
                             virtualService.updatePredictionByArticleAndThrow(
                                 testTickerId, pDate, 1, 0, 0,
-                                100, 1, "강한 매수"
+                                100, 1, "강한 호재"
                             )
                         }
                     }
