@@ -68,7 +68,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
-                it[strategy] = "강한 매수"
+                it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
                 it[createdAt] = LocalDateTime.now()
@@ -82,7 +82,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
-                it[strategy] = "강한 매수"
+                it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
                 it[createdAt] = LocalDateTime.now()
@@ -97,7 +97,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 1L
                 it[neutralArticleCount] = 2L
                 it[sentiment] = 1
-                it[strategy] = "강한 매수"
+                it[strategy] = "강한 호재"
                 it[tickerCode] = "BBBB"
                 it[shortCompanyName] = "Company B"
                 it[createdAt] = LocalDateTime.now()
@@ -176,7 +176,7 @@ internal class PredictionRepositoryImplTest(
                     neutralArticleCount = newNeutralCount,
                     score = newScore,
                     sentiment = 1,
-                    strategy = "약한 매수"
+                    strategy = "약한 호재"
                 )
             }
 
