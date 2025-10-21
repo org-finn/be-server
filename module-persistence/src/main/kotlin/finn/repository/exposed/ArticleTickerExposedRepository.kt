@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 @Repository
 class ArticleTickerExposedRepository {
@@ -25,7 +26,7 @@ class ArticleTickerExposedRepository {
             this[ArticleTickerTable.title] = it.title
             this[ArticleTickerTable.sentiment] = it.sentiment
             this[ArticleTickerTable.reasoning] = it.reasoning
-            this[ArticleTickerTable.publishedDate] = it.publishedDate
+            this[ArticleTickerTable.publishedDate] = it.publishedDate.toInstant(ZoneOffset.UTC)
             this[ArticleTickerTable.createdAt] = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
         }.size
         log.debug { "${insertedCount} / ${toInserts.size} 개의 ArticleTicker 데이터를 성공적으로 저장하였습니다." }

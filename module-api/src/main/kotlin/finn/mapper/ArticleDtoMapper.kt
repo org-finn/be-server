@@ -6,6 +6,7 @@ import finn.paging.PageResponse
 import finn.queryDto.ArticleDetailQueryDto
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
+import java.time.format.DateTimeFormatter
 
 class ArticleDtoMapper {
     companion object {
@@ -34,7 +35,7 @@ class ArticleDtoMapper {
                 articleDetailData.description(),
                 articleDetailData.thumbnailUrl(),
                 articleDetailData.contentUrl(),
-                articleDetailData.publishedDate().toString(),
+                articleDetailData.publishedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 articleDetailData.source(),
                 tickers
             )
