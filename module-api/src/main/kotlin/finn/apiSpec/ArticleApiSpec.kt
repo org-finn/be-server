@@ -53,6 +53,19 @@ interface ArticleApiSpec {
     fun getFilteringTickerList(): SuccessResponse<ArticleTickerFilteringListResponse>
 
 
+    @Operation(
+        summary = "아티클 디테일 조회", description = "아티클 상세 정보를 조회합니다."
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "아티클을 성공적으로 조회하였습니다."
+        ), ApiResponse(
+            responseCode = "400",
+            description = "유효하지 않은 조회 조건입니다.",
+            content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+        )]
+    )
     @GetMapping("/{articleId}")
     fun getArticle(
         @Parameter(
