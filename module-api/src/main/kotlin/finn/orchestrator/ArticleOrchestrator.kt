@@ -8,6 +8,7 @@ import finn.paging.ArticlePageRequest
 import finn.request.lambda.LambdaArticleRealTimeRequest
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle
 import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle.ArticleRealTimeInsightRequest
+import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
 import finn.service.ArticleCommandService
@@ -15,6 +16,7 @@ import finn.service.ArticleQueryService
 import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 @ExposedTransactional(readOnly = true)
@@ -40,6 +42,10 @@ class ArticleOrchestrator(
     fun getTickerList(): ArticleTickerFilteringListResponse {
         val tickerList = tickerQueryService.getAllTickerList()
         return TickerDtoMapper.toDto(tickerList)
+    }
+
+    fun getArticle(articleId: UUID) : ArticleDetailResponse {
+
     }
 
     private fun createArticle(article: LambdaArticle): ArticleC {

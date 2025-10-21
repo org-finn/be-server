@@ -3,9 +3,11 @@ package finn.apiSpec
 import finn.paging.ArticlePageRequest
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
+import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -13,7 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import java.util.*
 
 @Tag(name = "뉴스 조회 API", description = "뉴스 데이터 조회 관련 API")
 @RequestMapping("/api/v1/article")
@@ -48,4 +52,13 @@ interface ArticleApiSpec {
     @GetMapping("/ticker-list")
     fun getFilteringTickerList(): SuccessResponse<ArticleTickerFilteringListResponse>
 
+
+    @GetMapping("/{articleId}")
+    fun getArticle(
+        @Parameter(
+            description = "아티클 ID (UUID)",
+            required = true,
+            example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        ) @PathVariable articleId: UUID
+    ): SuccessResponse<ArticleDetailResponse>
 }
