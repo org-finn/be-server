@@ -54,7 +54,7 @@ class ArticleSentimentScoreStrategyTest : BehaviorSpec({
 
                 then("계산 결과를 정확히 반영해야한다.") {
                     val result = strategy.calculate(task)
-                    result shouldBe 53
+                    result shouldBe 51
                 }
             }
 
@@ -73,7 +73,7 @@ class ArticleSentimentScoreStrategyTest : BehaviorSpec({
 
                 then("계산 결과를 정확히 반영해야한다.") {
                     val result = strategy.calculate(task)
-                    result shouldBe 62 // 3 + 4 + 5
+                    result shouldBe 53 // 1 + 1 + 1
                 }
             }
 
@@ -90,9 +90,9 @@ class ArticleSentimentScoreStrategyTest : BehaviorSpec({
                 )
                 task.payload.previousScore = 50
 
-                then("현재 점수를 그대로 반환해야한다.") {
+                then("부정 가점이 높게 나와야한다.") {
                     val result = strategy.calculate(task)
-                    result shouldBe 50
+                    result shouldBe 46
                 }
             }
         }

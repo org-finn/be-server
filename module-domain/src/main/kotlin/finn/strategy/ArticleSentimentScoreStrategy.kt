@@ -22,16 +22,15 @@ class ArticleSentimentScoreStrategy : SentimentScoreStrategy<ArticlePredictionTa
 
         var scoreChange = 0.0
 
-        // 긍정 뉴스에 대한 비선형적 점수 증가
-        // 1개: +3, 2개: +3+4=+7, 3개: +3+4+5=+12
+        // 긍정 뉴스에 대한 선형적 점수 증가(개수 당 +1점)
         for (i in 0 until newPositiveArticleCount) {
-            scoreChange += (3.0 + i)
+            scoreChange += 1.0
         }
 
         // 부정 뉴스에 대한 비선형적 점수 감소
-        // 1개: -3, 2개: -3-4=-7, 3개: -3-4-5=-12
+        // 1개: -5, 2개: -5-6=-11, 3개: -5-6-7=-18
         for (i in 0 until newNegativeArticleCount) {
-            scoreChange -= (3.0 + i)
+            scoreChange -= (5.0 + i)
         }
 
         val newScore = previousScore + scoreChange
