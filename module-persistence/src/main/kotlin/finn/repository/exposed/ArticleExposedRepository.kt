@@ -164,7 +164,8 @@ class ArticleExposedRepository {
                 description = row[ArticleTable.description],
                 thumbnailUrl = row[ArticleTable.thumbnailUrl],
                 contentUrl = row[ArticleTable.articleUrl],
-                publishedDate = row[ArticleTable.publishedDate],
+                publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul"))
+                    .toLocalDateTime(), // KST 기준 적용
                 source = row[ArticleTable.author],
                 tickers = tickers
             )
