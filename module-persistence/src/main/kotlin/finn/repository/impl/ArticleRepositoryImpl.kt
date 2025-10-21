@@ -7,6 +7,7 @@ import finn.insertDto.ArticleToInsert
 import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
+import finn.queryDto.ArticleDetailQueryDto
 import finn.repository.ArticleRepository
 import finn.repository.exposed.ArticleExposedRepository
 import org.springframework.stereotype.Repository
@@ -32,6 +33,10 @@ class ArticleRepositoryImpl(
         return PageResponse(articleExposedList.content.map {
             toDomain(it)
         }.toList(), page, size, articleExposedList.hasNext)
+    }
+
+    override fun getArticle(articleId: UUID): ArticleDetailQueryDto {
+        return articleExposedRepository.findArticleDetailById(articleId)
     }
 
     override fun saveArticle(article: ArticleC, insights: List<ArticleInsight>): UUID? {

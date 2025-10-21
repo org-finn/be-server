@@ -43,6 +43,7 @@ object ArticleTickerTable : UUIDTable("article_ticker") {
     val articleId = uuid("article_id")
     val tickerId = uuid("ticker_id")
     val tickerCode = varchar("ticker_code", 20)
+    val shortCompanyName = varchar("short_company_name", 100)
     val title = text("title")
     val sentiment = varchar("sentiment", 20).nullable()
     val reasoning = text("reasoning").nullable()
