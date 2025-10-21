@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Index
 import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.sql.javatime.timestamp
 
 // Table 객체 정의
 object TickerTable : UUIDTable("ticker") {
@@ -26,7 +27,7 @@ object ExponentTable : UUIDTable("exponent") {
 }
 
 object ArticleTable : UUIDTable("article") {
-    val publishedDate = datetime("published_date")
+    val publishedDate = timestamp("published_date")
     val title = text("title")
     val description = text("description")
     val articleUrl = text("article_url").uniqueIndex()
@@ -47,7 +48,7 @@ object ArticleTickerTable : UUIDTable("article_ticker") {
     val title = text("title")
     val sentiment = varchar("sentiment", 20).nullable()
     val reasoning = text("reasoning").nullable()
-    val publishedDate = datetime("published_date")
+    val publishedDate = timestamp("published_date")
     val createdAt = datetime("created_at")
 
     init {

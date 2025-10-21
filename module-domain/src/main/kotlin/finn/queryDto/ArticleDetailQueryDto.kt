@@ -1,6 +1,6 @@
 package finn.queryDto
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 
 interface ArticleDetailQueryDto {
@@ -14,7 +14,7 @@ interface ArticleDetailQueryDto {
 
     fun contentUrl(): String
 
-    fun publishedDate(): LocalDateTime
+    fun publishedDate(): ZonedDateTime
 
     fun source(): String
 

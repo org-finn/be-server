@@ -15,6 +15,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 
 @Repository
@@ -108,7 +110,7 @@ class ArticleExposedRepository {
         val description: String,
         val thumbnailUrl: String?,
         val contentUrl: String,
-        val publishedDate: LocalDateTime,
+        val publishedDate: ZonedDateTime,
         val source: String,
         val tickers: List<ArticleDetailTickerQueryDtoImpl>?
     ) : ArticleDetailQueryDto {
@@ -122,7 +124,7 @@ class ArticleExposedRepository {
 
         override fun contentUrl(): String = this.contentUrl
 
-        override fun publishedDate(): LocalDateTime = this.publishedDate
+        override fun publishedDate(): ZonedDateTime = this.publishedDate
 
         override fun source(): String = this.source
 
@@ -164,8 +166,7 @@ class ArticleExposedRepository {
                 description = row[ArticleTable.description],
                 thumbnailUrl = row[ArticleTable.thumbnailUrl],
                 contentUrl = row[ArticleTable.articleUrl],
-                publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul"))
-                    .toLocalDateTime(), // KST 기준 적용
+                publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")), // KST 기준 적용
                 source = row[ArticleTable.author],
                 tickers = tickers
             )
@@ -175,7 +176,7 @@ class ArticleExposedRepository {
 
     fun save(article: ArticleToInsert): UUID? {
         val insertedRowCount = ArticleTable.insertIgnore {
-            it[publishedDate] = article.publishedDate
+            it[publishedDate] = article.publishedDate.toInstant(ZoneOffset.UTC)
             it[title] = article.title
             it[description] = article.description
             it[articleUrl] = article.contentUrl
