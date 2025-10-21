@@ -54,6 +54,7 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article1.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article1.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
@@ -74,6 +75,7 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article2.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article2.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
@@ -94,6 +96,7 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article3.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article3.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
@@ -114,6 +117,7 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article4.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article4.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
@@ -134,6 +138,7 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article5.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article5.title
                 this.sentiment = "neutral"
                 this.reasoning = "..."
