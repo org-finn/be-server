@@ -3,6 +3,7 @@ package finn.handler
 import finn.exception.NotSupportedTypeException
 import finn.service.PredictionCommandService
 import finn.service.PredictionQueryService
+import finn.strategy.ATRExponentStrategy
 import finn.strategy.PredictionInitSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.InitPredictionTask
@@ -34,12 +35,18 @@ class InitPredictionHandler(
             val shortCompanyName = task.payload.shortCompanyName
             val predictionDate = task.payload.predictionDate
 
-            val strategy = strategyFactory.findStrategy(task.type)
-            if (strategy !is PredictionInitSentimentScoreStrategy) {
-                throw NotSupportedTypeException("Unsupported prediction strategy in Init Prediction: ${strategy.javaClass}")
+            val sentimentScoreStrategy = strategyFactory.findSentimentScoreStrategy(task.type)
+            if (sentimentScoreStrategy !is PredictionInitSentimentScoreStrategy) {
+                throw NotSupportedTypeException("Unsupported sentiment score strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
             }
             task.payload.recentScores = predictionQueryService.getRecentSentimentScores(tickerId)
-            val score = strategy.calculate(task)
+            val score = sentimentScoreStrategy.calculate(task)
+
+            val technicalExponentStrategy = strategyFactory.findTechnicalExponentStrategy(task.type)
+            if (technicalExponentStrategy !is ATRExponentStrategy) {
+                throw NotSupportedTypeException("Unsupported technical exponent strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
+            }
+            val volatility = technicalExponentStrategy.calculate(task)
 
             predictionCommandService.createPrediction(
                 tickerId,

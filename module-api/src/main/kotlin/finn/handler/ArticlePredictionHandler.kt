@@ -31,12 +31,12 @@ class ArticlePredictionHandler(
             }
             val tickerId = task.tickerId
 
-            val strategy = strategyFactory.findStrategy(task.type)
-            if (strategy !is ArticleSentimentScoreStrategy) {
-                throw NotSupportedTypeException("Unsupported prediction strategy in Article Prediction: ${strategy.javaClass}")
+            val sentimentScoreStrategy = strategyFactory.findSentimentScoreStrategy(task.type)
+            if (sentimentScoreStrategy !is ArticleSentimentScoreStrategy) {
+                throw NotSupportedTypeException("Unsupported sentiment score strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
             }
             task.payload.previousScore = predictionQueryService.getTodaySentimentScore(tickerId)
-            val score = strategy.calculate(task)
+            val score = sentimentScoreStrategy.calculate(task)
 
             predictionCommandService.updatePredictionByArticle(
                 tickerId,
