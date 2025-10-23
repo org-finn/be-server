@@ -5,11 +5,8 @@ import finn.exception.CriticalDataOmittedException
 import finn.queryDto.TickerQueryDto
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
-import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.javatime.date
-import org.jetbrains.exposed.sql.lowerCase
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -78,6 +75,7 @@ class TickerExposedRepository {
     suspend fun findPreviousAtrByTickerId(tickerId: UUID): BigDecimal {
         return TickerPriceTable.select(TickerPriceTable.atr)
             .where { TickerPriceTable.tickerId eq tickerId }
+            .orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
             .limit(1)
             .map {
                 it[TickerPriceTable.atr]
