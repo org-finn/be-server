@@ -46,6 +46,7 @@ internal class GraphRepositoryImplTest(
                         it[TickerPriceTable.high] = (1000 + i).toBigDecimal()
                         it[TickerPriceTable.low] = (1000 + i).toBigDecimal()
                         it[TickerPriceTable.volume] = 100000L
+                        it[TickerPriceTable.atr] = 1000.0
                         it[TickerPriceTable.changeRate] = (10 + i).toBigDecimal()
                         it[TickerPriceTable.createdAt] = LocalDateTime.now()
                     }
@@ -185,6 +186,7 @@ internal class GraphRepositoryImplTest(
                     it[sentiment] = 0
                     it[strategy] = ""
                     it[score] = 0
+                    it[volatility] = 0.0
                     it[tickerCode] = ""
                     it[shortCompanyName] = ""
                     it[createdAt] = LocalDateTime.now()

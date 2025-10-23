@@ -44,6 +44,7 @@ class CoroutineTxTest(
                 it[negativeArticleCount] = 0L
                 it[neutralArticleCount] = 0L
                 it[sentiment] = 0
+                it[volatility] = 0.0
                 it[strategy] = "관망"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"

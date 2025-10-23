@@ -68,6 +68,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
+                it[volatility] = 0.0
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
@@ -82,6 +83,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
+                it[volatility] = 0.0
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
@@ -97,6 +99,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 1L
                 it[neutralArticleCount] = 2L
                 it[sentiment] = 1
+                it[volatility] = 0.0
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "BBBB"
                 it[shortCompanyName] = "Company B"
