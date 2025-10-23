@@ -20,7 +20,7 @@ class ATRExponentStrategy : TechnicalExponentStrategy<InitPredictionTask> {
     // ATR 기간 (표준: 14)
     private val period: Int = 14
 
-    override suspend fun calculate(task: InitPredictionTask): Int {
+    override suspend fun calculate(task: InitPredictionTask): Pair<Int, Double> {
         val payload = task.payload
 
         // 1. 오늘 하루의 'True Range' (TR)을 계산합니다.
@@ -44,7 +44,7 @@ class ATRExponentStrategy : TechnicalExponentStrategy<InitPredictionTask> {
 
         // 5. NATR(비율)을 정수로 변환하여 반환합니다.
         //    (예: 0.0525 -> 5.25% -> 525)
-        return (natr * 10000).roundToInt()
+        return Pair((natr * 10000).roundToInt(), todayAtr)
     }
 
     /**

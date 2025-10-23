@@ -18,6 +18,8 @@ interface PredictionRepository {
         sentiment: Int,
         strategy: PredictionStrategy,
         score: Int,
+        volatility: Int,
+        todayAtr: Double,
         predictionDate: LocalDateTime
     )
 

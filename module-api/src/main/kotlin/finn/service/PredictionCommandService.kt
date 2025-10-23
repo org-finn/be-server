@@ -18,6 +18,8 @@ class PredictionCommandService(
         tickerCode: String,
         shortCompanyName: String,
         score: Int,
+        volatility: Int,
+        todayAtr: Double,
         predictionDate: OffsetDateTime
     ) {
         val strategy = sentimentConverter.getStrategyFromScore(score)
@@ -29,6 +31,8 @@ class PredictionCommandService(
             sentiment,
             strategy,
             score,
+            volatility,
+            todayAtr,
             predictionDate.toLocalDateTime()
         )
     }

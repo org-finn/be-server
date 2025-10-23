@@ -26,6 +26,8 @@ class PredictionRepositoryImpl(
         sentiment: Int,
         strategy: PredictionStrategy,
         score: Int,
+        volatility: Int,
+        todayAtr: Double,
         predictionDate: LocalDateTime
     ) {
         predictionExposedRepository.save(
@@ -35,6 +37,8 @@ class PredictionRepositoryImpl(
             sentiment,
             strategy.strategy,
             score,
+            volatility,
+            todayAtr,
             predictionDate
         )
     }

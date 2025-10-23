@@ -33,6 +33,8 @@ class PredictionExposedRepository {
         sentiment: Int,
         strategy: String,
         score: Int,
+        volatility: Int,
+        todayAtr: Double,
         predictionDate: LocalDateTime
     ): PredictionExposed {
         return PredictionExposed.new {
