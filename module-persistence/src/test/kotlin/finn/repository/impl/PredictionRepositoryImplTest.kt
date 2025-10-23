@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -68,7 +69,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
-                it[volatility] = 0.0
+                it[volatility] = BigDecimal.ZERO
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
@@ -83,7 +84,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 3L
                 it[neutralArticleCount] = 5L
                 it[sentiment] = 1
-                it[volatility] = 0.0
+                it[volatility] = BigDecimal.ZERO
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
@@ -99,7 +100,7 @@ internal class PredictionRepositoryImplTest(
                 it[negativeArticleCount] = 1L
                 it[neutralArticleCount] = 2L
                 it[sentiment] = 1
-                it[volatility] = 0.0
+                it[volatility] = BigDecimal.ZERO
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "BBBB"
                 it[shortCompanyName] = "Company B"

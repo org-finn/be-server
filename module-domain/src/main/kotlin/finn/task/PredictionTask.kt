@@ -3,6 +3,7 @@ package finn.task
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import finn.entity.TickerScore
+import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.properties.Delegates
@@ -63,7 +64,7 @@ data class InitPredictionTask(
         val createdAt: OffsetDateTime,
     ) {
         lateinit var recentScores: List<Int>
-        var yesterdayAtr: Double by Delegates.notNull()
+        var yesterdayAtr: BigDecimal by Delegates.notNull()
     }
 }
 

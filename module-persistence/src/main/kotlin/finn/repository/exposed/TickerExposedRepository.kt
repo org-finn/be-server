@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
 
@@ -74,7 +75,7 @@ class TickerExposedRepository {
             }
     }
 
-    suspend fun findPreviousAtrByTickerId(tickerId: UUID): Double {
+    suspend fun findPreviousAtrByTickerId(tickerId: UUID): BigDecimal {
         return TickerPriceTable.select(TickerPriceTable.atr)
             .where { TickerPriceTable.tickerId eq tickerId }
             .limit(1)
@@ -84,7 +85,7 @@ class TickerExposedRepository {
             ?: throw CriticalDataOmittedException("최근 ${tickerId}의 ATR이 존재하지 않습니다.")
     }
 
-    fun updateTodayAtrByTickerId(tickerId: UUID, todayAtr: Double) {
+    fun updateTodayAtrByTickerId(tickerId: UUID, todayAtr: BigDecimal) {
         TickerPriceTable.update({ (TickerPriceTable.tickerId eq tickerId) and (TickerPriceTable.priceDate.date() eq LocalDate.now()) }) {
             it[TickerPriceTable.atr] = todayAtr
         }

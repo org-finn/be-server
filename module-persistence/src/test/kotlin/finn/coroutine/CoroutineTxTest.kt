@@ -19,6 +19,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
@@ -44,7 +45,7 @@ class CoroutineTxTest(
                 it[negativeArticleCount] = 0L
                 it[neutralArticleCount] = 0L
                 it[sentiment] = 0
-                it[volatility] = 0.0
+                it[volatility] = BigDecimal.ZERO
                 it[strategy] = "관망"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"

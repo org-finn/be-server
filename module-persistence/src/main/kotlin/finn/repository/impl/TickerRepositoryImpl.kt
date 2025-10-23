@@ -7,6 +7,7 @@ import finn.repository.TickerRepository
 import finn.repository.exposed.TickerExposedRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Repository
+import java.math.BigDecimal
 import java.util.*
 
 @Repository
@@ -27,11 +28,11 @@ class TickerRepositoryImpl(
         return tickerExposedRepository.findAll()
     }
 
-    override suspend fun getPreviousAtrByTickerId(tickerId: UUID): Double {
+    override suspend fun getPreviousAtrByTickerId(tickerId: UUID): BigDecimal {
         return tickerExposedRepository.findPreviousAtrByTickerId(tickerId)
     }
 
-    override suspend fun updateTodayAtr(tickerId: UUID, todayAtr: Double) {
+    override suspend fun updateTodayAtr(tickerId: UUID, todayAtr: BigDecimal) {
         tickerExposedRepository.updateTodayAtrByTickerId(tickerId, todayAtr)
     }
 }

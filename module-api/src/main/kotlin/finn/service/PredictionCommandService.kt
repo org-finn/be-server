@@ -4,6 +4,7 @@ import finn.converter.SentimentConverter
 import finn.entity.TickerScore
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -18,7 +19,7 @@ class PredictionCommandService(
         tickerCode: String,
         shortCompanyName: String,
         score: Int,
-        volatility: Double,
+        volatility: BigDecimal,
         predictionDate: OffsetDateTime
     ) {
         val strategy = sentimentConverter.getStrategyFromScore(score)

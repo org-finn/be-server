@@ -11,6 +11,7 @@ import finn.queryDto.PredictionQueryDto
 import finn.repository.PredictionRepository
 import finn.repository.exposed.PredictionExposedRepository
 import org.springframework.stereotype.Repository
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
@@ -26,7 +27,7 @@ class PredictionRepositoryImpl(
         sentiment: Int,
         strategy: PredictionStrategy,
         score: Int,
-        volatility: Double,
+        volatility: BigDecimal,
         predictionDate: LocalDateTime
     ) {
         predictionExposedRepository.save(
@@ -62,6 +63,11 @@ class PredictionRepositoryImpl(
                 page,
                 size,
                 true
+            )
+
+            "volatility" -> predictionExposedRepository.findAllPredictionByVolatility(
+                page,
+                size
             )
 
             else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
@@ -115,7 +121,7 @@ class PredictionRepositoryImpl(
         )
     }
 
-    override suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): Double {
+    override suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): BigDecimal {
         return predictionExposedRepository.findPreviousVolatilityByTickerId(tickerId)
     }
 }

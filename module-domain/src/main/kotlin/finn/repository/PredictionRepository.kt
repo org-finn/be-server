@@ -6,6 +6,7 @@ import finn.entity.query.PredictionStrategy
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,7 +19,7 @@ interface PredictionRepository {
         sentiment: Int,
         strategy: PredictionStrategy,
         score: Int,
-        volatility: Double,
+        volatility: BigDecimal,
         predictionDate: LocalDateTime
     )
 
@@ -48,5 +49,5 @@ interface PredictionRepository {
         scores: List<TickerScore>
     )
 
-    suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): Double
+    suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): BigDecimal
 }
