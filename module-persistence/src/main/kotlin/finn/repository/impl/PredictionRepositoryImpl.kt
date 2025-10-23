@@ -116,4 +116,8 @@ class PredictionRepositoryImpl(
             )
         )
     }
+
+    override suspend fun getPreviousAtrByTickerId(tickerId: UUID): Double {
+        predictionExposedRepository.findPreviousAtrByTickerId(tickerId)
+    }
 }

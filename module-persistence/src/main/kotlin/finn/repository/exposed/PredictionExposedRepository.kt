@@ -361,4 +361,7 @@ class PredictionExposedRepository {
                 )
             }
     }
+
+    suspend fun findPreviousAtrByTickerId(tickerId: UUID) {
+    }
 }

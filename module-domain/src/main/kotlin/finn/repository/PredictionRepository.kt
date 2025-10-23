@@ -48,4 +48,6 @@ interface PredictionRepository {
         predictionDate: LocalDateTime,
         scores: List<TickerScore>
     )
+
+    suspend fun getPreviousAtrByTickerId(tickerId: UUID): Double
 }

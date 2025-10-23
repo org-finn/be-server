@@ -46,7 +46,9 @@ class InitPredictionHandler(
             if (technicalExponentStrategy !is ATRExponentStrategy) {
                 throw NotSupportedTypeException("Unsupported technical exponent strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
             }
+            task.payload.yesterdayAtr = predictionQueryService.getYesterdayAtr(tickerId)
             val volatilityAndAtr = technicalExponentStrategy.calculate(task)
+
             val volatility = volatilityAndAtr.first
             val todayAtr = volatilityAndAtr.second
 
