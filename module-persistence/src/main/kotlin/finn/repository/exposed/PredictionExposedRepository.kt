@@ -33,6 +33,7 @@ class PredictionExposedRepository {
         sentiment: Int,
         strategy: String,
         score: Int,
+        volatility: BigDecimal,
         predictionDate: LocalDateTime
     ): PredictionExposed {
         return PredictionExposed.new {
@@ -43,6 +44,7 @@ class PredictionExposedRepository {
             this.sentiment = sentiment
             this.strategy = strategy
             this.score = score
+            this.volatility = volatility
             this.tickerCode = tickerCode
             this.shortCompanyName = shortCompanyName
             this.tickerId = tickerId
@@ -143,6 +145,52 @@ class PredictionExposedRepository {
             .selectAll()
             .where(PredictionTable.predictionDate eq latestDate)
             .orderBy(PredictionTable.score to sortOrder)
+            .limit(n = itemsToFetch, offset = offset)
+
+        val results = query.map { row ->
+            val articleCount = when (row[PredictionTable.sentiment]) {
+                1 -> row[PredictionTable.positiveArticleCount]
+                -1 -> row[PredictionTable.negativeArticleCount]
+                else -> row[PredictionTable.neutralArticleCount] // 0
+            }
+
+            PredictionQueryDtoImpl(
+                predictionDate = row[PredictionTable.predictionDate],
+                tickerId = row[PredictionTable.tickerId],
+                shortCompanyName = row[PredictionTable.shortCompanyName],
+                tickerCode = row[PredictionTable.tickerCode],
+                predictionStrategy = row[PredictionTable.strategy],
+                sentiment = row[PredictionTable.sentiment],
+                articleCount = articleCount
+            )
+        }
+        val hasNext = results.size > limit
+        val content = if (hasNext) results.dropLast(1) else results
+
+        return PageResponse(
+            content = content,
+            page = page,
+            size = content.size,
+            hasNext = hasNext
+        )
+    }
+
+    fun findAllPredictionByVolatility(page: Int, size: Int): PageResponse<PredictionQueryDto> {
+        val maxDateExpression = PredictionTable.predictionDate.max()
+        val latestDate = PredictionTable
+            .select(maxDateExpression)
+            .firstOrNull()
+            ?.get(maxDateExpression)
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+
+        val limit = size
+        val offset = (page * limit).toLong()
+        val itemsToFetch = limit + 1
+
+        val query = PredictionTable
+            .selectAll()
+            .where(PredictionTable.predictionDate eq latestDate)
+            .orderBy(PredictionTable.volatility to SortOrder.DESC)
             .limit(n = itemsToFetch, offset = offset)
 
         val results = query.map { row ->
@@ -358,5 +406,14 @@ class PredictionExposedRepository {
                     row[PredictionTable.score]
                 )
             }
+    }
+
+    suspend fun findPreviousVolatilityByTickerId(tickerId: UUID): BigDecimal {
+        return PredictionTable.select(PredictionTable.volatility)
+            .where { PredictionTable.tickerId eq tickerId }
+            .map {
+                it[PredictionTable.volatility]
+            }.singleOrNull()
+            ?: throw CriticalDataOmittedException("${tickerId}의 전일 변동성 지표 값이 존재하지 않습니다.")
     }
 }

@@ -5,10 +5,16 @@ import org.springframework.stereotype.Component
 
 @Component
 class StrategyFactory(
-    private val strategies: List<SentimentScoreStrategy<*>>
+    private val sentimentScoreStrategies: List<SentimentScoreStrategy<*>>,
+    private val technicalExponentStrategies: List<TechnicalExponentStrategy<*>>,
 ) {
-    fun findStrategy(type: String): SentimentScoreStrategy<*> {
-        return strategies.find { it.supports(type) }
+    fun findSentimentScoreStrategy(type: String): SentimentScoreStrategy<*> {
+        return sentimentScoreStrategies.find { it.supports(type) }
+            ?: throw DomainPolicyViolationException("지원하지 않는 계산 타입입니다: $type")
+    }
+
+    fun findTechnicalExponentStrategy(type: String): TechnicalExponentStrategy<*> {
+        return technicalExponentStrategies.find { it.supports(type) }
             ?: throw DomainPolicyViolationException("지원하지 않는 계산 타입입니다: $type")
     }
 }

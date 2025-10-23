@@ -16,6 +16,7 @@ class PredictionExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var sentiment by PredictionTable.sentiment
     var strategy by PredictionTable.strategy
     var score by PredictionTable.score
+    var volatility by PredictionTable.volatility
     var tickerCode by PredictionTable.tickerCode
     var shortCompanyName by PredictionTable.shortCompanyName
     var tickerId by PredictionTable.tickerId

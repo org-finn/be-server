@@ -1,8 +1,12 @@
 package finn.handler
 
 import finn.exception.NotSupportedTypeException
+import finn.policy.isPreviousDayHoliday
 import finn.service.PredictionCommandService
 import finn.service.PredictionQueryService
+import finn.service.TickerCommandService
+import finn.service.TickerQueryService
+import finn.strategy.ATRExponentStrategy
 import finn.strategy.PredictionInitSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.InitPredictionTask
@@ -14,6 +18,8 @@ import java.sql.Connection
 
 @Component
 class InitPredictionHandler(
+    private val tickerQueryService: TickerQueryService,
+    private val tickerCommandService: TickerCommandService,
     private val predictionCommandService: PredictionCommandService,
     private val predictionQueryService: PredictionQueryService,
     private val strategyFactory: StrategyFactory
@@ -34,20 +40,46 @@ class InitPredictionHandler(
             val shortCompanyName = task.payload.shortCompanyName
             val predictionDate = task.payload.predictionDate
 
-            val strategy = strategyFactory.findStrategy(task.type)
-            if (strategy !is PredictionInitSentimentScoreStrategy) {
-                throw NotSupportedTypeException("Unsupported prediction strategy in Init Prediction: ${strategy.javaClass}")
+            val sentimentScoreStrategy = strategyFactory.findSentimentScoreStrategy(task.type)
+            if (sentimentScoreStrategy !is PredictionInitSentimentScoreStrategy) {
+                throw NotSupportedTypeException("Unsupported sentiment score strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
             }
             task.payload.recentScores = predictionQueryService.getRecentSentimentScores(tickerId)
-            val score = strategy.calculate(task)
+            val score = sentimentScoreStrategy.calculate(task)
 
-            predictionCommandService.createPrediction(
-                tickerId,
-                tickerCode,
-                shortCompanyName,
-                score,
-                predictionDate
-            )
+            // 금일이 일/월인지 여부 검사: TickerPrice가 들어오지 않는 날은 계산하지 않고, 이전일 volatility 복사, todayAtr 업데이트 하지않음
+            if (isPreviousDayHoliday()) {
+                val volatility = predictionQueryService.getYesterdayVolatility(tickerId)
+                predictionCommandService.createPrediction(
+                    tickerId,
+                    tickerCode,
+                    shortCompanyName,
+                    score,
+                    volatility,
+                    predictionDate
+                )
+            } else {
+                val technicalExponentStrategy =
+                    strategyFactory.findTechnicalExponentStrategy(task.type)
+                if (technicalExponentStrategy !is ATRExponentStrategy) {
+                    throw NotSupportedTypeException("Unsupported technical exponent strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
+                }
+                task.payload.yesterdayAtr = tickerQueryService.getYesterdayAtr(tickerId)
+                val volatilityAndAtr = technicalExponentStrategy.calculate(task)
+
+                val volatility = volatilityAndAtr.first.toBigDecimal()
+                val todayAtr = volatilityAndAtr.second.toBigDecimal()
+
+                predictionCommandService.createPrediction(
+                    tickerId,
+                    tickerCode,
+                    shortCompanyName,
+                    score,
+                    volatility,
+                    predictionDate
+                )
+                tickerCommandService.updateAtr(tickerId, todayAtr)
+            }
         }
     }
 }

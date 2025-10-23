@@ -10,7 +10,7 @@ data class PredictionPageRequest(
     @field:Schema(
         description = "정렬 기준",
         defaultValue = "popular",
-        allowableValues = ["popular", "upward", "downward"]
+        allowableValues = ["popular", "upward", "downward", "volatility"]
     )
     val sort: String
 ) : PageRequest

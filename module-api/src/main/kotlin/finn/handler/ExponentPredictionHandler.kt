@@ -40,13 +40,13 @@ class ExponentPredictionHandler(
             val date = task.payload.priceDate
             exponentService.getRecentExponent(exponents, date) // exponents previousValue에 set
 
-            val strategy = strategyFactory.findStrategy(task.type)
-            if (strategy !is ExponentSentimentScoreStrategy) {
-                throw NotSupportedTypeException("Unsupported prediction strategy in Exponent Prediction: ${strategy.javaClass}")
+            val sentimentScoreStrategy = strategyFactory.findSentimentScoreStrategy(task.type)
+            if (sentimentScoreStrategy !is ExponentSentimentScoreStrategy) {
+                throw NotSupportedTypeException("Unsupported sentiment score strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
             }
 
             // 추가로 조정해야하는 점수를 모든 티커 점수에 더하는 식으로 구현
-            val adjustmentScore = strategy.calculate(task)
+            val adjustmentScore = sentimentScoreStrategy.calculate(task)
             val calculatedScoreList = mutableListOf<TickerScore>()
             task.payload.previousScores.forEach { prevScore ->
                 val newScore = (prevScore.score + adjustmentScore).coerceIn(0, 100)
