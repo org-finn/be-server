@@ -15,6 +15,7 @@ class TickerPriceExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var low by TickerPriceTable.low
     var close by TickerPriceTable.close
     var volume by TickerPriceTable.volume
+    var atr by TickerPriceTable.atr
     var tickerCode by TickerPriceTable.tickerCode
     var tickerId by TickerExposed referencedOn TickerPriceTable.tickerId
     var createdAt by TickerPriceTable.createdAt

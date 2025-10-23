@@ -12,6 +12,7 @@ class ArticleTickerExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var articleId by ArticleTickerTable.articleId
     var tickerId by ArticleTickerTable.tickerId
     var tickerCode by ArticleTickerTable.tickerCode
+    var shortCompanyName by ArticleTickerTable.shortCompanyName
     var title by ArticleTickerTable.title
     var sentiment by ArticleTickerTable.sentiment
     var reasoning by ArticleTickerTable.reasoning

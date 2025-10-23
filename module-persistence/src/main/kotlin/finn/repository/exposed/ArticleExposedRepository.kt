@@ -5,6 +5,8 @@ import finn.exception.CriticalDataOmittedException
 import finn.insertDto.ArticleToInsert
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
+import finn.queryDto.ArticleDetailQueryDto
+import finn.queryDto.ArticleDetailTickerQueryDto
 import finn.table.ArticleTable
 import finn.table.ArticleTickerTable
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -13,6 +15,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 
 @Repository
@@ -100,10 +104,79 @@ class ArticleExposedRepository {
         )
     }
 
+    private data class ArticleDetailQueryDtoImpl(
+        val articleId: UUID,
+        val headline: String,
+        val description: String,
+        val thumbnailUrl: String?,
+        val contentUrl: String,
+        val publishedDate: ZonedDateTime,
+        val source: String,
+        val tickers: List<ArticleDetailTickerQueryDtoImpl>?
+    ) : ArticleDetailQueryDto {
+        override fun articleId(): UUID = this.articleId
+
+        override fun headline(): String = this.headline
+
+        override fun description(): String = this.description
+
+        override fun thumbnailUrl(): String? = this.thumbnailUrl
+
+        override fun contentUrl(): String = this.contentUrl
+
+        override fun publishedDate(): ZonedDateTime = this.publishedDate
+
+        override fun source(): String = this.source
+
+        override fun tickers(): List<ArticleDetailTickerQueryDtoImpl>? = this.tickers
+    }
+
+    private data class ArticleDetailTickerQueryDtoImpl(
+        val shortCompanyName: String,
+        val sentiment: String?,
+        val reasoning: String?
+    ) : ArticleDetailTickerQueryDto {
+        override fun shortCompanyName(): String = this.shortCompanyName
+
+        override fun sentiment(): String? = this.sentiment
+
+        override fun reasoning(): String? = this.reasoning
+    }
+
+    fun findArticleDetailById(articleId: UUID): ArticleDetailQueryDto {
+        val results = ArticleTable.join(
+            ArticleTickerTable, JoinType.INNER,
+            ArticleTable.id, ArticleTickerTable.articleId
+        ).selectAll()
+            .where { ArticleTable.id eq articleId }
+            .toList()
+
+        val tickers = results.map { row ->
+            ArticleDetailTickerQueryDtoImpl(
+                shortCompanyName = row[ArticleTickerTable.shortCompanyName],
+                sentiment = row[ArticleTickerTable.sentiment],
+                reasoning = row[ArticleTickerTable.reasoning]
+            )
+        }.toList()
+
+        return results.firstOrNull()?.let { row ->
+            ArticleDetailQueryDtoImpl(
+                articleId = row[ArticleTable.id].value,
+                headline = row[ArticleTable.title],
+                description = row[ArticleTable.description],
+                thumbnailUrl = row[ArticleTable.thumbnailUrl],
+                contentUrl = row[ArticleTable.articleUrl],
+                publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")), // KST 기준 적용
+                source = row[ArticleTable.author],
+                tickers = tickers
+            )
+        } ?: throw CriticalDataOmittedException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
+    }
+
 
     fun save(article: ArticleToInsert): UUID? {
         val insertedRowCount = ArticleTable.insertIgnore {
-            it[publishedDate] = article.publishedDate
+            it[publishedDate] = article.publishedDate.toInstant(ZoneOffset.UTC)
             it[title] = article.title
             it[description] = article.description
             it[articleUrl] = article.contentUrl

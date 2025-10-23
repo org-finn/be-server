@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
+import java.math.BigDecimal
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -46,6 +47,7 @@ internal class GraphRepositoryImplTest(
                         it[TickerPriceTable.high] = (1000 + i).toBigDecimal()
                         it[TickerPriceTable.low] = (1000 + i).toBigDecimal()
                         it[TickerPriceTable.volume] = 100000L
+                        it[TickerPriceTable.atr] = BigDecimal.valueOf(1000.0)
                         it[TickerPriceTable.changeRate] = (10 + i).toBigDecimal()
                         it[TickerPriceTable.createdAt] = LocalDateTime.now()
                     }
@@ -185,6 +187,7 @@ internal class GraphRepositoryImplTest(
                     it[sentiment] = 0
                     it[strategy] = ""
                     it[score] = 0
+                    it[volatility] = BigDecimal.ZERO
                     it[tickerCode] = ""
                     it[shortCompanyName] = ""
                     it[createdAt] = LocalDateTime.now()

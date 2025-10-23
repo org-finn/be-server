@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Index
 import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.sql.javatime.timestamp
 
 // Table 객체 정의
 object TickerTable : UUIDTable("ticker") {
@@ -26,7 +27,7 @@ object ExponentTable : UUIDTable("exponent") {
 }
 
 object ArticleTable : UUIDTable("article") {
-    val publishedDate = datetime("published_date")
+    val publishedDate = timestamp("published_date")
     val title = text("title")
     val description = text("description")
     val articleUrl = text("article_url").uniqueIndex()
@@ -43,10 +44,11 @@ object ArticleTickerTable : UUIDTable("article_ticker") {
     val articleId = uuid("article_id")
     val tickerId = uuid("ticker_id")
     val tickerCode = varchar("ticker_code", 20)
+    val shortCompanyName = varchar("short_company_name", 100)
     val title = text("title")
     val sentiment = varchar("sentiment", 20).nullable()
     val reasoning = text("reasoning").nullable()
-    val publishedDate = datetime("published_date")
+    val publishedDate = timestamp("published_date")
     val createdAt = datetime("created_at")
 
     init {
@@ -62,6 +64,7 @@ object PredictionTable : UUIDTable("predictions") {
     val sentiment = integer("sentiment")
     val strategy = varchar("strategy", 50)
     val score = integer("score")
+    val volatility = decimal("volatility", 10, 4)
     val tickerCode = varchar("ticker_code", 20)
     val shortCompanyName = varchar("short_company_name", 100)
     val tickerId = uuid("ticker_id")
@@ -79,6 +82,7 @@ object TickerPriceTable : UUIDTable("ticker_prices") {
     val low = decimal("low", 10, 4)
     val close = decimal("close", 10, 4)
     val volume = long("volume")
+    val atr = decimal("atr", 10, 4)
     val changeRate = decimal("change_rate", 7, 4)
     val tickerCode = varchar("ticker_code", 20)
     val tickerId = uuid("ticker_id")

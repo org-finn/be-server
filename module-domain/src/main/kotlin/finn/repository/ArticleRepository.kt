@@ -5,6 +5,7 @@ import finn.entity.command.ArticleInsight
 import finn.entity.query.ArticleQ
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
+import finn.queryDto.ArticleDetailQueryDto
 import java.util.*
 
 interface ArticleRepository {
@@ -18,6 +19,8 @@ interface ArticleRepository {
         sentiment: String?,
         sort: String
     ): PageResponse<ArticleQ>
+
+    fun getArticle(articleId: UUID): ArticleDetailQueryDto
 
     fun saveArticle(article: ArticleC, insights: List<ArticleInsight>): UUID?
 }

@@ -13,7 +13,9 @@ import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @SpringBootTest(classes = [TestApplication::class])
 internal class ArticleRepositoryImplTest(
@@ -42,7 +44,7 @@ internal class ArticleRepositoryImplTest(
             // 테스트에 사용할 Article 데이터 5개 생성
             val article1 = ArticleExposed.new {
                 // ticker 객체 참조 대신 tickerId와 tickerCode를 직접 할당
-                this.publishedDate = LocalDateTime.now().minusDays(1)
+                this.publishedDate = Instant.now().minus(1, ChronoUnit.DAYS)
                 this.title = "가장 최신 긍정 뉴스"
                 this.description = "긍정적인 내용입니다."
                 this.contentUrl = "https://Article.com/1"
@@ -54,15 +56,16 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article1.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article1.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
-                this.publishedDate = LocalDateTime.now().minusDays(1)
+                this.publishedDate = Instant.now().minus(1, ChronoUnit.DAYS)
                 this.createdAt = LocalDateTime.now()
             }
 
             val article2 = ArticleExposed.new {
-                this.publishedDate = LocalDateTime.now().minusDays(2)
+                this.publishedDate = Instant.now().minus(2, ChronoUnit.DAYS)
                 this.title = "두 번째 최신 부정 뉴스"
                 this.description = "부정적인 내용입니다."
                 this.contentUrl = "https://Article.com/2"
@@ -74,15 +77,16 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article2.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article2.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
-                this.publishedDate = LocalDateTime.now().minusDays(2)
+                this.publishedDate = Instant.now().minus(2, ChronoUnit.DAYS)
                 this.createdAt = LocalDateTime.now()
             }
 
             val article3 = ArticleExposed.new {
-                this.publishedDate = LocalDateTime.now().minusDays(3)
+                this.publishedDate = Instant.now().minus(3, ChronoUnit.DAYS)
                 this.title = "세 번째 최신 긍정 뉴스"
                 this.description = "긍정적인 내용입니다."
                 this.contentUrl = "https://Article.com/3"
@@ -94,15 +98,16 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article3.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article3.title
                 this.sentiment = "positive"
                 this.reasoning = "..."
-                this.publishedDate = LocalDateTime.now().minusDays(3)
+                this.publishedDate = Instant.now().minus(3, ChronoUnit.DAYS)
                 this.createdAt = LocalDateTime.now()
             }
 
             val article4 = ArticleExposed.new {
-                this.publishedDate = LocalDateTime.now().minusDays(4)
+                this.publishedDate = Instant.now().minus(4, ChronoUnit.DAYS)
                 this.title = "네 번째 최신 부정 뉴스"
                 this.description = "부정적인 내용입니다."
                 this.contentUrl = "https://Article.com/4"
@@ -114,15 +119,16 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article4.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article4.title
                 this.sentiment = "negative"
                 this.reasoning = "..."
-                this.publishedDate = LocalDateTime.now().minusDays(4)
+                this.publishedDate = Instant.now().minus(4, ChronoUnit.DAYS)
                 this.createdAt = LocalDateTime.now()
             }
 
             val article5 = ArticleExposed.new {
-                this.publishedDate = LocalDateTime.now().minusDays(5)
+                this.publishedDate = Instant.now().minus(5, ChronoUnit.DAYS)
                 this.title = "가장 오래된 중립 뉴스"
                 this.description = "중립적인 내용입니다."
                 this.contentUrl = "https://Article.com/5"
@@ -134,10 +140,11 @@ internal class ArticleRepositoryImplTest(
                 this.articleId = article5.id.value
                 this.tickerId = ticker.id.value
                 this.tickerCode = ticker.code
+                this.shortCompanyName = ticker.shortCompanyName
                 this.title = article5.title
                 this.sentiment = "neutral"
                 this.reasoning = "..."
-                this.publishedDate = LocalDateTime.now().minusDays(5)
+                this.publishedDate = Instant.now().minus(5, ChronoUnit.DAYS)
                 this.createdAt = LocalDateTime.now()
             }
 

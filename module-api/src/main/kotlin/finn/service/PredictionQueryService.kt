@@ -7,6 +7,7 @@ import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.util.*
 
 @Service
@@ -32,7 +33,11 @@ class PredictionQueryService(private val predictionRepository: PredictionReposit
         return predictionRepository.getRecentScoreByTickerId(tickerId)
     }
 
-    suspend fun getAllTickerTodaySentimentScore() : List<TickerScore> {
+    suspend fun getAllTickerTodaySentimentScore(): List<TickerScore> {
         return predictionRepository.getAllTickerRecentScore()
+    }
+
+    suspend fun getYesterdayVolatility(tickerId: UUID): BigDecimal {
+        return predictionRepository.getYesterdayVolatilityByTickerId(tickerId)
     }
 }

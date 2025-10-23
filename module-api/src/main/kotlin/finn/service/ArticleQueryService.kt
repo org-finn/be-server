@@ -5,6 +5,7 @@ import finn.paging.ArticlePageRequest
 import finn.paging.PageResponse
 import finn.policy.applyPageLimitPolicyForArticle
 import finn.queryDto.ArticleDataQueryDto
+import finn.queryDto.ArticleDetailQueryDto
 import finn.repository.ArticleRepository
 import org.springframework.stereotype.Service
 import java.util.*
@@ -26,5 +27,9 @@ class ArticleQueryService(private val articleRepository: ArticleRepository) {
         )
 
         return applyPageLimitPolicyForArticle(pageResponse)
+    }
+
+    fun getArticle(articleId: UUID): ArticleDetailQueryDto {
+        return articleRepository.getArticle(articleId)
     }
 }
