@@ -114,4 +114,8 @@ class PredictionRepositoryImpl(
             )
         )
     }
+
+    override suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): Double {
+        return predictionExposedRepository.findPreviousVolatilityByTickerId(tickerId)
+    }
 }

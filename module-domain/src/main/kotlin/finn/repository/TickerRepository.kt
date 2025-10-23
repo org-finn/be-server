@@ -11,4 +11,6 @@ interface TickerRepository {
     fun findAll(): List<TickerQueryDto>
 
     suspend fun getPreviousAtrByTickerId(tickerId: UUID): Double
+
+    suspend fun updateTodayAtr(tickerId: UUID, todayAtr: Double)
 }

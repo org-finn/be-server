@@ -47,4 +47,6 @@ interface PredictionRepository {
         predictionDate: LocalDateTime,
         scores: List<TickerScore>
     )
+
+    suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): Double
 }

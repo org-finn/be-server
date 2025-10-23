@@ -361,4 +361,13 @@ class PredictionExposedRepository {
                 )
             }
     }
+
+    suspend fun findPreviousVolatilityByTickerId(tickerId: UUID): Double {
+        return PredictionTable.select(PredictionTable.volatility)
+            .where { PredictionTable.tickerId eq tickerId }
+            .map {
+                it[PredictionTable.volatility]
+            }.singleOrNull()
+            ?: throw CriticalDataOmittedException("${tickerId}의 전일 변동성 지표 값이 존재하지 않습니다.")
+    }
 }

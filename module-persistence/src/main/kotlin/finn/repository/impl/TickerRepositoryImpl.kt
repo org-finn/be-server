@@ -30,4 +30,8 @@ class TickerRepositoryImpl(
     override suspend fun getPreviousAtrByTickerId(tickerId: UUID): Double {
         return tickerExposedRepository.findPreviousAtrByTickerId(tickerId)
     }
+
+    override suspend fun updateTodayAtr(tickerId: UUID, todayAtr: Double) {
+        tickerExposedRepository.updateTodayAtrByTickerId(tickerId, todayAtr)
+    }
 }

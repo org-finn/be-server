@@ -4,6 +4,7 @@ import finn.exception.NotSupportedTypeException
 import finn.policy.isPreviousDayHoliday
 import finn.service.PredictionCommandService
 import finn.service.PredictionQueryService
+import finn.service.TickerCommandService
 import finn.service.TickerQueryService
 import finn.strategy.ATRExponentStrategy
 import finn.strategy.PredictionInitSentimentScoreStrategy
@@ -18,6 +19,7 @@ import java.sql.Connection
 @Component
 class InitPredictionHandler(
     private val tickerQueryService: TickerQueryService,
+    private val tickerCommandService: TickerCommandService,
     private val predictionCommandService: PredictionCommandService,
     private val predictionQueryService: PredictionQueryService,
     private val strategyFactory: StrategyFactory
@@ -47,7 +49,7 @@ class InitPredictionHandler(
 
             // 금일이 일/월인지 여부 검사: TickerPrice가 들어오지 않는 날은 계산하지 않고, 이전일 volatility 복사, todayAtr 업데이트 하지않음
             if (isPreviousDayHoliday()) {
-                val volatility = predictionQueryService.getYesterdayVolatiltiy(tickerId)
+                val volatility = predictionQueryService.getYesterdayVolatility(tickerId)
                 predictionCommandService.createPrediction(
                     tickerId,
                     tickerCode,

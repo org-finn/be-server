@@ -5,9 +5,13 @@ import finn.exception.CriticalDataOmittedException
 import finn.queryDto.TickerQueryDto
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 import java.util.*
 
 @Repository
@@ -78,5 +82,11 @@ class TickerExposedRepository {
                 it[TickerPriceTable.atr]
             }.singleOrNull()
             ?: throw CriticalDataOmittedException("최근 ${tickerId}의 ATR이 존재하지 않습니다.")
+    }
+
+    fun updateTodayAtrByTickerId(tickerId: UUID, todayAtr: Double) {
+        TickerPriceTable.update({ (TickerPriceTable.tickerId eq tickerId) and (TickerPriceTable.priceDate.date() eq LocalDate.now()) }) {
+            it[TickerPriceTable.atr] = todayAtr
+        }
     }
 }

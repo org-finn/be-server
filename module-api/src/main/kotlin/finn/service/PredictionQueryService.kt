@@ -35,4 +35,8 @@ class PredictionQueryService(private val predictionRepository: PredictionReposit
     suspend fun getAllTickerTodaySentimentScore(): List<TickerScore> {
         return predictionRepository.getAllTickerRecentScore()
     }
+
+    suspend fun getYesterdayVolatility(tickerId: UUID): Double {
+        return predictionRepository.getYesterdayVolatilityByTickerId(tickerId)
+    }
 }
