@@ -74,9 +74,11 @@ class TickerExposedRepository {
 
     suspend fun findPreviousAtrByTickerId(tickerId: UUID): BigDecimal {
         return TickerPriceTable.select(TickerPriceTable.atr)
-            .where { TickerPriceTable.tickerId eq tickerId }
+            .where {
+                (TickerPriceTable.tickerId eq tickerId) and (TickerPriceTable.priceDate.date() eq LocalDate.now()
+                    .minusDays(2))
+            }
             .orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
-            .limit(1)
             .map {
                 it[TickerPriceTable.atr]
             }.singleOrNull()
@@ -84,7 +86,10 @@ class TickerExposedRepository {
     }
 
     fun updateTodayAtrByTickerId(tickerId: UUID, todayAtr: BigDecimal) {
-        TickerPriceTable.update({ (TickerPriceTable.tickerId eq tickerId) and (TickerPriceTable.priceDate.date() eq LocalDate.now()) }) {
+        TickerPriceTable.update({
+            (TickerPriceTable.tickerId eq tickerId) and (TickerPriceTable.priceDate.date() eq LocalDate.now()
+                .minusDays(1))
+        }) {
             it[TickerPriceTable.atr] = todayAtr
         }
     }
