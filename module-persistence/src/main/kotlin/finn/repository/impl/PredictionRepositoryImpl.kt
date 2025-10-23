@@ -26,8 +26,7 @@ class PredictionRepositoryImpl(
         sentiment: Int,
         strategy: PredictionStrategy,
         score: Int,
-        volatility: Int,
-        todayAtr: Double,
+        volatility: Double,
         predictionDate: LocalDateTime
     ) {
         predictionExposedRepository.save(
@@ -38,7 +37,6 @@ class PredictionRepositoryImpl(
             strategy.strategy,
             score,
             volatility,
-            todayAtr,
             predictionDate
         )
     }
@@ -115,9 +113,5 @@ class PredictionRepositoryImpl(
                 neutralArticleCount, score, sentiment, strategy
             )
         )
-    }
-
-    override suspend fun getPreviousAtrByTickerId(tickerId: UUID): Double {
-        predictionExposedRepository.findPreviousAtrByTickerId(tickerId)
     }
 }

@@ -33,8 +33,7 @@ class PredictionExposedRepository {
         sentiment: Int,
         strategy: String,
         score: Int,
-        volatility: Int,
-        todayAtr: Double,
+        volatility: Double,
         predictionDate: LocalDateTime
     ): PredictionExposed {
         return PredictionExposed.new {
@@ -45,6 +44,7 @@ class PredictionExposedRepository {
             this.sentiment = sentiment
             this.strategy = strategy
             this.score = score
+            this.volatility = volatility
             this.tickerCode = tickerCode
             this.shortCompanyName = shortCompanyName
             this.tickerId = tickerId
@@ -360,8 +360,5 @@ class PredictionExposedRepository {
                     row[PredictionTable.score]
                 )
             }
-    }
-
-    suspend fun findPreviousAtrByTickerId(tickerId: UUID) {
     }
 }

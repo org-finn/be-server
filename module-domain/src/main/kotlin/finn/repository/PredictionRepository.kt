@@ -18,8 +18,7 @@ interface PredictionRepository {
         sentiment: Int,
         strategy: PredictionStrategy,
         score: Int,
-        volatility: Int,
-        todayAtr: Double,
+        volatility: Double,
         predictionDate: LocalDateTime
     )
 
@@ -48,6 +47,4 @@ interface PredictionRepository {
         predictionDate: LocalDateTime,
         scores: List<TickerScore>
     )
-
-    suspend fun getPreviousAtrByTickerId(tickerId: UUID): Double
 }

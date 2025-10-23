@@ -1,7 +1,9 @@
 package finn.repository.exposed
 
 import finn.entity.TickerExposed
+import finn.exception.CriticalDataOmittedException
 import finn.queryDto.TickerQueryDto
+import finn.table.TickerPriceTable
 import finn.table.TickerTable
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.selectAll
@@ -66,5 +68,15 @@ class TickerExposedRepository {
                     fullCompanyName = row[TickerTable.fullCompanyName]
                 )
             }
+    }
+
+    suspend fun findPreviousAtrByTickerId(tickerId: UUID): Double {
+        return TickerPriceTable.select(TickerPriceTable.atr)
+            .where { TickerPriceTable.tickerId eq tickerId }
+            .limit(1)
+            .map {
+                it[TickerPriceTable.atr]
+            }.singleOrNull()
+            ?: throw CriticalDataOmittedException("최근 ${tickerId}의 ATR이 존재하지 않습니다.")
     }
 }

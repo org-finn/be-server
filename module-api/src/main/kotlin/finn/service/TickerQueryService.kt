@@ -5,6 +5,7 @@ import finn.filter.TickerSearchFilter
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class TickerQueryService(
@@ -23,5 +24,9 @@ class TickerQueryService(
 
     fun getTickerByTickerCode(tickerCode: String): Ticker {
         return tickerRepository.getTickerByTickerCode(tickerCode)
+    }
+
+    suspend fun getYesterdayAtr(tickerId: UUID): Double {
+        return tickerRepository.getPreviousAtrByTickerId(tickerId)
     }
 }
