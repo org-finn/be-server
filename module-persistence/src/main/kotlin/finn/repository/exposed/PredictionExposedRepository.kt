@@ -411,6 +411,8 @@ class PredictionExposedRepository {
     suspend fun findPreviousVolatilityByTickerId(tickerId: UUID): BigDecimal {
         return PredictionTable.select(PredictionTable.volatility)
             .where { PredictionTable.tickerId eq tickerId }
+            .orderBy(PredictionTable.predictionDate, SortOrder.DESC)
+            .limit(1)
             .map {
                 it[PredictionTable.volatility]
             }.singleOrNull()
