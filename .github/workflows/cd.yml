@@ -56,12 +56,27 @@ jobs:
             --versions '$Latest' \
             --query "LaunchTemplateVersions[0].LaunchTemplateData.UserData" \
             --output text)
-
-          # 2. Base64로 인코딩된 User Data를 디코딩하여 셸 스크립트로 변환합니다.
           DECODED_USER_DATA=$(echo "$BASE64_USER_DATA" | base64 --decode)
 
-          # 3. 스크립트 내의 플레이스홀더를 실제 새 이미지 태그로 교체합니다.
-          MODIFIED_USER_DATA=$(echo "$DECODED_USER_DATA" | sed "s|DOCKER_IMAGE_TAG_PLACEHOLDER|${IMAGE_NAME}|g")
+          # --- ⭐️ 디버깅 로그 (유지 권장) ⭐️ ---
+          echo "--- User Data Before Replacement ---"
+          echo "$DECODED_USER_DATA"
+          echo "------------------------------------"
+          echo "Image Tag to be inserted: ${IMAGE_NAME}" # $IMAGE_NAME 사용 확인
+          echo "------------------------------------"
+
+          # ⭐️ 2. 정규식을 사용하여 이미지 태그 부분을 교체합니다.
+          # 이미지 태그 내의 '/' 문자를 '\/'로 이스케이프 처리합니다.
+          ESCAPED_IMAGE_NAME=$(echo "${IMAGE_NAME}" | sed 's/\//\\\//g')
+
+          # 더 명확한 sed 패턴을 사용합니다. 구분자도 '@'로 변경합니다.
+          #    'export SPRING_APP_IMAGE="' 로 시작하고 '"'로 끝나는 줄을 찾습니다.
+          MODIFIED_USER_DATA=$(echo "$DECODED_USER_DATA" | sed "s@^export SPRING_APP_IMAGE=\".*\"@export SPRING_APP_IMAGE=\"${ESCAPED_IMAGE_NAME}\"@g")
+          
+          # --- ⭐️ 디버깅 로그 (유지 권장) ⭐️ ---
+          echo "--- User Data After Replacement ---"
+          echo "$MODIFIED_USER_DATA"
+          echo "-----------------------------------"
 
           # 4. 수정된 User Data를 다시 Base64로 인코딩합니다.
           NEW_BASE64_USER_DATA=$(echo "$MODIFIED_USER_DATA" | base64 -w 0)
