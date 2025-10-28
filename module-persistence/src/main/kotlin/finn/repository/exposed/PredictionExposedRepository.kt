@@ -91,7 +91,10 @@ class PredictionExposedRepository {
             )
             .select(PredictionTable.columns)
             .where(PredictionTable.predictionDate eq latestDate)
-            .orderBy(TickerTable.marketCap to SortOrder.DESC)
+            .orderBy(
+                TickerTable.marketCap to SortOrder.DESC,
+                PredictionTable.tickerCode to SortOrder.ASC
+            )
             .limit(n = itemsToFetch, offset = offset)
 
         val results = query.map { row ->
@@ -144,7 +147,10 @@ class PredictionExposedRepository {
         val query = PredictionTable
             .selectAll()
             .where(PredictionTable.predictionDate eq latestDate)
-            .orderBy(PredictionTable.score to sortOrder)
+            .orderBy(
+                PredictionTable.score to sortOrder,
+                PredictionTable.tickerCode to SortOrder.ASC
+            )
             .limit(n = itemsToFetch, offset = offset)
 
         val results = query.map { row ->
@@ -190,7 +196,10 @@ class PredictionExposedRepository {
         val query = PredictionTable
             .selectAll()
             .where(PredictionTable.predictionDate eq latestDate)
-            .orderBy(PredictionTable.volatility to SortOrder.DESC)
+            .orderBy(
+                PredictionTable.volatility to SortOrder.DESC,
+                PredictionTable.tickerCode to SortOrder.ASC
+            )
             .limit(n = itemsToFetch, offset = offset)
 
         val results = query.map { row ->
