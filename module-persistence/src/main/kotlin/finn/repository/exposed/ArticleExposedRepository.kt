@@ -144,22 +144,24 @@ class ArticleExposedRepository {
     }
 
     fun findArticleDetailById(articleId: UUID): ArticleDetailQueryDto {
-        val results = ArticleTable.join(
-            ArticleTickerTable, JoinType.INNER,
-            ArticleTable.id, ArticleTickerTable.articleId
-        ).selectAll()
+        val article = ArticleTable.selectAll()
             .where { ArticleTable.id eq articleId }
-            .toList()
+            .singleOrNull()
 
-        val tickers = results.map { row ->
-            ArticleDetailTickerQueryDtoImpl(
-                shortCompanyName = row[ArticleTickerTable.shortCompanyName],
-                sentiment = row[ArticleTickerTable.sentiment],
-                reasoning = row[ArticleTickerTable.reasoning]
-            )
-        }.toList()
+        val tickers = ArticleTickerTable.select(
+            ArticleTickerTable.shortCompanyName,
+            ArticleTickerTable.sentiment, ArticleTickerTable.reasoning
+        )
+            .where { ArticleTickerTable.articleId eq articleId }
+            .map { row ->
+                ArticleDetailTickerQueryDtoImpl(
+                    shortCompanyName = row[ArticleTickerTable.shortCompanyName],
+                    sentiment = row[ArticleTickerTable.sentiment],
+                    reasoning = row[ArticleTickerTable.reasoning]
+                )
+            }.toList()
 
-        return results.firstOrNull()?.let { row ->
+        return article?.let { row ->
             ArticleDetailQueryDtoImpl(
                 articleId = row[ArticleTable.id].value,
                 headline = row[ArticleTable.title],
