@@ -35,7 +35,8 @@ class ArticleDtoMapper {
                 articleDetailData.description(),
                 articleDetailData.thumbnailUrl(),
                 articleDetailData.contentUrl(),
-                articleDetailData.publishedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                articleDetailData.publishedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    .replace('T', ' '),
                 articleDetailData.source(),
                 tickers
             )
