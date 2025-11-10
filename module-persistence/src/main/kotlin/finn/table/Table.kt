@@ -29,7 +29,9 @@ object ExponentTable : UUIDTable("exponent") {
 object ArticleTable : UUIDTable("article") {
     val publishedDate = timestamp("published_date")
     val title = text("title")
+    val titleKr = text("title_kr").nullable()
     val description = text("description")
+    val descriptionKr = text("description_kr").nullable()
     val articleUrl = text("article_url").uniqueIndex()
     val thumbnailUrl = text("thumbnail_url").nullable()
     val viewCount = long("view_count").default(0L)
@@ -46,8 +48,10 @@ object ArticleTickerTable : UUIDTable("article_ticker") {
     val tickerCode = varchar("ticker_code", 20)
     val shortCompanyName = varchar("short_company_name", 100)
     val title = text("title")
+    val titleKr = text("title_kr").nullable()
     val sentiment = varchar("sentiment", 20).nullable()
     val reasoning = text("reasoning").nullable()
+    var reasoningKr = text("reasoning_kr").nullable()
     val publishedDate = timestamp("published_date")
     val createdAt = datetime("created_at")
 

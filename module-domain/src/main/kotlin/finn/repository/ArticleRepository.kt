@@ -1,7 +1,5 @@
 package finn.repository
 
-import finn.entity.command.ArticleC
-import finn.entity.command.ArticleInsight
 import finn.entity.query.ArticleQ
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
@@ -22,5 +20,4 @@ interface ArticleRepository {
 
     fun getArticle(articleId: UUID): ArticleDetailQueryDto
 
-    fun saveArticle(article: ArticleC, insights: List<ArticleInsight>): UUID?
 }
