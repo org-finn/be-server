@@ -11,7 +11,9 @@ class ArticleExposed(id: EntityID<UUID>) : UUIDEntity(id) {
 
     var publishedDate by ArticleTable.publishedDate
     var title by ArticleTable.title
+    var titleKr by ArticleTable.titleKr
     var description by ArticleTable.description
+    var descriptionKr by ArticleTable.descriptionKr
     var contentUrl by ArticleTable.articleUrl
     var thumbnailUrl by ArticleTable.thumbnailUrl
     var viewCount by ArticleTable.viewCount

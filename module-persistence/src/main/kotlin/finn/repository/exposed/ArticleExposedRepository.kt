@@ -2,7 +2,6 @@ package finn.repository.exposed
 
 import finn.entity.ArticleExposed
 import finn.exception.CriticalDataOmittedException
-import finn.insertDto.ArticleToInsert
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.queryDto.ArticleDetailQueryDto
@@ -10,12 +9,13 @@ import finn.queryDto.ArticleDetailTickerQueryDto
 import finn.table.ArticleTable
 import finn.table.ArticleTickerTable
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -44,8 +44,10 @@ class ArticleExposedRepository {
             ArticleTickerTable.articleId,
             ArticleTickerTable.tickerId,
             ArticleTickerTable.title,
+            ArticleTickerTable.titleKr,
             ArticleTickerTable.sentiment,
-            ArticleTickerTable.reasoning
+            ArticleTickerTable.reasoning,
+            ArticleTickerTable.reasoningKr
         ).where(ArticleTickerTable.tickerId eq tickerId)
             .orderBy(ArticleTickerTable.publishedDate, SortOrder.DESC)
             .limit(3)
@@ -53,9 +55,10 @@ class ArticleExposedRepository {
                 ArticleDataQueryDtoImpl(
                     articleId = row[ArticleTickerTable.articleId],
                     tickerId = row[ArticleTickerTable.tickerId],
-                    headline = row[ArticleTickerTable.title],
+                    headline = row[ArticleTickerTable.titleKr] ?: row[ArticleTickerTable.title],
                     sentiment = row[ArticleTickerTable.sentiment],
-                    reasoning = row[ArticleTickerTable.reasoning]
+                    reasoning = row[ArticleTickerTable.reasoningKr]
+                        ?: row[ArticleTickerTable.reasoning]
                 )
             }
     }
@@ -150,22 +153,25 @@ class ArticleExposedRepository {
 
         val tickers = ArticleTickerTable.select(
             ArticleTickerTable.shortCompanyName,
-            ArticleTickerTable.sentiment, ArticleTickerTable.reasoning
+            ArticleTickerTable.sentiment,
+            ArticleTickerTable.reasoning,
+            ArticleTickerTable.reasoningKr
         )
             .where { ArticleTickerTable.articleId eq articleId }
             .map { row ->
                 ArticleDetailTickerQueryDtoImpl(
                     shortCompanyName = row[ArticleTickerTable.shortCompanyName],
                     sentiment = row[ArticleTickerTable.sentiment],
-                    reasoning = row[ArticleTickerTable.reasoning]
+                    reasoning = row[ArticleTickerTable.reasoningKr]
+                        ?: row[ArticleTickerTable.reasoning]
                 )
             }.toList()
 
         return article?.let { row ->
             ArticleDetailQueryDtoImpl(
                 articleId = row[ArticleTable.id].value,
-                headline = row[ArticleTable.title],
-                description = row[ArticleTable.description],
+                headline = row[ArticleTable.titleKr] ?: row[ArticleTable.title],
+                description = row[ArticleTable.descriptionKr] ?: row[ArticleTable.description],
                 thumbnailUrl = row[ArticleTable.thumbnailUrl],
                 contentUrl = row[ArticleTable.articleUrl],
                 publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")), // KST 기준 적용
@@ -175,35 +181,5 @@ class ArticleExposedRepository {
         } ?: throw CriticalDataOmittedException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
     }
 
-
-    fun save(article: ArticleToInsert): UUID? {
-        val insertedRowCount = ArticleTable.insertIgnore {
-            it[publishedDate] = article.publishedDate.toInstant(ZoneOffset.UTC)
-            it[title] = article.title
-            it[description] = article.description
-            it[articleUrl] = article.contentUrl
-            it[thumbnailUrl] = article.thumbnailUrl
-            it[viewCount] = 0L
-            it[likeCount] = 0L
-            it[author] = article.source
-            it[distinctId] = article.distinctId
-            it[tickers] = article.tickers
-            it[createdAt] = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
-        }
-        if (insertedRowCount.insertedCount > 0) {
-            log.debug { "새로운 아티클을 성공적으로 INSERT 하였습니다. distinctId: ${article.distinctId}" }
-        } else {
-            log.debug { "이미 존재하는 아티클이므로 INSERT를 건너뛰었습니다. distinctId: ${article.distinctId}" }
-            return null
-        }
-
-        val articleId = ArticleTable
-            .select(ArticleTable.id)
-            .where { ArticleTable.distinctId eq article.distinctId }
-            .singleOrNull()
-
-        return articleId?.get(ArticleTable.id)?.value
-            ?: throw CriticalDataOmittedException("${article.distinctId}의 데이터가 DB에 존재하지 않습니다.")
-    }
 
 }
