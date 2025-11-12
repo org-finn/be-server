@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit
 
 fun getAbstractDateBefore(contentDate: LocalDateTime): String {
     val today = LocalDateTime.now() // 시간 계산은 UTC끼리 비교해야함
-
+    println("날짜 정보: $contentDate, $today")
     if (contentDate.isAfter(today)) {
         return "방금 전"
     }
