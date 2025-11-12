@@ -17,7 +17,7 @@ Articker는 이러한 투자자들의 행동 패턴에 착안하여, 복잡한 �
 - Articker는 불가능에 가까운 **정확한 가격**을 맞히려는 접근에서 벗어나, 투자자가 뉴스를 보고 ‘오를까 내릴까’를 **판단하는 과정**에 집중합니다.
 - 뉴스의 **긍정/부정** **뉘앙스를 분석하여** **주가 등락 방향성**을 제시합니다.
 
-<img width="2048" height="729" alt="image" src="https://github.com/user-attachments/assets/bfc14155-872b-481f-bf6e-3007d7fe351a" />
+<img width="4403" height="1378" alt="Group 67" src="https://github.com/user-attachments/assets/6875b29d-a45c-465a-a765-1a68cb73f260" />
 
 
 ## 주요 기능
