@@ -1,11 +1,11 @@
 package finn.converter
 
-import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
-fun getAbstractDateBefore(contentDate: LocalDateTime): String {
-    val today = LocalDateTime.now() // 시간 계산은 UTC끼리 비교해야함
-
+fun getAbstractDateBefore(contentDate: ZonedDateTime): String {
+    val today = ZonedDateTime.now(ZoneId.of("UTC")) // 시간 계산은 UTC끼리 비교해야함
     if (contentDate.isAfter(today)) {
         return "방금 전"
     }
