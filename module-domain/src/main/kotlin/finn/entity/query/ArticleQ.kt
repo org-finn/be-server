@@ -1,7 +1,6 @@
 package finn.entity.query
 
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.*
 
 class ArticleQ private constructor(
@@ -10,7 +9,7 @@ class ArticleQ private constructor(
     val description: String,
     val thumbnailUrl: String? = null,
     val contentUrl: String,
-    val publishedDate: LocalDateTime,
+    val publishedDate: ZonedDateTime,
     val source: String,
     val tickers: List<String>? = emptyList()
 ) {
@@ -21,7 +20,7 @@ class ArticleQ private constructor(
             description: String,
             thumbnailUrl: String?,
             contentUrl: String,
-            publishedDate: LocalDateTime,
+            publishedDate: ZonedDateTime,
             source: String,
             tickers: String?
         ): ArticleQ {
@@ -31,7 +30,7 @@ class ArticleQ private constructor(
                 description,
                 thumbnailUrl,
                 contentUrl,
-                publishedDate.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime(), // KST 기준 적용
+                publishedDate, // KST 기준 적용
                 source,
                 tickers?.let { tickers.split(",") }
             )
