@@ -9,7 +9,6 @@ import finn.queryDto.ArticleDetailTickerQueryDto
 import finn.table.ArticleTable
 import finn.table.ArticleTickerTable
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.andWhere
@@ -69,42 +68,48 @@ class ArticleExposedRepository {
         page: Int,
         size: Int
     ): PageResponse<ArticleExposed> {
+        // 1. 서브쿼리 정의: ArticleTickerTable에서 'articleId' 컬럼만 선택
+        // 조건이 없다면 null 처리하여 쿼리를 아예 실행하지 않도록 함
+        val subQuery = if (tickerCodes != null || sentiment != null) {
+            var query = ArticleTickerTable.select(ArticleTickerTable.articleId)
+
+            if (tickerCodes != null) {
+                query = query.andWhere { ArticleTickerTable.tickerCode inList tickerCodes }
+            }
+
+            if (sentiment != null) {
+                query = query.andWhere { ArticleTickerTable.sentiment eq sentiment }
+            }
+
+            query.map { row -> row[ArticleTickerTable.articleId] }
+                .toList()
+        } else {
+            null
+        }
+
+        val mainQuery = ArticleTable.selectAll()
+
+        if (subQuery != null) {
+            mainQuery.andWhere { ArticleTable.id inList subQuery }
+        }
+
         val limit = size
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
 
-        // 기본 쿼리 생성
-        var query = if (tickerCodes == null && sentiment == null) {
-            ArticleTable.selectAll()
-        } else {
-            ArticleTable.join(
-                ArticleTickerTable, JoinType.INNER,
-                ArticleTable.id, ArticleTickerTable.articleId
-            ).selectAll()
-        }
-
-        // tickerCodes가 null이 아닐 경우에만 where 조건 추가
-        if (tickerCodes != null) {
-            query = query.andWhere { ArticleTickerTable.tickerCode inList tickerCodes }
-        }
-
-        // sentiment가 Null이 아닐 경우에만 where 조건 추가
-        if (sentiment != null) {
-            query = query.andWhere { ArticleTickerTable.sentiment eq sentiment }
-        }
-
-        val results = query.orderBy(ArticleTable.publishedDate, SortOrder.DESC)
+        val results = mainQuery
+            .orderBy(
+                ArticleTable.publishedDate to SortOrder.DESC,
+                ArticleTable.distinctId to SortOrder.ASC
+            )
             .limit(itemsToFetch, offset)
             .map { ArticleExposed.wrapRow(it) }
+
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
-        return PageResponse(
-            content = content,
-            page = page,
-            size = content.size,
-            hasNext = hasNext
-        )
+        // PageResponse 반환
+        return PageResponse(content, page, size, hasNext)
     }
 
     private data class ArticleDetailQueryDtoImpl(
