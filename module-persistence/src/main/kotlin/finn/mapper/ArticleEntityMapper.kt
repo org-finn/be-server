@@ -11,8 +11,7 @@ fun toDomain(article: ArticleExposed): ArticleQ {
         article.descriptionKr ?: article.description,
         article.thumbnailUrl,
         article.contentUrl,
-        article.publishedDate.atZone(ZoneId.of("Asia/Seoul"))
-            .toLocalDateTime(),
+        article.publishedDate.atZone(ZoneId.of("UTC")),
         article.author,
         article.tickers
     )
