@@ -88,7 +88,7 @@ class ArticleExposedRepository {
         }
 
         val mainQuery = ArticleTable.selectAll()
-        
+
         if (subQuery != null) {
             mainQuery.andWhere { ArticleTable.id inList subQuery }
         }
@@ -98,7 +98,10 @@ class ArticleExposedRepository {
         val itemsToFetch = limit + 1
 
         val results = mainQuery
-            .orderBy(ArticleTable.publishedDate, SortOrder.DESC)
+            .orderBy(
+                ArticleTable.publishedDate to SortOrder.DESC,
+                ArticleTable.distinctId to SortOrder.ASC
+            )
             .limit(itemsToFetch, offset)
             .map { ArticleExposed.wrapRow(it) }
 
