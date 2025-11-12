@@ -23,6 +23,8 @@ internal class ArticleRepositoryImplTest(
 ) : BehaviorSpec({
 
     lateinit var ticker: TickerExposed
+    lateinit var ticker2: TickerExposed
+    lateinit var ticker3: TickerExposed
 
     beforeTest {
         transaction {
@@ -35,6 +37,28 @@ internal class ArticleRepositoryImplTest(
                 fullCompanyName = "Test Company Inc."
                 shortCompanyName = "Test"
                 shortCompanyNameKr = "테스트"
+                country = "USA"
+                marketCap = 100000L
+                exchangeCode = "code"
+                createdAt = LocalDateTime.now()
+            }
+
+            ticker2 = TickerExposed.new {
+                code = "TEST2"
+                fullCompanyName = "Test2 Company Inc."
+                shortCompanyName = "Test2"
+                shortCompanyNameKr = "테스트2"
+                country = "USA"
+                marketCap = 100000L
+                exchangeCode = "code"
+                createdAt = LocalDateTime.now()
+            }
+
+            ticker3 = TickerExposed.new {
+                code = "TEST3"
+                fullCompanyName = "Test3 Company Inc."
+                shortCompanyName = "Test3"
+                shortCompanyNameKr = "테스트3"
                 country = "USA"
                 marketCap = 100000L
                 exchangeCode = "code"
@@ -148,6 +172,38 @@ internal class ArticleRepositoryImplTest(
                 this.createdAt = LocalDateTime.now()
             }
 
+            val article6 = ArticleExposed.new {
+                this.publishedDate = Instant.now().minus(5, ChronoUnit.DAYS)
+                this.title = "article row 중복 추출 현상을 테스트하기위한 뉴스"
+                this.description = "상세 설명입니다."
+                this.contentUrl = "https://Article.com/6"
+                this.author = "AP"
+                this.distinctId = "Article-6"
+                this.createdAt = LocalDateTime.now()
+            }
+            ArticleTickerExposed.new {
+                this.articleId = article6.id.value
+                this.tickerId = ticker3.id.value
+                this.tickerCode = ticker3.code
+                this.shortCompanyName = ticker3.shortCompanyName
+                this.title = article6.title
+                this.sentiment = "neutral"
+                this.reasoning = "..."
+                this.publishedDate = Instant.now().minus(5, ChronoUnit.DAYS)
+                this.createdAt = LocalDateTime.now()
+            }
+            ArticleTickerExposed.new {
+                this.articleId = article6.id.value
+                this.tickerId = ticker2.id.value
+                this.tickerCode = ticker2.code
+                this.shortCompanyName = ticker2.shortCompanyName
+                this.title = article6.title
+                this.sentiment = "neutral"
+                this.reasoning = "..."
+                this.publishedDate = Instant.now().minus(5, ChronoUnit.DAYS)
+                this.createdAt = LocalDateTime.now()
+            }
+
         }
     }
 
@@ -246,6 +302,21 @@ internal class ArticleRepositoryImplTest(
             }
             Then("빈 리스트가 반환되어야 한다") {
                 result.content.isEmpty() shouldBe true
+            }
+        }
+
+        When("article:article_ticker를 1:2로 innerJoin할때") {
+            val result = transaction {
+                articleRepository.getArticleList(
+                    page = 0,
+                    size = 10,
+                    tickerCodes = listOf(ticker2.code, ticker3.code),
+                    sentiment = null,
+                    sort = "recent"
+                )
+            }
+            Then("단 한 건의 article만 리턴해야한다.") {
+                result.content.size shouldBe 1
             }
         }
     }
