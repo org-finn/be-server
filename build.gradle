@@ -46,6 +46,8 @@ subprojects {
 
         // coroutine
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+        implementation("org.jetbrains.kotlin:kotlin-reflect")
 
         // kotest
         testImplementation 'io.kotest:kotest-runner-junit5:5.9.1'
