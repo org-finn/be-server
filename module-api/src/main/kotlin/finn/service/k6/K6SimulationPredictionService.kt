@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service
 @Service
 class K6SimulationPredictionService() {
     // DB 조회 평균 소요 시간 (예: 10ms)
-    private val READ_LATENCY = 10L
+    private val READ_LATENCY = 300L
 
     // DB 저장 평균 소요 시간 (예: 20ms - 인덱스 업데이트, 커밋 등 고려)
-    private val WRITE_LATENCY = 20L
+    private val WRITE_LATENCY = 500L
 
     // 1. 조회 (SELECT) 시뮬레이션
     fun readBlocking(): Double {
