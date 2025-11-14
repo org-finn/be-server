@@ -1,85 +1,84 @@
 package finn.lock
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import org.springframework.stereotype.Component
+import java.util.concurrent.atomic.AtomicInteger
 
 @Component
-class CoroutineReadWriteLock(
-    private val maxReaders: Int = 1000
-) {
+class CoroutineReadWriteLock {
 
     companion object {
         private val log = KotlinLogging.logger {}
     }
 
-    // 쓰기 작업의 독점적 실행을 보장하는 Mutex
-    private val writeLock = Mutex()
+    // 활성 읽기 작업의 수를 카운트
+    private val activeReaders = AtomicInteger(0)
 
-    // 다수 읽기 작업을 허용하는 Semaphore
-    private val readLock = Semaphore(permits = maxReaders)
+    // 쓰기 작업 접근을 제어 (오직 하나의 쓰기 작업만 허용)
+    private val writerMutex = Mutex()
+
+    // 읽기 작업이 통과해야 하는 게이트, 쓰기 작업이 이 게이트를 잠가 새로운 읽기 작업을 차단
+    private val readerGate = Mutex()
 
     /**
      * 읽기 락을 획득하고 주어진 액션을 실행합니다.
-     * 여러 읽기 작업이 동시에 이 블록을 실행할 수 있습니다.
+     * 여러 읽기 작업이 병렬로 실행될 수 있습니다.
      */
     suspend fun <T> read(
-        timeoutMillis: Long = 5 * 60 * 1000L,
+        timeoutMillis: Long = 1 * 60 * 1000L,
         action: suspend () -> T
     ): T? {
         return withTimeoutOrNull(timeoutMillis) {
-            // 쓰기 락을 획득할 수 있어야 읽기 락 획득 가능
-            writeLock.lock()
-            log.debug { "읽기 작업에서 쓰기 락 획득 성공" }
-            try {
-                readLock.acquire()
-                log.debug { "읽기 작업에서 읽기 락 획득 성공" }
-            } catch (e: Exception) {
-                writeLock.unlock()
-                throw e
+            // 현재 진행중인 쓰기 작업이 없다면 해당 게이트를 통과함
+            readerGate.withLock {
+                // 활성 읽기 작업 카운트를 증가
+                activeReaders.incrementAndGet()
             }
-            // 읽기 락을 획득하였으므로 쓰기 락 즉시 해제
-            writeLock.unlock()
-            log.debug { "읽기 작업에서 쓰기 락을 반납합니다." }
 
             try {
                 action()
             } finally {
-                readLock.release()
-                log.debug { "읽기 작업에서 읽기 락을 반납합니다." }
+                // 완료되면 카운트를 감소(반드시 실행됨)
+                activeReaders.decrementAndGet()
             }
         }
     }
 
+    /**
+     * 배타적인 쓰기 락을 획득하고 주어진 액션을 실행합니다.
+     * 완료될 때까지 모든 새로운 읽기/쓰기 작업을 차단합니다.
+     */
     suspend fun <T> write(
-        timeoutMillis: Long = 10 * 60 * 1000L,
+        timeoutMillis: Long = 3 * 60 * 1000L,
         action: suspend () -> T
     ): T? {
         return withTimeoutOrNull(timeoutMillis) {
-            try {
-                writeLock.lock()
-                log.debug { "쓰기 작업에서 쓰기 락 획득 성공" }
-                var acquiredPermits = 0 // 성공적으로 획득한 퍼밋 수를 추적할 변수
+            // 오직 하나의 쓰기 작업만 이 블록에 진입하도록 보장
+            writerMutex.withLock {
+
+                // readerGate를 잠구어, 새로운 읽기 작업 진입 차단
+                readerGate.lock()
 
                 try {
-                    // 현재 진행 중인 모든 읽기 작업이 끝날 때까지 대기
-                    // 모든 reader의 permit을 획득
-                    repeat(maxReaders) {
-                        readLock.acquire()
-                        acquiredPermits++
+                    // (이미 실행 중이던) 모든 활성 읽기 작업이 끝날 때까지 대기
+                    while (activeReaders.get() > 0) {
+                        log.debug { "Writer waiting for ${activeReaders.get()} active readers to finish..." }
+                        delay(10) // spin-wait (대기)
                     }
-                    log.debug { "쓰기 작업에서 모든 읽기 획득 성공" }
+
+                    // 이 시점: activeReaders == 0 이고, 새로운 읽기 작업은 차단된 상태
+                    // 쓰기 작업을 시작할 수 있는 상태
+                    log.debug { "Writer acquired exclusive lock. Executing action..." }
                     action()
+
                 } finally {
-                    // 모든 reader의 permit을 다시 반납
-                    repeat(acquiredPermits) { readLock.release() }
-                    log.debug { "쓰기 작업에서 모든 읽기 릴리즈 성공" }
+                    // readerGate의 락을 해제하여, 새로운 읽기 작업이 진행되도록 허용
+                    readerGate.unlock()
                 }
-            } finally {
-                writeLock.unlock()
-                log.debug { "쓰기 작업에서 쓰기 락을 반납합니다." }
             }
         }
     }
