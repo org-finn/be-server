@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -32,7 +32,7 @@ class CoroutineReadWriteLock {
         timeoutMillis: Long = 1 * 60 * 1000L,
         action: suspend () -> T
     ): T? {
-        return withTimeoutOrNull(timeoutMillis) {
+        return withTimeout(timeoutMillis) {
             // 현재 진행중인 쓰기 작업이 없다면 해당 게이트를 통과함
             readerGate.withLock {
                 // 활성 읽기 작업 카운트를 증가
@@ -56,7 +56,7 @@ class CoroutineReadWriteLock {
         timeoutMillis: Long = 3 * 60 * 1000L,
         action: suspend () -> T
     ): T? {
-        return withTimeoutOrNull(timeoutMillis) {
+        return withTimeout(timeoutMillis) {
             // 오직 하나의 쓰기 작업만 이 블록에 진입하도록 보장
             writerMutex.withLock {
 
