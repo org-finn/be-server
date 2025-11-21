@@ -22,15 +22,23 @@ class ArticleSentimentScoreStrategy : SentimentScoreStrategy<ArticlePredictionTa
 
         var scoreChange = 0.0
 
-        // 긍정 뉴스에 대한 선형적 점수 증가(개수 당 +1점)
+        // 중립 뉴스 비율이 많은 경우 기존 점수 유지
+        if (Math.divideExact(
+                newNeutralArticleCount,
+                newPositiveArticleCount + newNegativeArticleCount + newNeutralArticleCount
+            ) >= 50
+        ) {
+            return previousScore
+        }
+
+        // 긍정 뉴스에 대한 비선형적 점수 증가
         for (i in 0 until newPositiveArticleCount) {
-            scoreChange += 1.0
+            scoreChange += (1.0 + i)
         }
 
         // 부정 뉴스에 대한 비선형적 점수 감소
-        // 1개: -5, 2개: -5-6=-11, 3개: -5-6-7=-18
         for (i in 0 until newNegativeArticleCount) {
-            scoreChange -= (5.0 + i)
+            scoreChange -= (6.0 + i)
         }
 
         val newScore = previousScore + scoreChange
