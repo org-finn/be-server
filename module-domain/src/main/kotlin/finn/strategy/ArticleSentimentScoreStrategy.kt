@@ -1,5 +1,6 @@
 package finn.strategy
 
+import finn.exception.DomainPolicyViolationException
 import finn.task.ArticlePredictionTask
 import org.springframework.stereotype.Component
 import kotlin.math.roundToInt
@@ -21,16 +22,24 @@ class ArticleSentimentScoreStrategy : SentimentScoreStrategy<ArticlePredictionTa
         val previousScore = task.payload.previousScore
 
         var scoreChange = 0.0
+        if (newPositiveArticleCount + newNeutralArticleCount + newNegativeArticleCount == 0L) {
+            throw DomainPolicyViolationException("수집된 아티클 수 합이 0개이면 안됩니다.")
+        }
 
-        // 긍정 뉴스에 대한 선형적 점수 증가(개수 당 +1점)
+        // 중립 뉴스 비율이 많은 경우 기존 점수 유지
+        if (newNeutralArticleCount.toDouble() / (newPositiveArticleCount + newNegativeArticleCount + newNeutralArticleCount) >= 0.5
+        ) {
+            return previousScore
+        }
+
+        // 긍정 뉴스에 대한 비선형적 점수 증가
         for (i in 0 until newPositiveArticleCount) {
-            scoreChange += 1.0
+            scoreChange += (1.0 + i)
         }
 
         // 부정 뉴스에 대한 비선형적 점수 감소
-        // 1개: -5, 2개: -5-6=-11, 3개: -5-6-7=-18
         for (i in 0 until newNegativeArticleCount) {
-            scoreChange -= (5.0 + i)
+            scoreChange -= (6.0 + i)
         }
 
         val newScore = previousScore + scoreChange
