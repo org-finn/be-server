@@ -62,6 +62,7 @@ class TickerExposedRepository {
 
     fun findAll(): List<TickerQueryDto> {
         return TickerTable.selectAll()
+            .orderBy(TickerTable.shortCompanyName, SortOrder.ASC)
             .map { row ->
                 TickerQueryDtoImpl(
                     tickerId = row[TickerTable.id].value,
