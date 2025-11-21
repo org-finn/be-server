@@ -97,7 +97,7 @@ Articker는 이러한 투자자들의 행동 패턴에 착안하여, 복잡한 �
 <img width="2048" height="1182" alt="image" src="https://github.com/user-attachments/assets/df175c29-c0fc-4ae2-b630-4de6d25a54b4" />
 
 ### 데이터 수집 아키텍처
-<img width="2048" height="1163" alt="image" src="https://github.com/user-attachments/assets/5a5ba74e-0521-4fb4-a93b-f24c47fe4a19" />
+<img width="3568" height="2404" alt="image" src="https://github.com/user-attachments/assets/c5b3bbce-302c-444d-b788-865d45d45387" />
 
 ### CI/CD 아키텍처
 <img width="2048" height="1339" alt="image" src="https://github.com/user-attachments/assets/96a2e47a-9a47-4f7f-9bf3-1d42b567b62d" />

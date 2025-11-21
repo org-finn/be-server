@@ -60,10 +60,10 @@ class PredictionInitSentimentScoreStrategy : SentimentScoreStrategy<InitPredicti
             ?: throw CriticalDataOmittedException("yesterday signal 데이터가 누락되었습니다.")
 
         return when {
-            todayMacd > todaySignal && yesterdayMacd <= yesterdaySignal -> 5 // 골든크로스
-            todayMacd < todaySignal && yesterdayMacd >= yesterdaySignal -> -5 // 데드크로스
-            todayMacd > todaySignal -> 2 // 강세
-            todayMacd < todaySignal -> -2 // 약세
+            todayMacd > todaySignal && yesterdayMacd <= yesterdaySignal -> 10 // 골든크로스
+            todayMacd < todaySignal && yesterdayMacd >= yesterdaySignal -> -10 // 데드크로스
+            todayMacd > todaySignal -> 5 // 강세
+            todayMacd < todaySignal -> -5 // 약세
             else -> 0
         }
     }
@@ -81,10 +81,10 @@ class PredictionInitSentimentScoreStrategy : SentimentScoreStrategy<InitPredicti
             yesterday["ma20"] ?: throw CriticalDataOmittedException("yesterday ma20 데이터가 누락되었습니다.")
 
         return when {
-            todayMa5 > todayMa20 && yesterdayMa5 <= yesterdayMa20 -> 5 // 골든크로스
-            todayMa5 < todayMa20 && yesterdayMa5 >= yesterdayMa20 -> -5 // 데드크로스
-            todayMa5 > todayMa20 -> 2 // 정배열
-            todayMa5 < todayMa20 -> -2 // 역배열
+            todayMa5 > todayMa20 && yesterdayMa5 <= yesterdayMa20 -> 10 // 골든크로스
+            todayMa5 < todayMa20 && yesterdayMa5 >= yesterdayMa20 -> -10 // 데드크로스
+            todayMa5 > todayMa20 -> 5 // 정배열
+            todayMa5 < todayMa20 -> -5 // 역배열
             else -> 0
         }
     }
@@ -94,8 +94,8 @@ class PredictionInitSentimentScoreStrategy : SentimentScoreStrategy<InitPredicti
      */
     private fun calculateRsiScore(rsi: Double): Int {
         return when {
-            rsi < 30 -> 4   // 과매도
-            rsi > 70 -> -4  // 과매수
+            rsi < 30 -> 5   // 과매도
+            rsi > 70 -> -5  // 과매수
             else -> 0       // 중립
         }
     }

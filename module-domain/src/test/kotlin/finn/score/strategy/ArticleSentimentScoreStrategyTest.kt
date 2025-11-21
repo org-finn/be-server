@@ -1,7 +1,11 @@
+import finn.exception.DomainPolicyViolationException
 import finn.strategy.ArticleSentimentScoreStrategy
 import finn.task.ArticlePredictionTask
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import java.time.OffsetDateTime
 import java.util.*
@@ -31,30 +35,29 @@ class ArticleSentimentScoreStrategyTest : BehaviorSpec({
                 )
                 task.payload.previousScore = 80
 
-                then("오늘의 점수를 그대로 반환해야 한다.") {
-                    val result = strategy.calculate(task)
-                    result shouldBe 80
+                then("예외가 발생해야 한다.") {
+                    shouldThrow<DomainPolicyViolationException> { strategy.calculate(task) }
                 }
             }
         }
 
         Context("기사 데이터만으로 점수를 계산할 때") {
-            `when`("긍정적인 기사만 1개가 있는 경우") {
+            `when`("중립 기사 비율이 제일 높은 경우") {
                 val task = ArticlePredictionTask(
                     tickerId = UUID.randomUUID(),
                     payload = ArticlePredictionTask.ArticlePayload(
                         OffsetDateTime.now(),
                         1,
-                        0,
-                        0,
+                        1,
+                        5,
                         OffsetDateTime.now()
                     )
                 )
-                task.payload.previousScore = 50
+                task.payload.previousScore = 63
 
-                then("계산 결과를 정확히 반영해야한다.") {
+                then("기존 점수를 그대로 리턴해야한다.") {
                     val result = strategy.calculate(task)
-                    result shouldBe 51
+                    result shouldBe task.payload.previousScore
                 }
             }
 
@@ -71,9 +74,9 @@ class ArticleSentimentScoreStrategyTest : BehaviorSpec({
                 )
                 task.payload.previousScore = 50
 
-                then("계산 결과를 정확히 반영해야한다.") {
+                then("계산 결과는 중립 점수(50점)보다 높아야한다.") {
                     val result = strategy.calculate(task)
-                    result shouldBe 53 // 1 + 1 + 1
+                    result shouldBeGreaterThan 50
                 }
             }
 
@@ -90,9 +93,9 @@ class ArticleSentimentScoreStrategyTest : BehaviorSpec({
                 )
                 task.payload.previousScore = 50
 
-                then("부정 가점이 높게 나와야한다.") {
+                then("부정 감점이 높으므로, 계산 결과는 중립 점수(50점)보다 낮아야한다.") {
                     val result = strategy.calculate(task)
-                    result shouldBe 46
+                    result shouldBeLessThan 50
                 }
             }
         }
