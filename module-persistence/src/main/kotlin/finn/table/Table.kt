@@ -40,6 +40,10 @@ object ArticleTable : UUIDTable("article") {
     val distinctId = varchar("distinct_id", 255).uniqueIndex()
     val tickers = varchar("tickers", 255).nullable()
     val createdAt = datetime("created_at")
+
+    init {
+        Index(listOf(publishedDate), false, "article_published_date_idx")
+    }
 }
 
 object ArticleTickerTable : UUIDTable("article_ticker") {
