@@ -107,3 +107,15 @@ object MarketStatusTable : LongIdTable("market_status") {
     val tradingHours = varchar("trading_hours", 20)
     val eventName = varchar("event_name", 50).nullable()
 }
+
+// ArticleSummary 테이블
+object ArticleSummaryTable : UUIDTable("article_summary") {
+    val tickerId = uuid("ticker_id")
+    val shortCompanyName = varchar("short_company_name", 100)
+    val summaryDate = datetime("summary_date")
+    val positiveReasoning = text("positive_reasoning").nullable()
+    val negativeReasoning = text("negative_reasoning").nullable()
+    val positiveKeywords = varchar("positive_keywords", 100).nullable()
+    val negativeKeywords = varchar("negative_keywords", 100).nullable()
+    val neutralKeywords = varchar("neutral_keywords", 100).nullable()
+}
