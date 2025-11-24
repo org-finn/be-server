@@ -17,7 +17,8 @@ class PredictionQueryService(private val predictionRepository: PredictionReposit
         return predictionRepository.getPredictionList(
             pageRequest.page,
             pageRequest.size,
-            pageRequest.sort
+            pageRequest.sort,
+            pageRequest.param
         )
     }
 

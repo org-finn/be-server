@@ -23,7 +23,12 @@ interface PredictionRepository {
         predictionDate: LocalDateTime
     )
 
-    fun getPredictionList(page: Int, size: Int, sort: String): PageResponse<PredictionQueryDto>
+    fun getPredictionList(
+        page: Int,
+        size: Int,
+        sort: String,
+        param: String?
+    ): PageResponse<PredictionQueryDto>
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto
 

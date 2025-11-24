@@ -70,7 +70,11 @@ class PredictionExposedRepository {
         override fun articleCount(): Long = this.articleCount
     }
 
-    fun findAllPredictionByPopular(page: Int, size: Int): PageResponse<PredictionQueryDto> {
+    fun findAllPredictionByPopular(
+        page: Int,
+        size: Int,
+        param: String?
+    ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -128,7 +132,8 @@ class PredictionExposedRepository {
     fun findAllPredictionBySentimentScore(
         page: Int,
         size: Int,
-        isDownward: Boolean
+        isDownward: Boolean,
+        param: String?
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -181,7 +186,11 @@ class PredictionExposedRepository {
         )
     }
 
-    fun findAllPredictionByVolatility(page: Int, size: Int): PageResponse<PredictionQueryDto> {
+    fun findAllPredictionByVolatility(
+        page: Int,
+        size: Int,
+        param: String?
+    ): PageResponse<PredictionQueryDto> {
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
             .select(maxDateExpression)
