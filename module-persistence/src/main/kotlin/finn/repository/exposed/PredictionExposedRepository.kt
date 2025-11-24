@@ -4,7 +4,9 @@ import finn.entity.PredictionExposed
 import finn.entity.TickerScore
 import finn.exception.CriticalDataOmittedException
 import finn.paging.PageResponse
+import finn.queryDto.ArticleTitleQueryDto
 import finn.queryDto.PredictionDetailQueryDto
+import finn.queryDto.PredictionListGraphDataQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
@@ -59,7 +61,11 @@ class PredictionExposedRepository {
         val tickerCode: String,
         val predictionStrategy: String,
         val sentiment: Int,
-        val articleCount: Long
+        val articleCount: Long,
+        val positiveKeywords: String?,
+        val negativeKeywords: String?,
+        val articleTitles: List<ArticleTitleQueryDto>?,
+        val graphData: PredictionListGraphDataQueryDto?
     ) : PredictionQueryDto {
         override fun predictionDate(): LocalDateTime = this.predictionDate
         override fun tickerId(): UUID = this.tickerId
@@ -68,6 +74,11 @@ class PredictionExposedRepository {
         override fun predictionStrategy(): String = this.predictionStrategy
         override fun sentiment(): Int = this.sentiment
         override fun articleCount(): Long = this.articleCount
+        override fun positiveKeywords(): String? = this.positiveKeywords
+        override fun negativeKeywords(): String? = this.negativeKeywords
+        override fun articleTitles(): List<ArticleTitleQueryDto>? = this.articleTitles
+        override fun graphData(): PredictionListGraphDataQueryDto? = this.graphData
+        }
     }
 
     fun findAllPredictionByPopular(
