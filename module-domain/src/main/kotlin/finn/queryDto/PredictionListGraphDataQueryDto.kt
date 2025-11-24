@@ -4,7 +4,7 @@ import java.math.BigDecimal
 
 interface PredictionListGraphDataQueryDto {
 
-    fun isMarketOpen(): Boolean
+    fun marketOpen(): Boolean
 
     fun priceData(): List<BigDecimal>
 }

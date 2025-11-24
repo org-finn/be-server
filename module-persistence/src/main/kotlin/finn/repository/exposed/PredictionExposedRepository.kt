@@ -3,6 +3,7 @@ package finn.repository.exposed
 import finn.entity.PredictionExposed
 import finn.entity.TickerScore
 import finn.exception.CriticalDataOmittedException
+import finn.exception.CriticalDataPollutedException
 import finn.paging.PageResponse
 import finn.queryDto.ArticleTitleQueryDto
 import finn.queryDto.PredictionDetailQueryDto
@@ -60,10 +61,10 @@ class PredictionExposedRepository {
         val predictionStrategy: String,
         val sentiment: Int,
         val articleCount: Long,
-        val positiveKeywords: String?,
-        val negativeKeywords: String?,
-        val articleTitles: List<ArticleTitleQueryDto>?,
-        val graphData: PredictionListGraphDataQueryDto?
+        var positiveKeywords: String?,
+        var negativeKeywords: String?,
+        var articleTitles: List<ArticleTitleQueryDto>?,
+        var graphData: PredictionListGraphDataQueryDto?
     ) : PredictionQueryDto {
         override fun predictionDate(): LocalDateTime = this.predictionDate
         override fun tickerId(): UUID = this.tickerId
@@ -76,6 +77,22 @@ class PredictionExposedRepository {
         override fun negativeKeywords(): String? = this.negativeKeywords
         override fun articleTitles(): List<ArticleTitleQueryDto>? = this.articleTitles
         override fun graphData(): PredictionListGraphDataQueryDto? = this.graphData
+    }
+
+    private data class ArticleTitleQueryDtoImpl(
+        val articleId: UUID,
+        val title: String
+    ) : ArticleTitleQueryDto {
+        override fun articleId(): UUID = this.articleId
+        override fun title(): String = this.title
+    }
+
+    private data class PredictionListGraphDataQueryDtoImpl(
+        val marketOpen: Boolean,
+        val priceData: List<BigDecimal>
+    ) : PredictionListGraphDataQueryDto {
+        override fun marketOpen(): Boolean = this.marketOpen
+        override fun priceData(): List<BigDecimal> = this.priceData
     }
 
     fun findAllPredictionByPopular(
@@ -130,6 +147,8 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
+        setParamData(param, results)
+
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -140,6 +159,8 @@ class PredictionExposedRepository {
             hasNext = hasNext
         )
     }
+
+
 
     fun findAllPredictionBySentimentScore(
         page: Int,
@@ -191,6 +212,8 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
+        setParamData(param, results)
+
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -248,6 +271,8 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
+        setParamData(param, results)
+
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -460,7 +485,7 @@ class PredictionExposedRepository {
     /**
      * key: tickerId, value: positiveKeywords, negativeKeywords
      */
-    private suspend fun findArticleSummaryKeywordsForPrediction(): Map<UUID, List<String?>> {
+    private fun findArticleSummaryKeywordsForPrediction(): Map<UUID, List<String?>> {
         val result = ArticleSummaryTable.select(
             ArticleSummaryTable.tickerId,
             ArticleSummaryTable.positiveKeywords,
@@ -475,10 +500,56 @@ class PredictionExposedRepository {
         }
     }
 
+    private fun setParamData(
+        param: String?,
+        results: List<PredictionQueryDtoImpl>
+    ) {
+        param.let {
+            when (param) {
+                "keyword" -> {
+                    val data = findArticleSummaryKeywordsForPrediction()
+                    results.forEach { dtoImpl ->
+                        val tickerId = dtoImpl.tickerId
+                        data[tickerId]?.let {
+                            dtoImpl.positiveKeywords = it[0]
+                            dtoImpl.negativeKeywords = it[1]
+                        }
+                    }
+                }
+
+                "article" -> {
+                    val data = findArticleTitlesForPrediction()
+                    results.forEach { dtoImpl ->
+                        val tickerId = dtoImpl.tickerId
+                        data[tickerId]?.let { it ->
+                            val articleList = it.map {
+                                ArticleTitleQueryDtoImpl(it.first, it.second)
+                            }.toList()
+                            dtoImpl.articleTitles = articleList
+                        }
+                    }
+                }
+
+                "graph" -> {
+                    val data = findGraphDataForPredictionWhenClosed()
+                    results.forEach { dtoImpl ->
+                        val tickerId = dtoImpl.tickerId
+                        data[tickerId]?.let {
+                            val graphData = PredictionListGraphDataQueryDtoImpl(false, it)
+                            dtoImpl.graphData = graphData
+                        }
+                    }
+                }
+
+                else -> CriticalDataPollutedException("지원하지 않는 파라미터 타입입니다.")
+            }
+        }
+    }
+
     /**
      * key: tickerId, value: List<Pair<title, articleId>>
      */
-    private suspend fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String?>>> {
+    private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
         val result = ArticleTickerTable.select(
             ArticleTickerTable.title,
             ArticleTickerTable.articleId,
@@ -502,7 +573,7 @@ class PredictionExposedRepository {
      * key: tickerId, value: List<BigDecimal>
      */
     // [TODO]: 장이 열렸울때 실시간 데이터 8개를 받아오는 쿼리 추가 구현(dynamoDBRepo 여기서 호출 혹은 impl에서 호출 방식 고민 필요)
-    private suspend fun findGraphDataForPredictionWhenClosed(): Map<UUID, List<BigDecimal>> {
+    private fun findGraphDataForPredictionWhenClosed(): Map<UUID, List<BigDecimal>> {
         val startDate = LocalDate.now().minusDays(15)
 
         val result = TickerPriceTable.select(
