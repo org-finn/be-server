@@ -8,9 +8,7 @@ import finn.queryDto.ArticleTitleQueryDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionListGraphDataQueryDto
 import finn.queryDto.PredictionQueryDto
-import finn.table.PredictionTable
-import finn.table.TickerPriceTable
-import finn.table.TickerTable
+import finn.table.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -78,7 +76,6 @@ class PredictionExposedRepository {
         override fun negativeKeywords(): String? = this.negativeKeywords
         override fun articleTitles(): List<ArticleTitleQueryDto>? = this.articleTitles
         override fun graphData(): PredictionListGraphDataQueryDto? = this.graphData
-        }
     }
 
     fun findAllPredictionByPopular(
@@ -126,7 +123,11 @@ class PredictionExposedRepository {
                 tickerCode = row[PredictionTable.tickerCode],
                 predictionStrategy = row[PredictionTable.strategy],
                 sentiment = row[PredictionTable.sentiment],
-                articleCount = articleCount
+                articleCount = articleCount,
+                positiveKeywords = null,
+                negativeKeywords = null,
+                articleTitles = null,
+                graphData = null
             )
         }
         val hasNext = results.size > limit
@@ -183,7 +184,11 @@ class PredictionExposedRepository {
                 tickerCode = row[PredictionTable.tickerCode],
                 predictionStrategy = row[PredictionTable.strategy],
                 sentiment = row[PredictionTable.sentiment],
-                articleCount = articleCount
+                articleCount = articleCount,
+                positiveKeywords = null,
+                negativeKeywords = null,
+                articleTitles = null,
+                graphData = null
             )
         }
         val hasNext = results.size > limit
@@ -236,7 +241,11 @@ class PredictionExposedRepository {
                 tickerCode = row[PredictionTable.tickerCode],
                 predictionStrategy = row[PredictionTable.strategy],
                 sentiment = row[PredictionTable.sentiment],
-                articleCount = articleCount
+                articleCount = articleCount,
+                positiveKeywords = null,
+                negativeKeywords = null,
+                articleTitles = null,
+                graphData = null
             )
         }
         val hasNext = results.size > limit
@@ -447,4 +456,69 @@ class PredictionExposedRepository {
             }.singleOrNull()
             ?: throw CriticalDataOmittedException("${tickerId}의 전일 변동성 지표 값이 존재하지 않습니다.")
     }
+
+    /**
+     * key: tickerId, value: positiveKeywords, negativeKeywords
+     */
+    private suspend fun findArticleSummaryKeywordsForPrediction(): Map<UUID, List<String?>> {
+        val result = ArticleSummaryTable.select(
+            ArticleSummaryTable.tickerId,
+            ArticleSummaryTable.positiveKeywords,
+            ArticleSummaryTable.negativeKeywords
+        ).where { ArticleSummaryTable.summaryDate.date() eq LocalDateTime.now().toLocalDate() }
+
+        return result.associate { row ->
+            row[ArticleSummaryTable.tickerId] to listOf(
+                row[ArticleSummaryTable.positiveKeywords],
+                row[ArticleSummaryTable.negativeKeywords]
+            )
+        }
+    }
+
+    /**
+     * key: tickerId, value: List<Pair<title, articleId>>
+     */
+    private suspend fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String?>>> {
+        val result = ArticleTickerTable.select(
+            ArticleTickerTable.title,
+            ArticleTickerTable.articleId,
+            ArticleTickerTable.tickerId
+        ).where {
+            ArticleTickerTable.publishedDate.date() eq LocalDateTime.now().toLocalDate()
+        }
+
+        return result.groupBy(
+            keySelector = { row ->
+                row[ArticleTickerTable.tickerId]
+            },
+            // Value: Pair(ArticleId, Title) 리스트
+            valueTransform = { row ->
+                row[ArticleTickerTable.articleId] to row[ArticleTickerTable.title]
+            }
+        )
+    }
+
+    /**
+     * key: tickerId, value: List<BigDecimal>
+     */
+    // [TODO]: 장이 열렸울때 실시간 데이터 8개를 받아오는 쿼리 추가 구현(dynamoDBRepo 여기서 호출 혹은 impl에서 호출 방식 고민 필요)
+    private suspend fun findGraphDataForPredictionWhenClosed(): Map<UUID, List<BigDecimal>> {
+        val startDate = LocalDate.now().minusDays(15)
+
+        val result = TickerPriceTable.select(
+            TickerPriceTable.tickerId,
+            TickerPriceTable.close
+        ).where { TickerPriceTable.priceDate.date() greaterEq startDate }
+            .orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
+
+        return result.groupBy(
+            keySelector = { row ->
+                row[TickerPriceTable.tickerId]
+            },
+            valueTransform = { row ->
+                row[TickerPriceTable.close]
+            }
+        )
+    }
+
 }
