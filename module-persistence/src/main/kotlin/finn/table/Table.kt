@@ -77,9 +77,12 @@ object PredictionTable : UUIDTable("predictions") {
     val shortCompanyName = varchar("short_company_name", 100)
     val tickerId = uuid("ticker_id")
     val createdAt = datetime("created_at")
+
     init {
-        uniqueIndex("predictions_ticker_id_prediction_date_unique_key",
-            tickerId, predictionDate)
+        uniqueIndex(
+            "predictions_ticker_id_prediction_date_unique_key",
+            tickerId, predictionDate
+        )
     }
 }
 
@@ -118,4 +121,12 @@ object ArticleSummaryTable : UUIDTable("article_summary") {
     val positiveKeywords = varchar("positive_keywords", 100).nullable()
     val negativeKeywords = varchar("negative_keywords", 100).nullable()
     val neutralKeywords = varchar("neutral_keywords", 100).nullable()
+
+    init {
+        Index(
+            listOf(ArticleSummaryTable.tickerId, ArticleSummaryTable.summaryDate),
+            false,
+            "article_summary_ticker_date_idx"
+        )
+    }
 }
