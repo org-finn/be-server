@@ -17,4 +17,12 @@ interface PredictionQueryDto {
     fun sentiment(): Int
 
     fun articleCount(): Long
+
+    fun positiveKeywords() : String?
+
+    fun negativeKeywords(): String?
+
+    fun articleTitles(): List<ArticleTitleQueryDto>?
+
+    fun graphData(): PredictionListGraphDataQueryDto?
 }

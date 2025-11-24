@@ -20,7 +20,18 @@ fun toDto(predictionList: PageResponse<PredictionQueryDto>): PredictionListRespo
                 it.tickerCode(),
                 it.predictionStrategy(),
                 it.sentiment(),
-                it.articleCount()
+                it.articleCount(),
+                it.positiveKeywords(),
+                it.negativeKeywords(),
+                it.articleTitles()?.map {
+                    PredictionListResponse.ArticleTitleResponse(it.articleId(), it.title())
+                },
+                it.graphData()?.let {
+                    PredictionListResponse.PredictionListGraphDataResponse(
+                        it.marketOpen(),
+                        it.priceData()
+                    )
+                }
             )
         }.toList()
 

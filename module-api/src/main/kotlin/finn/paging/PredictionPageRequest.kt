@@ -12,5 +12,10 @@ data class PredictionPageRequest(
         defaultValue = "popular",
         allowableValues = ["popular", "upward", "downward", "volatility"]
     )
-    val sort: String
+    val sort: String,
+    @field:Schema(
+        description = "파라미터",
+        allowableValues = ["keyword", "article", "graph"]
+    )
+    val param: String?
 ) : PageRequest
