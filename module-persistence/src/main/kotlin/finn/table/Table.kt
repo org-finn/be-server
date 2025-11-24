@@ -93,7 +93,7 @@ object TickerPriceTable : UUIDTable("ticker_prices") {
     val low = decimal("low", 10, 4)
     val close = decimal("close", 10, 4)
     val volume = long("volume")
-    val atr = decimal("atr", 10, 4)
+    val atr = decimal("atr", 10, 4).nullable()
     val changeRate = decimal("change_rate", 7, 4)
     val tickerCode = varchar("ticker_code", 20)
     val tickerId = uuid("ticker_id")
@@ -121,6 +121,7 @@ object ArticleSummaryTable : UUIDTable("article_summary") {
     val positiveKeywords = varchar("positive_keywords", 100).nullable()
     val negativeKeywords = varchar("negative_keywords", 100).nullable()
     val neutralKeywords = varchar("neutral_keywords", 100).nullable()
+    val createdAt = datetime("created_at")
 
     init {
         Index(

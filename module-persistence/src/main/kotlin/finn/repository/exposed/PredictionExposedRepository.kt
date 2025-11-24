@@ -147,7 +147,7 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
-        setParamData(param, results)
+        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -159,7 +159,6 @@ class PredictionExposedRepository {
             hasNext = hasNext
         )
     }
-
 
 
     fun findAllPredictionBySentimentScore(
@@ -212,7 +211,7 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
-        setParamData(param, results)
+        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -271,7 +270,7 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
-        setParamData(param, results)
+        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -501,7 +500,7 @@ class PredictionExposedRepository {
     }
 
     private fun setParamData(
-        param: String?,
+        param: String,
         results: List<PredictionQueryDtoImpl>
     ) {
         param.let {
@@ -541,7 +540,7 @@ class PredictionExposedRepository {
                     }
                 }
 
-                else -> CriticalDataPollutedException("지원하지 않는 파라미터 타입입니다.")
+                else -> throw CriticalDataPollutedException("지원하지 않는 파라미터 타입입니다.")
             }
         }
     }
