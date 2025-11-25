@@ -125,8 +125,8 @@ object ArticleSummaryTable : UUIDTable("article_summary") {
 
     init {
         Index(
-            listOf(ArticleSummaryTable.tickerId, ArticleSummaryTable.summaryDate),
-            false,
+            listOf(tickerId, summaryDate),
+            true,
             "article_summary_ticker_date_idx"
         )
     }
