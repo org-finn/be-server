@@ -53,48 +53,6 @@ class PredictionExposedRepository {
         }
     }
 
-    private data class PredictionQueryDtoImpl(
-        val predictionDate: LocalDateTime,
-        val tickerId: UUID,
-        val shortCompanyName: String,
-        val tickerCode: String,
-        val predictionStrategy: String,
-        val sentiment: Int,
-        val articleCount: Long,
-        var positiveKeywords: String?,
-        var negativeKeywords: String?,
-        var articleTitles: List<ArticleTitleQueryDto>?,
-        var graphData: PredictionListGraphDataQueryDto?
-    ) : PredictionQueryDto {
-        override fun predictionDate(): LocalDateTime = this.predictionDate
-        override fun tickerId(): UUID = this.tickerId
-        override fun shortCompanyName(): String = this.shortCompanyName
-        override fun tickerCode(): String = this.tickerCode
-        override fun predictionStrategy(): String = this.predictionStrategy
-        override fun sentiment(): Int = this.sentiment
-        override fun articleCount(): Long = this.articleCount
-        override fun positiveKeywords(): String? = this.positiveKeywords
-        override fun negativeKeywords(): String? = this.negativeKeywords
-        override fun articleTitles(): List<ArticleTitleQueryDto>? = this.articleTitles
-        override fun graphData(): PredictionListGraphDataQueryDto? = this.graphData
-    }
-
-    private data class ArticleTitleQueryDtoImpl(
-        val articleId: UUID,
-        val title: String
-    ) : ArticleTitleQueryDto {
-        override fun articleId(): UUID = this.articleId
-        override fun title(): String = this.title
-    }
-
-    private data class PredictionListGraphDataQueryDtoImpl(
-        val marketOpen: Boolean,
-        val priceData: List<BigDecimal>
-    ) : PredictionListGraphDataQueryDto {
-        override fun marketOpen(): Boolean = this.marketOpen
-        override fun priceData(): List<BigDecimal> = this.priceData
-    }
-
     fun findAllPredictionByPopular(
         page: Int,
         size: Int,
@@ -133,7 +91,7 @@ class PredictionExposedRepository {
                 else -> row[PredictionTable.neutralArticleCount] // 0
             }
 
-            PredictionQueryDtoImpl(
+            PredictionQueryDto(
                 predictionDate = row[PredictionTable.predictionDate],
                 tickerId = row[PredictionTable.tickerId],
                 shortCompanyName = row[PredictionTable.shortCompanyName],
@@ -197,7 +155,7 @@ class PredictionExposedRepository {
                 else -> row[PredictionTable.neutralArticleCount] // 0
             }
 
-            PredictionQueryDtoImpl(
+            PredictionQueryDto(
                 predictionDate = row[PredictionTable.predictionDate],
                 tickerId = row[PredictionTable.tickerId],
                 shortCompanyName = row[PredictionTable.shortCompanyName],
@@ -256,7 +214,7 @@ class PredictionExposedRepository {
                 else -> row[PredictionTable.neutralArticleCount] // 0
             }
 
-            PredictionQueryDtoImpl(
+            PredictionQueryDto(
                 predictionDate = row[PredictionTable.predictionDate],
                 tickerId = row[PredictionTable.tickerId],
                 shortCompanyName = row[PredictionTable.shortCompanyName],
@@ -281,38 +239,6 @@ class PredictionExposedRepository {
             size = content.size,
             hasNext = hasNext
         )
-    }
-
-    private data class PredictionDetailQueryDtoImpl(
-        val predictionDate: LocalDateTime,
-        val tickerId: UUID,
-        val shortCompanyName: String,
-        val tickerCode: String,
-        val predictionStrategy: String,
-        val sentiment: Int,
-        val articleCount: Long,
-        val sentimentScore: Int,
-        val priceDate: LocalDate,
-        val open: BigDecimal,
-        val close: BigDecimal,
-        val high: BigDecimal,
-        val low: BigDecimal,
-        val volume: Long
-    ) : PredictionDetailQueryDto {
-        override fun predictionDate(): LocalDateTime = this.predictionDate
-        override fun tickerId(): UUID = this.tickerId
-        override fun shortCompanyName(): String = this.shortCompanyName
-        override fun tickerCode(): String = this.tickerCode
-        override fun predictionStrategy(): String = this.predictionStrategy
-        override fun sentiment(): Int = this.sentiment
-        override fun articleCount(): Long = this.articleCount
-        override fun sentimentScore(): Int = this.sentimentScore
-        override fun priceDate(): LocalDate = this.priceDate
-        override fun open(): BigDecimal = this.open
-        override fun close(): BigDecimal = this.close
-        override fun high(): BigDecimal = this.high
-        override fun low(): BigDecimal = this.low
-        override fun volume(): Long = this.volume
     }
 
     fun findPredictionWithPriceInfoById(tickerId: UUID): PredictionDetailQueryDto {
@@ -366,7 +292,7 @@ class PredictionExposedRepository {
                     -1 -> row[PredictionTable.negativeArticleCount]
                     else -> row[PredictionTable.neutralArticleCount] // 0
                 }
-                PredictionDetailQueryDtoImpl(
+                PredictionDetailQueryDto(
                     predictionDate = row[PredictionTable.predictionDate],
                     tickerId = row[PredictionTable.tickerId],
                     shortCompanyName = row[PredictionTable.shortCompanyName],
@@ -501,7 +427,7 @@ class PredictionExposedRepository {
 
     private fun setParamData(
         param: String,
-        results: List<PredictionQueryDtoImpl>
+        results: List<PredictionQueryDto>
     ) {
         param.let {
             when (param) {
@@ -522,7 +448,7 @@ class PredictionExposedRepository {
                         val tickerId = dtoImpl.tickerId
                         data[tickerId]?.let { it ->
                             val articleList = it.map {
-                                ArticleTitleQueryDtoImpl(it.first, it.second)
+                                ArticleTitleQueryDto(it.first, it.second)
                             }.toList()
                             dtoImpl.articleTitles = articleList
                         }
@@ -534,7 +460,7 @@ class PredictionExposedRepository {
                     results.forEach { dtoImpl ->
                         val tickerId = dtoImpl.tickerId
                         data[tickerId]?.let {
-                            val graphData = PredictionListGraphDataQueryDtoImpl(false, it)
+                            val graphData = PredictionListGraphDataQueryDto(false, it)
                             dtoImpl.graphData = graphData
                         }
                     }

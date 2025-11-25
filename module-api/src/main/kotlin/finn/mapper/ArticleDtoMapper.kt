@@ -22,22 +22,22 @@ class ArticleDtoMapper {
         }
 
         fun toDto(articleDetailData: ArticleDetailQueryDto): ArticleDetailResponse {
-            val tickers = articleDetailData.tickers()?.map {
+            val tickers = articleDetailData.tickers?.map {
                 ArticleDetailResponse.ArticleDetailTickerResponse(
-                    it.shortCompanyName(),
-                    it.sentiment(),
-                    it.reasoning()
+                    it.shortCompanyName,
+                    it.sentiment,
+                    it.reasoning
                 )
             }?.toList()
             return ArticleDetailResponse(
-                articleDetailData.articleId(),
-                articleDetailData.headline(),
-                articleDetailData.description(),
-                articleDetailData.thumbnailUrl(),
-                articleDetailData.contentUrl(),
-                articleDetailData.publishedDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                articleDetailData.articleId,
+                articleDetailData.headline,
+                articleDetailData.description,
+                articleDetailData.thumbnailUrl,
+                articleDetailData.contentUrl,
+                articleDetailData.publishedDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                     .replace('T', ' '),
-                articleDetailData.source(),
+                articleDetailData.source,
                 tickers
             )
         }

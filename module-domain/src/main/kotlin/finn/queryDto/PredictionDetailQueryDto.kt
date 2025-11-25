@@ -5,33 +5,19 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-interface PredictionDetailQueryDto {
-    fun predictionDate(): LocalDateTime
-
-    fun tickerId(): UUID
-
-    fun shortCompanyName(): String
-
-    fun tickerCode(): String
-
-    fun predictionStrategy(): String
-
-    fun sentiment(): Int
-
-    fun articleCount(): Long
-
-    fun sentimentScore(): Int
-
-    fun priceDate(): LocalDate
-
-    fun open(): BigDecimal
-
-    fun close(): BigDecimal
-
-    fun high(): BigDecimal
-
-    fun low(): BigDecimal
-
-    fun volume(): Long
-
-}
+data class PredictionDetailQueryDto(
+    val predictionDate: LocalDateTime,
+    val tickerId: UUID,
+    val shortCompanyName: String,
+    val tickerCode: String,
+    val predictionStrategy: String,
+    val sentiment: Int,
+    val articleCount: Long,
+    val sentimentScore: Int,
+    val priceDate: LocalDate,
+    val open: BigDecimal,
+    val close: BigDecimal,
+    val high: BigDecimal,
+    val low: BigDecimal,
+    val volume: Long
+)

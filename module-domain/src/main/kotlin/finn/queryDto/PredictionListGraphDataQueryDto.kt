@@ -2,9 +2,7 @@ package finn.queryDto
 
 import java.math.BigDecimal
 
-interface PredictionListGraphDataQueryDto {
-
-    fun marketOpen(): Boolean
-
-    fun priceData(): List<BigDecimal>
-}
+data class PredictionListGraphDataQueryDto(
+    val marketOpen: Boolean,
+    val priceData: List<BigDecimal>
+)

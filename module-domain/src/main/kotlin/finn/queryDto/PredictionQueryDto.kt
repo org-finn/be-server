@@ -3,26 +3,16 @@ package finn.queryDto
 import java.time.LocalDateTime
 import java.util.*
 
-interface PredictionQueryDto {
-    fun predictionDate(): LocalDateTime
-
-    fun tickerId(): UUID
-
-    fun shortCompanyName(): String
-
-    fun tickerCode(): String
-
-    fun predictionStrategy(): String
-
-    fun sentiment(): Int
-
-    fun articleCount(): Long
-
-    fun positiveKeywords() : String?
-
-    fun negativeKeywords(): String?
-
-    fun articleTitles(): List<ArticleTitleQueryDto>?
-
-    fun graphData(): PredictionListGraphDataQueryDto?
-}
+data class PredictionQueryDto(
+    val predictionDate: LocalDateTime,
+    val tickerId: UUID,
+    val shortCompanyName: String,
+    val tickerCode: String,
+    val predictionStrategy: String,
+    val sentiment: Int,
+    val articleCount: Long,
+    var positiveKeywords: String?,
+    var negativeKeywords: String?,
+    var articleTitles: List<ArticleTitleQueryDto>?,
+    var graphData: PredictionListGraphDataQueryDto?
+)

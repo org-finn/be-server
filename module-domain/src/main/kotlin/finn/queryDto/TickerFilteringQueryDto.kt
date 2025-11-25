@@ -2,9 +2,7 @@ package finn.queryDto
 
 import java.util.*
 
-interface TickerFilteringQueryDto {
-
-    fun tickerId(): UUID
-
-    fun shortCompanyName(): String
-}
+data class TickerFilteringQueryDto(
+    val tickerId: UUID,
+    val shortCompanyName: String
+)

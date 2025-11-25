@@ -214,9 +214,9 @@ internal class ArticleRepositoryImplTest(
             }
             Then("해당 ticker의 가장 최신 뉴스 3개를 반환해야 한다") {
                 result shouldHaveSize 3
-                result[0].headline() shouldBe "가장 최신 긍정 뉴스"
-                result[1].headline() shouldBe "두 번째 최신 부정 뉴스"
-                result[2].headline() shouldBe "세 번째 최신 긍정 뉴스"
+                result[0].headline shouldBe "가장 최신 긍정 뉴스"
+                result[1].headline shouldBe "두 번째 최신 부정 뉴스"
+                result[2].headline shouldBe "세 번째 최신 긍정 뉴스"
             }
         }
     }

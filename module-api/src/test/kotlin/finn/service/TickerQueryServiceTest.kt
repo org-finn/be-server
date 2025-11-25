@@ -13,31 +13,6 @@ import java.util.*
 
 internal class TickerQueryServiceTest : BehaviorSpec({
 
-    data class TickerQueryDtoImpl(
-        val shortCompanyName: String,
-        val shortCompanyNameKr: String
-    ) : TickerQueryDto {
-        override fun shortCompanyName(): String {
-            return this.shortCompanyName
-        }
-
-        override fun shortCompanyNameKr(): String {
-            return this.shortCompanyNameKr
-        }
-
-        override fun tickerId(): UUID {
-            TODO("Not yet implemented")
-        }
-
-        override fun tickerCode(): String {
-            TODO("Not yet implemented")
-        }
-
-        override fun fullCompanyName(): String {
-            TODO("Not yet implemented")
-        }
-    }
-
     // 1. 테스트 대상을 선언합니다.
     lateinit var tickerQueryService: TickerQueryService
     // 2. 모킹할 의존성을 선언합니다.
@@ -47,15 +22,31 @@ internal class TickerQueryServiceTest : BehaviorSpec({
 
     // 3. 테스트에 사용할 가짜 데이터 목록을 미리 정의합니다.
     val fakeTickerList = listOf(
-        TickerQueryDtoImpl(shortCompanyName = "AMD", shortCompanyNameKr = "암드"),
-        TickerQueryDtoImpl(shortCompanyName = "Amazon", shortCompanyNameKr = "아마존"),
-        TickerQueryDtoImpl(
-            shortCompanyName = "Microsoft",
-            shortCompanyNameKr = "마이크로소프트"
+        TickerQueryDto(
+            tickerId = UUID.randomUUID(),
+            tickerCode = "AMD",
+            shortCompanyName = "AMD",
+            shortCompanyNameKr = "암드",
+            fullCompanyName = ""
         ),
-        TickerQueryDtoImpl(
+        TickerQueryDto(
+            tickerId = UUID.randomUUID(),
+            tickerCode = "AMZN",
+            shortCompanyName = "Amazon",
+            shortCompanyNameKr = "아마존",
+            fullCompanyName = ""
+        ),
+        TickerQueryDto(
+            tickerId = UUID.randomUUID(), tickerCode = "MSFT",
+            shortCompanyName = "Microsoft",
+            shortCompanyNameKr = "마이크로소프트",
+            fullCompanyName = ""
+        ),
+        TickerQueryDto(
+            tickerId = UUID.randomUUID(), tickerCode = "TSLA",
             shortCompanyName = "Tesla",
-            shortCompanyNameKr = "테슬라"
+            shortCompanyNameKr = "테슬라",
+            fullCompanyName = ""
         )
     )
 
@@ -76,8 +67,8 @@ internal class TickerQueryServiceTest : BehaviorSpec({
 
                 Then("'A'로 시작하는 Ticker 두 개(Amazon, AMD)를 반환해야 한다") {
                     result shouldHaveSize 2
-                    result.any { it.shortCompanyName() == "AMD" } shouldBe true
-                    result.any { it.shortCompanyName() == "Amazon" } shouldBe true
+                    result.any { it.shortCompanyName == "AMD" } shouldBe true
+                    result.any { it.shortCompanyName == "Amazon" } shouldBe true
                 }
             }
 
@@ -86,7 +77,7 @@ internal class TickerQueryServiceTest : BehaviorSpec({
 
                 Then("'Micro'로 시작하는 Ticker 한 개(Microsoft)를 반환해야 한다") {
                     result shouldHaveSize 1
-                    result.first().shortCompanyName() shouldBe "Microsoft"
+                    result.first().shortCompanyName shouldBe "Microsoft"
                 }
             }
 
@@ -103,7 +94,7 @@ internal class TickerQueryServiceTest : BehaviorSpec({
 
                 Then("'테슬'로 시작하는 Ticker 한 개(테슬라)를 반환해야 한다") {
                     result shouldHaveSize 1
-                    result.first().shortCompanyNameKr() shouldBe "테슬라"
+                    result.first().shortCompanyNameKr shouldBe "테슬라"
                 }
             }
         }

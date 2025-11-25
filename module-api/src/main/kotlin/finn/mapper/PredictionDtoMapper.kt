@@ -9,27 +9,27 @@ import finn.response.prediciton.PredictionListResponse
 
 
 fun toDto(predictionList: PageResponse<PredictionQueryDto>): PredictionListResponse {
-    val predictionDate = predictionList.content.firstOrNull()?.predictionDate()
+    val predictionDate = predictionList.content.firstOrNull()?.predictionDate
 
     val predictionDtoList = predictionList.content
         .map { it ->
             // 2. DTO의 각 필드를 인터페이스 메서드 호출로 변경합니다.
             PredictionListResponse.PredictionDataResponse(
-                it.tickerId(),
-                it.shortCompanyName(),
-                it.tickerCode(),
-                it.predictionStrategy(),
-                it.sentiment(),
-                it.articleCount(),
-                it.positiveKeywords(),
-                it.negativeKeywords(),
-                it.articleTitles()?.map {
-                    PredictionListResponse.ArticleTitleResponse(it.articleId(), it.title())
+                it.tickerId,
+                it.shortCompanyName,
+                it.tickerCode,
+                it.predictionStrategy,
+                it.sentiment,
+                it.articleCount,
+                it.positiveKeywords,
+                it.negativeKeywords,
+                it.articleTitles?.map {
+                    PredictionListResponse.ArticleTitleResponse(it.articleId, it.title)
                 },
-                it.graphData()?.let {
+                it.graphData?.let {
                     PredictionListResponse.PredictionListGraphDataResponse(
-                        it.marketOpen(),
-                        it.priceData()
+                        it.marketOpen,
+                        it.priceData
                     )
                 }
             )
@@ -49,31 +49,31 @@ fun toDto(
 ): PredictionDetailResponse {
     val Article = ArticleDataList.map { it ->
         PredictionDetailResponse.PredictionDetailDataResponse.ArticleDataResponse(
-            it.articleId(),
-            it.headline(),
-            it.sentiment(),
-            it.reasoning()
+            it.articleId,
+            it.headline,
+            it.sentiment,
+            it.reasoning
         )
     }.toList()
 
     val predictionDetailData = PredictionDetailResponse.PredictionDetailDataResponse(
-        predictionDetail.priceDate().toString(),
-        predictionDetail.open(),
-        predictionDetail.close(),
-        predictionDetail.high(),
-        predictionDetail.low(),
-        predictionDetail.volume(),
+        predictionDetail.priceDate.toString(),
+        predictionDetail.open,
+        predictionDetail.close,
+        predictionDetail.high,
+        predictionDetail.low,
+        predictionDetail.volume,
         Article
     )
     return PredictionDetailResponse(
-        predictionDate = predictionDetail.predictionDate().toString(),
-        tickerId = predictionDetail.tickerId(),
-        shortCompanyName = predictionDetail.shortCompanyName(),
-        tickerCode = predictionDetail.tickerCode(),
-        predictionStrategy = predictionDetail.predictionStrategy(),
-        sentiment = predictionDetail.sentiment(),
-        articleCount = predictionDetail.articleCount(),
-        sentimentScore = predictionDetail.sentimentScore(),
+        predictionDate = predictionDetail.predictionDate.toString(),
+        tickerId = predictionDetail.tickerId,
+        shortCompanyName = predictionDetail.shortCompanyName,
+        tickerCode = predictionDetail.tickerCode,
+        predictionStrategy = predictionDetail.predictionStrategy,
+        sentiment = predictionDetail.sentiment,
+        articleCount = predictionDetail.articleCount,
+        sentimentScore = predictionDetail.sentimentScore,
         detailData = predictionDetailData
     )
 }

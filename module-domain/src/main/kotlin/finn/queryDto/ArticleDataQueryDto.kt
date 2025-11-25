@@ -2,15 +2,10 @@ package finn.queryDto
 
 import java.util.*
 
-interface ArticleDataQueryDto {
-
-    fun articleId(): UUID
-
-    fun tickerId(): UUID
-
-    fun headline(): String
-
-    fun sentiment(): String?
-
-    fun reasoning(): String?
-}
+data class ArticleDataQueryDto(
+    val articleId: UUID,
+    val tickerId: UUID,
+    val headline: String,
+    val sentiment: String?,
+    val reasoning: String?
+)
