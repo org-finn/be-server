@@ -33,7 +33,7 @@ class PredictionOrchestrator(
         private val wildcard: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
     }
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // 개별 티커 간의 충돌을 막기 위한 Mutex
     private val mutexes = ConcurrentHashMap<UUID, Mutex>()
