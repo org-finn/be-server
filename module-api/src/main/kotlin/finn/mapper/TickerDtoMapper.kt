@@ -8,7 +8,7 @@ class TickerDtoMapper {
     companion object {
         fun toDto(tickerList: List<TickerQueryDto>): ArticleTickerFilteringListResponse {
             return ArticleTickerFilteringListResponse(tickerList.map {
-                ArticleTickerFilteringResponse(it.tickerId(), it.shortCompanyName(), it.tickerCode())
+                ArticleTickerFilteringResponse(it.tickerId, it.shortCompanyName, it.tickerCode)
             }.toList())
         }
     }

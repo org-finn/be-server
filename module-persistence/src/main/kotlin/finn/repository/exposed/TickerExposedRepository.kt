@@ -16,20 +16,6 @@ import java.util.*
 @Repository
 class TickerExposedRepository {
 
-    private data class TickerQueryDtoImpl(
-        val tickerId: UUID,
-        val tickerCode: String,
-        val shortCompanyName: String,
-        val shortCompanyNameKr: String,
-        val fullCompanyName: String
-    ) : TickerQueryDto {
-        override fun tickerId(): UUID = this.tickerId
-        override fun tickerCode(): String = this.tickerCode
-        override fun shortCompanyName(): String = this.shortCompanyName
-        override fun shortCompanyNameKr(): String = this.shortCompanyNameKr
-        override fun fullCompanyName(): String = this.fullCompanyName
-    }
-
     fun findTickerListBySearchKeyword(keyword: String): List<TickerQueryDto> {
         return TickerTable.select(
             TickerTable.id,
@@ -38,7 +24,7 @@ class TickerExposedRepository {
             TickerTable.fullCompanyName
         ).where { TickerTable.shortCompanyName.lowerCase() like "${keyword.lowercase()}%" }
             .map { row ->
-                TickerQueryDtoImpl(
+                TickerQueryDto(
                     tickerId = row[TickerTable.id].value,
                     tickerCode = row[TickerTable.code],
                     shortCompanyName = row[TickerTable.shortCompanyName],
@@ -64,7 +50,7 @@ class TickerExposedRepository {
         return TickerTable.selectAll()
             .orderBy(TickerTable.shortCompanyName, SortOrder.ASC)
             .map { row ->
-                TickerQueryDtoImpl(
+                TickerQueryDto(
                     tickerId = row[TickerTable.id].value,
                     tickerCode = row[TickerTable.code],
                     shortCompanyName = row[TickerTable.shortCompanyName],

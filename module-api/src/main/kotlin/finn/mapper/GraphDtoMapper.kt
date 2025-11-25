@@ -7,29 +7,29 @@ import finn.response.graph.TickerRealTimeGraphListResponse
 
 
 fun toDto(period: String, graphDto: List<TickerGraphQueryDto>): TickerGraphResponse {
-    val graphData = graphDto.map { it ->
+    val graphData = graphDto.map {
         TickerGraphResponse.TickerGraphDataResponse(
-            it.date().toString(),
-            it.price(),
-            it.changeRate(),
-            it.positiveArticleCount(),
-            it.negativeArticleCount(),
+            it.date.toString(),
+            it.price,
+            it.changeRate,
+            it.positiveArticleCount,
+            it.negativeArticleCount,
         )
     }.toList()
     return TickerGraphResponse(period, graphData)
 }
 
 fun toDto(dto: TickerRealTimeGraphQueryDto): TickerRealTimeGraphListResponse {
-    val priceDataList = dto.priceDataList().map {
+    val priceDataList = dto.priceDataList.map {
         TickerRealTimeGraphListResponse.TickerRealTimeGraphResponse(
-            it.price(),
-            it.hours(),
-            it.index()
+            it.price,
+            it.hours,
+            it.index
         )
     }.toList()
 
     return TickerRealTimeGraphListResponse(
-        dto.priceDate(), dto.tickerId(),
-        priceDataList, dto.maxLen()
+        dto.priceDate, dto.tickerId,
+        priceDataList, dto.maxLen
     )
 }

@@ -21,28 +21,6 @@ class TickerPriceRealTimeDynamoDbRepository(
 ) {
     private val tableName = "ticker_price_real_time"
 
-    private data class TickerRealTimeGraphDataQueryDtoImpl(
-        val price: BigDecimal,
-        val hours: String,
-        val index: Int
-    ) : TickerRealTimeGraphDataQueryDto {
-        override fun price(): BigDecimal = this.price
-        override fun hours(): String = this.hours
-        override fun index(): Int = this.index
-    }
-
-    private data class TickerRealTimeGraphQueryDtoImpl(
-        val priceDate: String,
-        val tickerId: UUID,
-        val priceDataList: List<TickerRealTimeGraphDataQueryDto>,
-        val maxLen: Int
-    ) : TickerRealTimeGraphQueryDto {
-        override fun priceDate(): String = this.priceDate
-        override fun tickerId(): UUID = this.tickerId
-        override fun priceDataList(): List<TickerRealTimeGraphDataQueryDto> = this.priceDataList
-        override fun maxLen(): Int = this.maxLen
-    }
-    
     fun findLatestRealTimeData(
         tickerId: UUID,
         gte: Int?,
@@ -68,12 +46,12 @@ class TickerPriceRealTimeDynamoDbRepository(
         val priceDateStr = item["priceDate"]?.s() ?: ""
         val maxLen = item["maxLen"]?.n()?.toInt() ?: 0
         val priceDate = LocalDate.parse(item["priceDate"]?.s().toString())
-        
+
         val fullPriceDataList = item["priceDataList"]?.l()?.map { priceDataMapAttr ->
             val priceDataMap = priceDataMapAttr.m()
             val utcHours = priceDataMap["hours"]?.s() ?: "00:00:00"
 
-            TickerRealTimeGraphDataQueryDtoImpl(
+            TickerRealTimeGraphDataQueryDto(
                 price = BigDecimal(priceDataMap["price"]?.n()),
                 hours = convertUtcTimeToKst(utcHours, priceDate),
                 index = priceDataMap["index"]?.n()?.toInt() ?: 0
@@ -86,7 +64,7 @@ class TickerPriceRealTimeDynamoDbRepository(
             else -> fullPriceDataList
         }
 
-        return TickerRealTimeGraphQueryDtoImpl(
+        return TickerRealTimeGraphQueryDto(
             priceDate = priceDateStr,
             tickerId = tickerId,
             priceDataList = filteredPriceDataList,

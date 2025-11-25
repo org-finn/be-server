@@ -104,7 +104,7 @@ internal class GraphRepositoryImplTest(
             Then("주말과 휴장일을 제외한 모든 영업일의 데이터를 반환해야 한다") {
                 // 8/18(월), 8/19(화), 8/21(목), 8/22(금) -> 총 4일
                 result shouldHaveSize 4
-                val resultDates = result.map { it.date() }
+                val resultDates = result.map { it.date }
                 resultDates shouldContainExactlyInAnyOrder listOf(
                     LocalDate.of(2025, 8, 18),
                     LocalDate.of(2025, 8, 19),
@@ -134,7 +134,7 @@ internal class GraphRepositoryImplTest(
 
             Then("휴장일을 가장 가까운 과거 영업일로 대체하여 데이터를 조회해야 한다") {
                 result shouldHaveSize 3
-                val resultDates = result.map { it.date() }
+                val resultDates = result.map { it.date }
                 resultDates shouldContainExactlyInAnyOrder listOf(
                     LocalDate.of(2025, 7, 28), // endDate(7/28, 월)
                     LocalDate.of(2025, 7, 18), // 7/28-7일=7/21(월, 휴일) -> 7/18(금)
@@ -156,7 +156,7 @@ internal class GraphRepositoryImplTest(
 
             Then("연속된 비영업일을 건너뛰어 정확한 과거 영업일을 찾아야 한다") {
                 result shouldHaveSize 2
-                val resultDates = result.map { it.date() }
+                val resultDates = result.map { it.date }
 
                 // endDate(7/21,월,휴일) -> 7/18(금)
                 // 7/21-7일=7/14(월) -> 7/14(월)
@@ -203,9 +203,9 @@ internal class GraphRepositoryImplTest(
             Then("정확한 긍정/부정 아티클 개수를 반환해야한다.") {
                 result shouldHaveSize 1
                 val data = result[0]
-                data.date() shouldBeEqual joinDate
-                data.positiveArticleCount() shouldBeEqual 123L
-                data.negativeArticleCount() shouldBeEqual 56L
+                data.date shouldBeEqual joinDate
+                data.positiveArticleCount shouldBeEqual 123L
+                data.negativeArticleCount shouldBeEqual 56L
             }
         }
     }

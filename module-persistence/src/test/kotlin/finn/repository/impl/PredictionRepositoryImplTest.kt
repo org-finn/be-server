@@ -124,8 +124,8 @@ internal class PredictionRepositoryImplTest(
 
             Then("시가총액(marketCap)이 높은 순으로 정렬되어야 한다") {
                 result.content.size shouldBe 2
-                result.content[0].tickerCode() shouldBe "BBBB" // marketCap 2000
-                result.content[1].tickerCode() shouldBe "AAAA" // marketCap 1000
+                result.content[0].tickerCode shouldBe "BBBB" // marketCap 2000
+                result.content[1].tickerCode shouldBe "AAAA" // marketCap 1000
             }
         }
 
@@ -140,8 +140,8 @@ internal class PredictionRepositoryImplTest(
             }
 
             Then("점수(score)가 낮은 순(오름차순)으로 정렬되어야 한다") {
-                result.content[0].tickerCode() shouldBe "AAAA"
-                result.content[1].tickerCode() shouldBe "BBBB"
+                result.content[0].tickerCode shouldBe "AAAA"
+                result.content[1].tickerCode shouldBe "BBBB"
             }
         }
 
@@ -156,8 +156,8 @@ internal class PredictionRepositoryImplTest(
             }
 
             Then("점수(score)가 높은 순(내림차순)으로 정렬되어야 한다") {
-                result.content[0].tickerCode() shouldBe "BBBB"
-                result.content[1].tickerCode() shouldBe "AAAA"
+                result.content[0].tickerCode shouldBe "BBBB"
+                result.content[1].tickerCode shouldBe "AAAA"
             }
         }
 
@@ -208,15 +208,15 @@ internal class PredictionRepositoryImplTest(
             }
 
             Then("해당 티커의 긍정/부정 키워드 데이터가 포함되어야 한다") {
-                val targetItem = result.content.find { it.tickerId() == ticker1Id }
+                val targetItem = result.content.find { it.tickerId == ticker1Id }
                 targetItem.shouldNotBeNull()
 
-                targetItem.positiveKeywords() shouldBe "호재,상승,기대"
-                targetItem.negativeKeywords() shouldBe "우려,하락"
+                targetItem.positiveKeywords shouldBe "호재,상승,기대"
+                targetItem.negativeKeywords shouldBe "우려,하락"
 
                 // 데이터가 없는 다른 티커는 null이어야 함
-                val otherItem = result.content.find { it.tickerId() == ticker2Id }
-                otherItem?.positiveKeywords().shouldBeNull()
+                val otherItem = result.content.find { it.tickerId == ticker2Id }
+                otherItem?.positiveKeywords.shouldBeNull()
             }
         }
 
@@ -252,14 +252,14 @@ internal class PredictionRepositoryImplTest(
             }
 
             Then("해당 티커의 관련 기사 제목 리스트가 포함되어야 한다") {
-                val targetItem = result.content.find { it.tickerId() == ticker1Id }
+                val targetItem = result.content.find { it.tickerId == ticker1Id }
                 targetItem.shouldNotBeNull()
-                targetItem.articleTitles().shouldNotBeNull()
+                targetItem.articleTitles.shouldNotBeNull()
 
-                val articles = targetItem.articleTitles()!!
+                val articles = targetItem.articleTitles!!
                 articles shouldHaveSize 1
-                articles[0].title() shouldBe article1Title
-                articles[0].articleId() shouldBe article1Id
+                articles[0].title shouldBe article1Title
+                articles[0].articleId shouldBe article1Id
             }
         }
 
@@ -306,11 +306,11 @@ internal class PredictionRepositoryImplTest(
             }
 
             Then("해당 티커의 종가 데이터(close) 리스트가 포함되어야 한다") {
-                val targetItem = result.content.find { it.tickerId() == ticker1Id }
+                val targetItem = result.content.find { it.tickerId == ticker1Id }
                 targetItem.shouldNotBeNull()
-                targetItem.graphData().shouldNotBeNull()
+                targetItem.graphData.shouldNotBeNull()
 
-                val priceData = targetItem.graphData()!!.priceData()
+                val priceData = targetItem.graphData!!.priceData
                 priceData shouldHaveSize 2
 
                 // 정렬 조건 확인 (쿼리가 날짜 내림차순인지 확인)

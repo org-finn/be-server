@@ -18,20 +18,6 @@ class GraphExposedRepository {
         private val log = KotlinLogging.logger {}
     }
 
-    private data class TickerGraphQueryDtoImpl(
-        val date: LocalDate,
-        val price: BigDecimal,
-        val changeRate: BigDecimal,
-        val positiveArticleCount: Long,
-        val negativeArticleCount: Long
-    ) : TickerGraphQueryDto {
-        override fun date(): LocalDate = date
-        override fun price(): BigDecimal = price
-        override fun changeRate(): BigDecimal = changeRate
-        override fun positiveArticleCount(): Long = positiveArticleCount
-        override fun negativeArticleCount(): Long = negativeArticleCount
-    }
-
     fun findDaily(
         tickerId: UUID,
         startDate: LocalDate,
@@ -85,7 +71,7 @@ class GraphExposedRepository {
             }
             .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
             .map { row ->
-                TickerGraphQueryDtoImpl(
+                TickerGraphQueryDto(
                     date = row[TickerPriceTable.priceDate].toLocalDate(),
                     price = row[TickerPriceTable.close],
                     changeRate = row[TickerPriceTable.changeRate],
@@ -167,7 +153,7 @@ class GraphExposedRepository {
 
                     // 4. DTO를 생성할 때 Map에서 가져온 count 값들을 추가합니다.
                     graphData.add(
-                        TickerGraphQueryDtoImpl(
+                        TickerGraphQueryDto(
                             date = currentBusinessDay,
                             price = currentData.closePrice,
                             changeRate = changeRate,
@@ -180,7 +166,7 @@ class GraphExposedRepository {
             currentDate = prevTargetDate
         }
 
-        return graphData.sortedBy { it.date() }
+        return graphData.sortedBy { it.date }
     }
 
 
