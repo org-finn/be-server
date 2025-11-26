@@ -6,6 +6,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import org.springframework.stereotype.Component
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 @Component
@@ -24,25 +26,46 @@ class CoroutineReadWriteLock {
     // 읽기 작업이 통과해야 하는 게이트, 쓰기 작업이 이 게이트를 잠가 새로운 읽기 작업을 차단
     private val readerGate = Mutex()
 
+    // Key별 뮤텍스 관리 (Reference Count 포함)
+    private val keyMutexMap = ConcurrentHashMap<UUID, RefCountedMutex>()
+    private val mapLock = Mutex() // Map 조작(생성/삭제)의 원자성 보장
+
+    // 내부 클래스: Mutex와 참조 카운트 관리
+    private data class RefCountedMutex(
+        val mutex: Mutex,
+        val refCount: AtomicInteger
+    )
+
     /**
      * 읽기 락을 획득하고 주어진 액션을 실행합니다.
      * 여러 읽기 작업이 병렬로 실행될 수 있습니다.
      */
     suspend fun <T> read(
+        key: UUID,
         timeoutMillis: Long = 1 * 60 * 1000L,
         action: suspend () -> T
     ): T? {
         return withTimeout(timeoutMillis) {
-            // 현재 진행중인 쓰기 작업이 없다면 해당 게이트를 통과함
+            // 1. 전역 읽기 권한 획득
             readerGate.withLock {
-                // 활성 읽기 작업 카운트를 증가
                 activeReaders.incrementAndGet()
             }
 
             try {
-                action()
+                // 2. Key별 Mutex 획득 (Reference Counting 적용)
+                val keyedMutex = acquireKeyMutex(key)
+
+                try {
+                    // 3. 실제 Key별 락 획득 후 작업 수행
+                    keyedMutex.withLock {
+                        action()
+                    }
+                } finally {
+                    // 4. Key Mutex 반납 및 정리
+                    releaseKeyMutex(key)
+                }
             } finally {
-                // 완료되면 카운트를 감소(반드시 실행됨)
+                // 5. 전역 읽기 카운트 감소
                 activeReaders.decrementAndGet()
             }
         }
@@ -79,6 +102,26 @@ class CoroutineReadWriteLock {
                     // readerGate의 락을 해제하여, 새로운 읽기 작업이 진행되도록 허용
                     readerGate.unlock()
                 }
+            }
+        }
+    }
+
+    private suspend fun acquireKeyMutex(key: UUID): Mutex {
+        mapLock.withLock {
+            // 해당 tickerId의 뮤텍스가 없으면 초기화
+            val entry = keyMutexMap.getOrPut(key) {
+                RefCountedMutex(Mutex(), AtomicInteger(0))
+            }
+            entry.refCount.incrementAndGet()
+            return entry.mutex
+        }
+    }
+
+    private suspend fun releaseKeyMutex(key: UUID) {
+        mapLock.withLock {
+            val entry = keyMutexMap[key] ?: return
+            if (entry.refCount.decrementAndGet() <= 0) {
+                keyMutexMap.remove(key) // 더 이상 대기자가 없으면 메모리에서 제거
             }
         }
     }
