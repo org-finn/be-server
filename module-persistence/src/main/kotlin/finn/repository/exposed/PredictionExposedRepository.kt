@@ -351,7 +351,7 @@ class PredictionExposedRepository {
 
     // 최근 6일 간의 prediction score를 반환(추세 반영 목적)
     suspend fun findTodaySentimentScoreListByTickerId(tickerId: UUID): List<Int> {
-        val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val today = LocalDate.now(ZoneId.of("UTC"))
         val sevenDaysAgo = today.minusDays(6) // 오늘을 제외한 이전 6일
 
         return PredictionTable
@@ -366,7 +366,7 @@ class PredictionExposedRepository {
     }
 
     suspend fun findTodaySentimentScoreByTickerId(tickerId: UUID): Int {
-        val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val today = LocalDate.now(ZoneId.of("UTC"))
 
         return PredictionTable
             .select(PredictionTable.score)
@@ -381,7 +381,7 @@ class PredictionExposedRepository {
     }
 
     suspend fun findTodaySentimentScoreList(): List<TickerScore> {
-        val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val today = LocalDate.now(ZoneId.of("UTC"))
 
         return PredictionTable
             .select(PredictionTable.tickerId, PredictionTable.score)
@@ -415,7 +415,10 @@ class PredictionExposedRepository {
             ArticleSummaryTable.tickerId,
             ArticleSummaryTable.positiveKeywords,
             ArticleSummaryTable.negativeKeywords
-        ).where { ArticleSummaryTable.summaryDate.date() eq LocalDateTime.now().toLocalDate() }
+        ).where {
+            ArticleSummaryTable.summaryDate.date() eq LocalDateTime.now(ZoneId.of("UTC"))
+                .toLocalDate()
+        }
 
         return result.associate { row ->
             row[ArticleSummaryTable.tickerId] to listOf(
@@ -476,11 +479,13 @@ class PredictionExposedRepository {
      */
     private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
         val result = ArticleTickerTable.select(
+            ArticleTickerTable.titleKr,
             ArticleTickerTable.title,
             ArticleTickerTable.articleId,
             ArticleTickerTable.tickerId
         ).where {
-            ArticleTickerTable.publishedDate.date() eq LocalDateTime.now().toLocalDate()
+            ArticleTickerTable.publishedDate.date() eq LocalDateTime.now(ZoneId.of("UTC"))
+                .toLocalDate() // UTC 기준 같은 날짜로 비교
         }
 
         return result.groupBy(
@@ -489,7 +494,8 @@ class PredictionExposedRepository {
             },
             // Value: Pair(ArticleId, Title) 리스트
             valueTransform = { row ->
-                row[ArticleTickerTable.articleId] to row[ArticleTickerTable.title]
+                row[ArticleTickerTable.articleId] to (row[ArticleTickerTable.titleKr]
+                    ?: "row[ArticleTickerTable.title]") // 안전 장치로 원문 타이틀 도입
             }
         )
     }
