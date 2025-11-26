@@ -8,11 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Service
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class NonBlockingOrchestrator(
@@ -25,9 +22,6 @@ class NonBlockingOrchestrator(
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    // 개별 티커 간의 충돌을 막기 위한 Mutex
-    private val mutexes = ConcurrentHashMap<UUID, Mutex>()
 
     suspend fun simulate(task: PredictionTask) {
         val tickerId = task.tickerId
@@ -45,14 +39,10 @@ class NonBlockingOrchestrator(
             } else {
                 // 개별 티커 작업: 글로벌 읽기 락(Read Lock) + 개별 Mutex를 함께 사용
                 log.info { "개별 작업(${tickerId}) 시작. 읽기 락 획득 시도..." }
-                coroutineReadWriteLock.read {
-                    // 읽기 락(티커별 작업) 안에서 동일 티커 간의 충돌을 막기 위해 개별 뮤텍스를 사용
-                    val tickerMutex = mutexes.computeIfAbsent(tickerId) { Mutex() }
-                    tickerMutex.withLock {
-                        log.info { "개별 락 획득 성공. (${tickerId}): 예측을 수행합니다." }
-                        handler.handleNonBlocking(task)
-                        log.info { "(${tickerId}): 예측 수행 완료. 개별 락을 반납합니다." }
-                    }
+                coroutineReadWriteLock.read(key = tickerId) {
+                    log.info { "읽기 락 획득 성공. (${tickerId}): 예측을 수행합니다." }
+                    handler.handleNonBlocking(task)
+                    log.info { "(${tickerId}): 예측 수행 완료. 개별 락을 반납합니다." }
                 }
             }
         }
