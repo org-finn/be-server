@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -29,7 +30,7 @@ internal class PredictionRepositoryImplTest(
 
     val ticker1Id = UUID.randomUUID()
     val ticker2Id = UUID.randomUUID()
-    val latestDate = LocalDateTime.now(ZoneId.of("America/New_York"))
+    val latestDate = LocalDateTime.now(ZoneId.of("UTC"))
 
     beforeTest {
         transaction {
@@ -193,7 +194,7 @@ internal class PredictionRepositoryImplTest(
                     it[positiveKeywords] = "호재,상승,기대"
                     it[negativeKeywords] = "우려,하락"
                     it[shortCompanyName] = "Company B"
-                    it[summaryDate] = LocalDateTime.now() // 쿼리 조건: 오늘 날짜
+                    it[summaryDate] = LocalDateTime.now(ZoneId.of("UTC")) // 쿼리 조건: 오늘 날짜
                     it[createdAt] = LocalDateTime.now()
                 }
             }
@@ -237,7 +238,8 @@ internal class PredictionRepositoryImplTest(
                     it[tickerCode] = "tickerCode"
                     it[shortCompanyName] = "Company B"
                     it[title] = article1Title
-                    it[publishedDate] = Instant.now() // 쿼리 조건: 오늘 날짜
+                    it[titleKr] = article1Title
+                    it[publishedDate] = Instant.now(Clock.system(ZoneId.of("UTC"))) // 쿼리 조건: 오늘 날짜
                     it[createdAt] = LocalDateTime.now()
                 }
             }

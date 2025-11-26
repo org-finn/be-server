@@ -16,13 +16,16 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.javatime.date
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
 @Repository
-class PredictionExposedRepository {
+class PredictionExposedRepository(
+    private val clock: Clock = Clock.system(ZoneId.of("UTC")),
+) {
     companion object {
         private val log = KotlinLogging.logger {}
     }
@@ -478,14 +481,19 @@ class PredictionExposedRepository {
      * key: tickerId, value: List<Pair<title, articleId>>
      */
     private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
+        val targetDate = LocalDate.now(ZoneId.of("UTC"))
+        // 비교하려는 날짜의 UTC 시작(00:00)과 끝(다음날 00:00)을 구함
+        val startOfDay = targetDate.atStartOfDay(ZoneId.of("UTC")).toInstant()
+        val endOfDay = targetDate.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant()
+
         val result = ArticleTickerTable.select(
-            ArticleTickerTable.titleKr,
             ArticleTickerTable.title,
-            ArticleTickerTable.articleId,
-            ArticleTickerTable.tickerId
+            ArticleTickerTable.titleKr,
+            ArticleTickerTable.tickerId,
+            ArticleTickerTable.articleId
         ).where {
-            ArticleTickerTable.publishedDate.date() eq LocalDateTime.now(ZoneId.of("UTC"))
-                .toLocalDate() // UTC 기준 같은 날짜로 비교
+            (ArticleTickerTable.publishedDate greaterEq startOfDay) and
+                    (ArticleTickerTable.publishedDate less endOfDay)
         }
 
         return result.groupBy(
@@ -495,7 +503,7 @@ class PredictionExposedRepository {
             // Value: Pair(ArticleId, Title) 리스트
             valueTransform = { row ->
                 row[ArticleTickerTable.articleId] to (row[ArticleTickerTable.titleKr]
-                    ?: "row[ArticleTickerTable.title]") // 안전 장치로 원문 타이틀 도입
+                    ?: row[ArticleTickerTable.title]) // 안전 장치로 원문 타이틀 도입
             }
         )
     }
