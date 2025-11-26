@@ -25,10 +25,10 @@ internal class SearchOrchestratorTest : BehaviorSpec({
         val keyword = "ap"
         // 1. 반환될 리스트에 포함될 개별 DTO를 Mocking합니다.
         val mockDto = mockk<TickerQueryDto>()
-        every { mockDto.tickerId() } returns UUID.randomUUID()
-        every { mockDto.tickerCode() } returns "AAPL"
-        every { mockDto.shortCompanyName() } returns "Apple"
-        every { mockDto.fullCompanyName() } returns "Apple Inc."
+        every { mockDto.tickerId } returns UUID.randomUUID()
+        every { mockDto.tickerCode } returns "AAPL"
+        every { mockDto.shortCompanyName } returns "Apple"
+        every { mockDto.fullCompanyName } returns "Apple Inc."
 
         // 2. queryResult를 List<TickerSearchQueryDto> 타입으로 변경합니다.
         val queryResult = listOf(mockDto)

@@ -2,12 +2,13 @@ import finn.TestApplication
 import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
 import finn.repository.PredictionRepository
-import finn.table.PredictionTable
-import finn.table.TickerTable
+import finn.table.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.deleteAll
@@ -16,6 +17,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -112,35 +114,50 @@ internal class PredictionRepositoryImplTest(
     Given("getPredictionList 메서드에") {
         When("sort 파라미터가 'popular'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(page = 0, size = 10, sort = "popular")
+                predictionRepository.getPredictionList(
+                    page = 0,
+                    size = 10,
+                    sort = "popular",
+                    param = null
+                )
             }
 
             Then("시가총액(marketCap)이 높은 순으로 정렬되어야 한다") {
                 result.content.size shouldBe 2
-                result.content[0].tickerCode() shouldBe "BBBB" // marketCap 2000
-                result.content[1].tickerCode() shouldBe "AAAA" // marketCap 1000
+                result.content[0].tickerCode shouldBe "BBBB" // marketCap 2000
+                result.content[1].tickerCode shouldBe "AAAA" // marketCap 1000
             }
         }
 
         When("sort 파라미터가 'upward'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(page = 0, size = 10, sort = "upward")
+                predictionRepository.getPredictionList(
+                    page = 0,
+                    size = 10,
+                    sort = "upward",
+                    param = null
+                )
             }
 
             Then("점수(score)가 낮은 순(오름차순)으로 정렬되어야 한다") {
-                result.content[0].tickerCode() shouldBe "AAAA"
-                result.content[1].tickerCode() shouldBe "BBBB"
+                result.content[0].tickerCode shouldBe "AAAA"
+                result.content[1].tickerCode shouldBe "BBBB"
             }
         }
 
         When("sort 파라미터가 'downward'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(page = 0, size = 10, sort = "downward")
+                predictionRepository.getPredictionList(
+                    page = 0,
+                    size = 10,
+                    sort = "downward",
+                    param = null
+                )
             }
 
             Then("점수(score)가 높은 순(내림차순)으로 정렬되어야 한다") {
-                result.content[0].tickerCode() shouldBe "BBBB"
-                result.content[1].tickerCode() shouldBe "AAAA"
+                result.content[0].tickerCode shouldBe "BBBB"
+                result.content[1].tickerCode shouldBe "AAAA"
             }
         }
 
@@ -154,7 +171,163 @@ internal class PredictionRepositoryImplTest(
                         predictionRepository.getPredictionList(
                             page = 0,
                             size = 10,
-                            sort = invalidSort
+                            sort = invalidSort,
+                            param = null
+                        )
+                    }
+                }
+            }
+        }
+
+        When("param 파라미터가 'keyword'일 때") {
+            val keywordParam = "keyword"
+
+            // 키워드 데이터 준비
+            transaction {
+                // 테스트 격리를 위해 관련 테이블 초기화 (필요시)
+                ArticleSummaryTable.deleteAll()
+
+                ArticleSummaryTable.insert {
+                    it[id] = EntityID(UUID.randomUUID(), ArticleSummaryTable)
+                    it[tickerId] = ticker1Id
+                    it[positiveKeywords] = "호재,상승,기대"
+                    it[negativeKeywords] = "우려,하락"
+                    it[shortCompanyName] = "Company B"
+                    it[summaryDate] = LocalDateTime.now() // 쿼리 조건: 오늘 날짜
+                    it[createdAt] = LocalDateTime.now()
+                }
+            }
+
+            val result = transaction {
+                predictionRepository.getPredictionList(
+                    page = 0,
+                    size = 10,
+                    sort = "popular",
+                    param = keywordParam
+                )
+            }
+
+            Then("해당 티커의 긍정/부정 키워드 데이터가 포함되어야 한다") {
+                val targetItem = result.content.find { it.tickerId == ticker1Id }
+                targetItem.shouldNotBeNull()
+
+                targetItem.positiveKeywords shouldBe "호재,상승,기대"
+                targetItem.negativeKeywords shouldBe "우려,하락"
+
+                // 데이터가 없는 다른 티커는 null이어야 함
+                val otherItem = result.content.find { it.tickerId == ticker2Id }
+                otherItem?.positiveKeywords.shouldBeNull()
+            }
+        }
+
+        When("param 파라미터가 'article'일 때") {
+            val articleParam = "article"
+
+            val article1Id = UUID.randomUUID()
+            val article1Title = "Company A 3분기 실적 발표"
+
+            // 기사 데이터 준비
+            transaction {
+                ArticleTickerTable.deleteAll()
+
+                ArticleTickerTable.insert {
+                    it[id] = EntityID(UUID.randomUUID(), ArticleTickerTable)
+                    it[articleId] = article1Id
+                    it[tickerId] = ticker1Id
+                    it[tickerCode] = "tickerCode"
+                    it[shortCompanyName] = "Company B"
+                    it[title] = article1Title
+                    it[publishedDate] = Instant.now() // 쿼리 조건: 오늘 날짜
+                    it[createdAt] = LocalDateTime.now()
+                }
+            }
+
+            val result = transaction {
+                predictionRepository.getPredictionList(
+                    page = 0,
+                    size = 10,
+                    sort = "popular",
+                    param = articleParam
+                )
+            }
+
+            Then("해당 티커의 관련 기사 제목 리스트가 포함되어야 한다") {
+                val targetItem = result.content.find { it.tickerId == ticker1Id }
+                targetItem.shouldNotBeNull()
+                targetItem.articleTitles.shouldNotBeNull()
+
+                val articles = targetItem.articleTitles!!
+                articles shouldHaveSize 1
+                articles[0].title shouldBe article1Title
+                articles[0].articleId shouldBe article1Id
+            }
+        }
+
+        When("param 파라미터가 'graph'일 때") {
+            val graphParam = "graph"
+
+            // 주가 데이터 준비 (최근 15일 이내 데이터)
+            transaction {
+                TickerPriceTable.deleteAll()
+
+                // 어제 주가
+                TickerPriceTable.insert {
+                    it[id] = EntityID(UUID.randomUUID(), TickerPriceTable)
+                    it[tickerId] = ticker1Id
+                    it[tickerCode] = "tickerCode"
+                    it[close] = BigDecimal("150.00")
+                    it[priceDate] = LocalDateTime.now().minusDays(1)
+                    it[changeRate] = BigDecimal.ZERO
+                    it[open] = BigDecimal.ZERO; it[high] = BigDecimal.ZERO; it[low] =
+                    BigDecimal.ZERO; it[volume] = 0L
+                    it[createdAt] = LocalDateTime.now()
+                }
+                // 3일 전 주가
+                TickerPriceTable.insert {
+                    it[id] = EntityID(UUID.randomUUID(), TickerPriceTable)
+                    it[tickerId] = ticker1Id
+                    it[tickerCode] = "tickerCode"
+                    it[close] = BigDecimal("145.00")
+                    it[priceDate] = LocalDateTime.now().minusDays(3)
+                    it[changeRate] = BigDecimal.ZERO
+                    it[open] = BigDecimal.ZERO; it[high] = BigDecimal.ZERO; it[low] =
+                    BigDecimal.ZERO; it[volume] = 0L
+                    it[createdAt] = LocalDateTime.now()
+                }
+            }
+
+            val result = transaction {
+                predictionRepository.getPredictionList(
+                    page = 0,
+                    size = 10,
+                    sort = "popular",
+                    param = graphParam
+                )
+            }
+
+            Then("해당 티커의 종가 데이터(close) 리스트가 포함되어야 한다") {
+                val targetItem = result.content.find { it.tickerId == ticker1Id }
+                targetItem.shouldNotBeNull()
+                targetItem.graphData.shouldNotBeNull()
+
+                val priceData = targetItem.graphData!!.priceData
+                priceData shouldHaveSize 2
+
+                // 정렬 조건 확인 (쿼리가 날짜 내림차순인지 확인)
+                // Repository 쿼리: orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
+                priceData[0] shouldBe BigDecimal("150.0000") // 어제 (최신)
+                priceData[1] shouldBe BigDecimal("145.0000") // 3일 전
+            }
+        }
+
+        When("param 파라미터가 지원하지 않는 값일 때") {
+            val invalidParam = "invalid_param_type"
+
+            Then("CriticalDataPollutedException 예외가 발생해야 한다") {
+                shouldThrow<CriticalDataPollutedException> {
+                    transaction {
+                        predictionRepository.getPredictionList(
+                            page = 0, size = 10, sort = "popular", param = invalidParam
                         )
                     }
                 }
@@ -201,8 +374,8 @@ internal class PredictionRepositoryImplTest(
             val nonExistentTickerId = UUID.randomUUID()
 
             Then("CriticalDataOmittedException 예외가 발생해야 한다") {
-                    newSuspendedTransaction {
-                        shouldThrow<CriticalDataOmittedException> {
+                newSuspendedTransaction {
+                    shouldThrow<CriticalDataOmittedException> {
                         predictionRepository.updatePredictionByArticle(
                             tickerId = nonExistentTickerId,
                             predictionDate = latestDate,

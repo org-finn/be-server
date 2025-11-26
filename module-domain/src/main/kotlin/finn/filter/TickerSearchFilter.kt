@@ -15,8 +15,8 @@ class TickerSearchFilter {
             throw DomainPolicyViolationException("필터링 조건 키워드는 2글자 이상만 가능합니다.")
         }
         return tickers.filter {
-            it.shortCompanyName().startsWith(keyword, ignoreCase = true) ||
-                    it.shortCompanyNameKr().startsWith(keyword, ignoreCase = true)
+            it.shortCompanyName.startsWith(keyword, ignoreCase = true) ||
+                    it.shortCompanyNameKr.startsWith(keyword, ignoreCase = true)
         }
     }
 }

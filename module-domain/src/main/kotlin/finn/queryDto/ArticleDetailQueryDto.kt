@@ -3,21 +3,13 @@ package finn.queryDto
 import java.time.ZonedDateTime
 import java.util.*
 
-interface ArticleDetailQueryDto {
-    fun articleId(): UUID
-
-    fun headline(): String
-
-    fun description(): String
-
-    fun thumbnailUrl(): String?
-
-    fun contentUrl(): String
-
-    fun publishedDate(): ZonedDateTime
-
-    fun source(): String
-
-    fun tickers(): List<ArticleDetailTickerQueryDto>?
-
-}
+data class ArticleDetailQueryDto(
+    val articleId: UUID,
+    val headline: String,
+    val description: String,
+    val thumbnailUrl: String?,
+    val contentUrl: String,
+    val publishedDate: ZonedDateTime,
+    val source: String,
+    val tickers: List<ArticleDetailTickerQueryDto>?
+)

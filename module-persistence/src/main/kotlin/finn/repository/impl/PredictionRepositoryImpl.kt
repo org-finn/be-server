@@ -45,29 +45,34 @@ class PredictionRepositoryImpl(
     override fun getPredictionList(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        param: String?
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = when (sort) {
             "popular" -> predictionExposedRepository.findAllPredictionByPopular(
                 page,
-                size
+                size,
+                param
             )
 
             "upward" -> predictionExposedRepository.findAllPredictionBySentimentScore(
                 page,
                 size,
-                false
+                false,
+                param
             )
 
             "downward" -> predictionExposedRepository.findAllPredictionBySentimentScore(
                 page,
                 size,
-                true
+                true,
+                param
             )
 
             "volatility" -> predictionExposedRepository.findAllPredictionByVolatility(
                 page,
-                size
+                size,
+                param
             )
 
             else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")

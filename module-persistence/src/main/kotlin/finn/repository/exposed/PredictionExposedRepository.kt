@@ -3,12 +3,13 @@ package finn.repository.exposed
 import finn.entity.PredictionExposed
 import finn.entity.TickerScore
 import finn.exception.CriticalDataOmittedException
+import finn.exception.CriticalDataPollutedException
 import finn.paging.PageResponse
+import finn.queryDto.ArticleTitleQueryDto
 import finn.queryDto.PredictionDetailQueryDto
+import finn.queryDto.PredictionListGraphDataQueryDto
 import finn.queryDto.PredictionQueryDto
-import finn.table.PredictionTable
-import finn.table.TickerPriceTable
-import finn.table.TickerTable
+import finn.table.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -52,25 +53,11 @@ class PredictionExposedRepository {
         }
     }
 
-    private data class PredictionQueryDtoImpl(
-        val predictionDate: LocalDateTime,
-        val tickerId: UUID,
-        val shortCompanyName: String,
-        val tickerCode: String,
-        val predictionStrategy: String,
-        val sentiment: Int,
-        val articleCount: Long
-    ) : PredictionQueryDto {
-        override fun predictionDate(): LocalDateTime = this.predictionDate
-        override fun tickerId(): UUID = this.tickerId
-        override fun shortCompanyName(): String = this.shortCompanyName
-        override fun tickerCode(): String = this.tickerCode
-        override fun predictionStrategy(): String = this.predictionStrategy
-        override fun sentiment(): Int = this.sentiment
-        override fun articleCount(): Long = this.articleCount
-    }
-
-    fun findAllPredictionByPopular(page: Int, size: Int): PageResponse<PredictionQueryDto> {
+    fun findAllPredictionByPopular(
+        page: Int,
+        size: Int,
+        param: String?
+    ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -104,16 +91,22 @@ class PredictionExposedRepository {
                 else -> row[PredictionTable.neutralArticleCount] // 0
             }
 
-            PredictionQueryDtoImpl(
+            PredictionQueryDto(
                 predictionDate = row[PredictionTable.predictionDate],
                 tickerId = row[PredictionTable.tickerId],
                 shortCompanyName = row[PredictionTable.shortCompanyName],
                 tickerCode = row[PredictionTable.tickerCode],
                 predictionStrategy = row[PredictionTable.strategy],
                 sentiment = row[PredictionTable.sentiment],
-                articleCount = articleCount
+                articleCount = articleCount,
+                positiveKeywords = null,
+                negativeKeywords = null,
+                articleTitles = null,
+                graphData = null
             )
         }
+        param?.let { setParamData(param, results) }
+
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -125,10 +118,12 @@ class PredictionExposedRepository {
         )
     }
 
+
     fun findAllPredictionBySentimentScore(
         page: Int,
         size: Int,
-        isDownward: Boolean
+        isDownward: Boolean,
+        param: String?
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -160,16 +155,22 @@ class PredictionExposedRepository {
                 else -> row[PredictionTable.neutralArticleCount] // 0
             }
 
-            PredictionQueryDtoImpl(
+            PredictionQueryDto(
                 predictionDate = row[PredictionTable.predictionDate],
                 tickerId = row[PredictionTable.tickerId],
                 shortCompanyName = row[PredictionTable.shortCompanyName],
                 tickerCode = row[PredictionTable.tickerCode],
                 predictionStrategy = row[PredictionTable.strategy],
                 sentiment = row[PredictionTable.sentiment],
-                articleCount = articleCount
+                articleCount = articleCount,
+                positiveKeywords = null,
+                negativeKeywords = null,
+                articleTitles = null,
+                graphData = null
             )
         }
+        param?.let { setParamData(param, results) }
+
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -181,7 +182,11 @@ class PredictionExposedRepository {
         )
     }
 
-    fun findAllPredictionByVolatility(page: Int, size: Int): PageResponse<PredictionQueryDto> {
+    fun findAllPredictionByVolatility(
+        page: Int,
+        size: Int,
+        param: String?
+    ): PageResponse<PredictionQueryDto> {
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
             .select(maxDateExpression)
@@ -209,16 +214,22 @@ class PredictionExposedRepository {
                 else -> row[PredictionTable.neutralArticleCount] // 0
             }
 
-            PredictionQueryDtoImpl(
+            PredictionQueryDto(
                 predictionDate = row[PredictionTable.predictionDate],
                 tickerId = row[PredictionTable.tickerId],
                 shortCompanyName = row[PredictionTable.shortCompanyName],
                 tickerCode = row[PredictionTable.tickerCode],
                 predictionStrategy = row[PredictionTable.strategy],
                 sentiment = row[PredictionTable.sentiment],
-                articleCount = articleCount
+                articleCount = articleCount,
+                positiveKeywords = null,
+                negativeKeywords = null,
+                articleTitles = null,
+                graphData = null
             )
         }
+        param?.let { setParamData(param, results) }
+
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
@@ -228,38 +239,6 @@ class PredictionExposedRepository {
             size = content.size,
             hasNext = hasNext
         )
-    }
-
-    private data class PredictionDetailQueryDtoImpl(
-        val predictionDate: LocalDateTime,
-        val tickerId: UUID,
-        val shortCompanyName: String,
-        val tickerCode: String,
-        val predictionStrategy: String,
-        val sentiment: Int,
-        val articleCount: Long,
-        val sentimentScore: Int,
-        val priceDate: LocalDate,
-        val open: BigDecimal,
-        val close: BigDecimal,
-        val high: BigDecimal,
-        val low: BigDecimal,
-        val volume: Long
-    ) : PredictionDetailQueryDto {
-        override fun predictionDate(): LocalDateTime = this.predictionDate
-        override fun tickerId(): UUID = this.tickerId
-        override fun shortCompanyName(): String = this.shortCompanyName
-        override fun tickerCode(): String = this.tickerCode
-        override fun predictionStrategy(): String = this.predictionStrategy
-        override fun sentiment(): Int = this.sentiment
-        override fun articleCount(): Long = this.articleCount
-        override fun sentimentScore(): Int = this.sentimentScore
-        override fun priceDate(): LocalDate = this.priceDate
-        override fun open(): BigDecimal = this.open
-        override fun close(): BigDecimal = this.close
-        override fun high(): BigDecimal = this.high
-        override fun low(): BigDecimal = this.low
-        override fun volume(): Long = this.volume
     }
 
     fun findPredictionWithPriceInfoById(tickerId: UUID): PredictionDetailQueryDto {
@@ -313,7 +292,7 @@ class PredictionExposedRepository {
                     -1 -> row[PredictionTable.negativeArticleCount]
                     else -> row[PredictionTable.neutralArticleCount] // 0
                 }
-                PredictionDetailQueryDtoImpl(
+                PredictionDetailQueryDto(
                     predictionDate = row[PredictionTable.predictionDate],
                     tickerId = row[PredictionTable.tickerId],
                     shortCompanyName = row[PredictionTable.shortCompanyName],
@@ -427,4 +406,115 @@ class PredictionExposedRepository {
             }.singleOrNull()
             ?: throw CriticalDataOmittedException("${tickerId}의 전일 변동성 지표 값이 존재하지 않습니다.")
     }
+
+    /**
+     * key: tickerId, value: positiveKeywords, negativeKeywords
+     */
+    private fun findArticleSummaryKeywordsForPrediction(): Map<UUID, List<String?>> {
+        val result = ArticleSummaryTable.select(
+            ArticleSummaryTable.tickerId,
+            ArticleSummaryTable.positiveKeywords,
+            ArticleSummaryTable.negativeKeywords
+        ).where { ArticleSummaryTable.summaryDate.date() eq LocalDateTime.now().toLocalDate() }
+
+        return result.associate { row ->
+            row[ArticleSummaryTable.tickerId] to listOf(
+                row[ArticleSummaryTable.positiveKeywords],
+                row[ArticleSummaryTable.negativeKeywords]
+            )
+        }
+    }
+
+    private fun setParamData(
+        param: String,
+        results: List<PredictionQueryDto>
+    ) {
+        param.let {
+            when (param) {
+                "keyword" -> {
+                    val data = findArticleSummaryKeywordsForPrediction()
+                    results.forEach { dtoImpl ->
+                        val tickerId = dtoImpl.tickerId
+                        data[tickerId]?.let {
+                            dtoImpl.positiveKeywords = it[0]
+                            dtoImpl.negativeKeywords = it[1]
+                        }
+                    }
+                }
+
+                "article" -> {
+                    val data = findArticleTitlesForPrediction()
+                    results.forEach { dtoImpl ->
+                        val tickerId = dtoImpl.tickerId
+                        data[tickerId]?.let { it ->
+                            val articleList = it.map {
+                                ArticleTitleQueryDto(it.first, it.second)
+                            }.toList()
+                            dtoImpl.articleTitles = articleList
+                        }
+                    }
+                }
+
+                "graph" -> {
+                    val data = findGraphDataForPredictionWhenClosed()
+                    results.forEach { dtoImpl ->
+                        val tickerId = dtoImpl.tickerId
+                        data[tickerId]?.let {
+                            val graphData = PredictionListGraphDataQueryDto(false, it)
+                            dtoImpl.graphData = graphData
+                        }
+                    }
+                }
+
+                else -> throw CriticalDataPollutedException("지원하지 않는 파라미터 타입입니다.")
+            }
+        }
+    }
+
+    /**
+     * key: tickerId, value: List<Pair<title, articleId>>
+     */
+    private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
+        val result = ArticleTickerTable.select(
+            ArticleTickerTable.title,
+            ArticleTickerTable.articleId,
+            ArticleTickerTable.tickerId
+        ).where {
+            ArticleTickerTable.publishedDate.date() eq LocalDateTime.now().toLocalDate()
+        }
+
+        return result.groupBy(
+            keySelector = { row ->
+                row[ArticleTickerTable.tickerId]
+            },
+            // Value: Pair(ArticleId, Title) 리스트
+            valueTransform = { row ->
+                row[ArticleTickerTable.articleId] to row[ArticleTickerTable.title]
+            }
+        )
+    }
+
+    /**
+     * key: tickerId, value: List<BigDecimal>
+     */
+    // [TODO]: 장이 열렸울때 실시간 데이터 8개를 받아오는 쿼리 추가 구현(dynamoDBRepo 여기서 호출 혹은 impl에서 호출 방식 고민 필요)
+    private fun findGraphDataForPredictionWhenClosed(): Map<UUID, List<BigDecimal>> {
+        val startDate = LocalDate.now().minusDays(15)
+
+        val result = TickerPriceTable.select(
+            TickerPriceTable.tickerId,
+            TickerPriceTable.close
+        ).where { TickerPriceTable.priceDate.date() greaterEq startDate }
+            .orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
+
+        return result.groupBy(
+            keySelector = { row ->
+                row[TickerPriceTable.tickerId]
+            },
+            valueTransform = { row ->
+                row[TickerPriceTable.close]
+            }
+        )
+    }
+
 }
