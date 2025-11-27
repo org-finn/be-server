@@ -120,7 +120,6 @@ object ArticleSummaryTable : UUIDTable("article_summary") {
     val negativeReasoning = text("negative_reasoning").nullable()
     val positiveKeywords = varchar("positive_keywords", 100).nullable()
     val negativeKeywords = varchar("negative_keywords", 100).nullable()
-    val neutralKeywords = varchar("neutral_keywords", 100).nullable()
     val createdAt = datetime("created_at")
 
     init {
