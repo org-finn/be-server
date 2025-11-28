@@ -8,6 +8,7 @@ import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.repository.PredictionRepository
+import finn.repository.dynamodb.TickerPriceRealTimeDynamoDbRepository
 import finn.repository.exposed.PredictionExposedRepository
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
@@ -17,7 +18,7 @@ import java.util.*
 @Repository
 class PredictionRepositoryImpl(
     private val predictionExposedRepository: PredictionExposedRepository,
-    private val marketStatusRepositoryImpl: MarketStatusRepositoryImpl
+    private val tickerPriceRealTimeDynamoDbRepository: TickerPriceRealTimeDynamoDbRepository
 ) : PredictionRepository {
 
     override suspend fun save(
@@ -63,7 +64,10 @@ class PredictionRepositoryImpl(
         sort: String
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
-        predictionExposedRepository.setPredictionDataForParam("keyword", predictionExposedList.content)
+        predictionExposedRepository.setPredictionDataForParam(
+            "keyword",
+            predictionExposedList.content
+        )
 
         return PageResponse(
             predictionExposedList.content,
@@ -79,7 +83,10 @@ class PredictionRepositoryImpl(
         sort: String
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
-        predictionExposedRepository.setPredictionDataForParam("article", predictionExposedList.content)
+        predictionExposedRepository.setPredictionDataForParam(
+            "article",
+            predictionExposedList.content
+        )
 
         return PageResponse(
             predictionExposedList.content,
@@ -98,10 +105,14 @@ class PredictionRepositoryImpl(
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
 
         if (!isOpened) {
-            predictionExposedRepository.setPredictionDataForParam("graph", predictionExposedList.content)
-        }
-        else {
-
+            predictionExposedRepository.setPredictionDataForParam(
+                "graph",
+                predictionExposedList.content
+            )
+        } else {
+            predictionExposedList.content.forEach {
+                tickerPriceRealTimeDynamoDbRepository.setLatestRealTimeDataForPrediction(it)
+            }
         }
 
         return PageResponse(
