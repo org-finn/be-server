@@ -30,6 +30,14 @@ class LocalCacheConfig {
                 .maximumSize(100)
                 .build()
         )
+
+        cacheManager.registerCustomCache(
+            "marketStatus",
+            Caffeine.newBuilder()
+                .expireAfterWrite(30, TimeUnit.MINUTES)
+                .maximumSize(1)
+                .build()
+        )
         return cacheManager
     }
 }

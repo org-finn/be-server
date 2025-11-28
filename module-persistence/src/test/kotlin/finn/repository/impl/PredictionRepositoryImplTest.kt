@@ -115,11 +115,10 @@ internal class PredictionRepositoryImplTest(
     Given("getPredictionList 메서드에") {
         When("sort 파라미터가 'popular'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListDefault(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = null
                 )
             }
 
@@ -132,11 +131,10 @@ internal class PredictionRepositoryImplTest(
 
         When("sort 파라미터가 'upward'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListDefault(
                     page = 0,
                     size = 10,
                     sort = "upward",
-                    param = null
                 )
             }
 
@@ -148,11 +146,10 @@ internal class PredictionRepositoryImplTest(
 
         When("sort 파라미터가 'downward'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListDefault(
                     page = 0,
                     size = 10,
                     sort = "downward",
-                    param = null
                 )
             }
 
@@ -169,11 +166,10 @@ internal class PredictionRepositoryImplTest(
                 // shouldThrow 블록 안에서 예외가 발생하면 테스트 성공
                 shouldThrow<CriticalDataPollutedException> {
                     transaction {
-                        predictionRepository.getPredictionList(
+                        predictionRepository.getPredictionListDefault(
                             page = 0,
                             size = 10,
                             sort = invalidSort,
-                            param = null
                         )
                     }
                 }
@@ -200,11 +196,10 @@ internal class PredictionRepositoryImplTest(
             }
 
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListWithKeyword(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = keywordParam
                 )
             }
 
@@ -245,11 +240,10 @@ internal class PredictionRepositoryImplTest(
             }
 
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListWithArticle(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = articleParam
                 )
             }
 
@@ -265,7 +259,7 @@ internal class PredictionRepositoryImplTest(
             }
         }
 
-        When("param 파라미터가 'graph'일 때") {
+        When("param 파라미터가 'graph'일 때(비 정규장)") {
             val graphParam = "graph"
 
             // 주가 데이터 준비 (최근 15일 이내 데이터)
@@ -299,11 +293,11 @@ internal class PredictionRepositoryImplTest(
             }
 
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListWithGraph(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = graphParam
+                    isOpened = false
                 )
             }
 
@@ -319,20 +313,6 @@ internal class PredictionRepositoryImplTest(
                 // Repository 쿼리: orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
                 priceData[0] shouldBe BigDecimal("150.0000") // 어제 (최신)
                 priceData[1] shouldBe BigDecimal("145.0000") // 3일 전
-            }
-        }
-
-        When("param 파라미터가 지원하지 않는 값일 때") {
-            val invalidParam = "invalid_param_type"
-
-            Then("CriticalDataPollutedException 예외가 발생해야 한다") {
-                shouldThrow<CriticalDataPollutedException> {
-                    transaction {
-                        predictionRepository.getPredictionList(
-                            page = 0, size = 10, sort = "popular", param = invalidParam
-                        )
-                    }
-                }
             }
         }
     }
