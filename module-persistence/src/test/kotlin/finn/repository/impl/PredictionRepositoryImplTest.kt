@@ -259,7 +259,7 @@ internal class PredictionRepositoryImplTest(
             }
         }
 
-        When("param 파라미터가 'graph'일 때") {
+        When("param 파라미터가 'graph'일 때(비 정규장)") {
             val graphParam = "graph"
 
             // 주가 데이터 준비 (최근 15일 이내 데이터)
@@ -297,6 +297,7 @@ internal class PredictionRepositoryImplTest(
                     page = 0,
                     size = 10,
                     sort = "popular",
+                    isOpened = false
                 )
             }
 

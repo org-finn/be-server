@@ -35,15 +35,23 @@ class MarketStatus private constructor(
         }
 
         fun checkIsOpened(marketStatus: MarketStatus?, clock: Clock): Boolean {
-            if (marketStatus == null) {
+            // 1. 개장 시간 문자열 결정
+            val targetTradingHours: String = if (marketStatus == null) {
+                // marketStatus가 null인 경우: 풀 개장일로 간주(서머타임 변수가 고려된 한국 시간(KST)의 개장 시간을 가져옴)
+                getTradingHours()
+            } else if (marketStatus.tradingHours == getClosedDayTradingHours()) { // 명시적으로 휴장일("휴장")인 경우 닫힘
                 return false
+            } else {
+                // DB에서 가져온 MarketStatus의 TradingHours 사용
+                marketStatus.tradingHours
             }
 
+            // --- TradingHours 파싱 및 유효성 검증 ---
+
             // tradingHours 문자열 (예: "09:00~14:00")에서 시각 정보 파싱
-            val hoursString = marketStatus.tradingHours.split("~")
+            val hoursString = targetTradingHours.split("~")
             if (hoursString.size != 2) {
-                // 형식이 올바르지 않은 경우 (예: 예외 처리)
-                throw DomainPolicyViolationException("유효하지 않은 TradingHours 형식입니다. DB를 확인해주세요.")
+                throw DomainPolicyViolationException("유효하지 않은 TradingHours 형식입니다. DB를 확인해주세요. (Value: $targetTradingHours)")
             }
 
             val formatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -52,27 +60,27 @@ class MarketStatus private constructor(
             val closeTime: LocalTime
 
             try {
-                // LocalTime 객체로 변환
                 openTime = LocalTime.parse(hoursString[0].trim(), formatter)
                 closeTime = LocalTime.parse(hoursString[1].trim(), formatter)
             } catch (e: Exception) {
                 throw DomainPolicyViolationException("유효하지 않은 TradingHours 형식입니다. DB를 확인해주세요.")
             }
 
+            // --- 개장 시간 검증 로직 ---
+
             // 현재 시각의 시간(Hour)과 분(Minute) 정보만 추출
+            // clock을 사용하여 현재 시각을 고정하고 LocalTime으로 변환
             val curTime = LocalDateTime.now(clock).toLocalTime()
 
-            // 오픈 시각 <= 현재 시각 <= 클로즈드 시각인지 체크
+            // 오픈 시각 <= 현재 시각 < 클로즈드 시각인지 체크
             return if (openTime.isBefore(closeTime)) {
                 // 일반적인 경우 (예: 09:00~14:00)
-                (curTime.equals(openTime) || curTime.isAfter(openTime)) && (curTime.equals(openTime) || curTime.isBefore(
-                    closeTime
-                ))
+                // curTime >= openTime && curTime < closeTime
+                !curTime.isBefore(openTime) && curTime.isBefore(closeTime)
             } else {
-                // 자정을 넘어가는 경우 (예: 22:00~03:00)
-                (curTime.equals(openTime) || curTime.isAfter(openTime)) || (curTime.equals(openTime) || curTime.isBefore(
-                    closeTime
-                ))
+                // 자정을 넘어가는 경우 (예: 22:30~05:00)
+                // curTime >= openTime || curTime < closeTime
+                !curTime.isBefore(openTime) || curTime.isBefore(closeTime)
             }
         }
     }
