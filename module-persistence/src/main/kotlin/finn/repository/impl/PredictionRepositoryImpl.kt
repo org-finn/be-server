@@ -11,15 +11,13 @@ import finn.repository.PredictionRepository
 import finn.repository.exposed.PredictionExposedRepository
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
-import java.time.Clock
 import java.time.LocalDateTime
 import java.util.*
 
 @Repository
 class PredictionRepositoryImpl(
     private val predictionExposedRepository: PredictionExposedRepository,
-    private val marketStatusRepositoryImpl: MarketStatusRepositoryImpl,
-    private val clock: Clock
+    private val marketStatusRepositoryImpl: MarketStatusRepositoryImpl
 ) : PredictionRepository {
 
     override suspend fun save(
@@ -94,10 +92,17 @@ class PredictionRepositoryImpl(
     override fun getPredictionListWithGraph(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        isOpened: Boolean
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
-        predictionExposedRepository.setPredictionDataForParam("graph", predictionExposedList.content)
+
+        if (!isOpened) {
+            predictionExposedRepository.setPredictionDataForParam("graph", predictionExposedList.content)
+        }
+        else {
+
+        }
 
         return PageResponse(
             predictionExposedList.content,

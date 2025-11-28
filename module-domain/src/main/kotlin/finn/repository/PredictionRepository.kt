@@ -45,7 +45,8 @@ interface PredictionRepository {
     fun getPredictionListWithGraph(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        isOpened: Boolean
     ): PageResponse<PredictionQueryDto>
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto
