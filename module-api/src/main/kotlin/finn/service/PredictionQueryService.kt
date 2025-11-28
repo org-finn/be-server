@@ -1,6 +1,7 @@
 package finn.service
 
 import finn.entity.TickerScore
+import finn.exception.DomainPolicyViolationException
 import finn.paging.PageResponse
 import finn.paging.PredictionPageRequest
 import finn.queryDto.PredictionDetailQueryDto
@@ -14,12 +15,33 @@ import java.util.*
 class PredictionQueryService(private val predictionRepository: PredictionRepository) {
 
     fun getPredictionList(pageRequest: PredictionPageRequest): PageResponse<PredictionQueryDto> {
-        return predictionRepository.getPredictionList(
-            pageRequest.page,
-            pageRequest.size,
-            pageRequest.sort,
-            pageRequest.param
-        )
+        return when (pageRequest.param) {
+            "keyword" -> predictionRepository.getPredictionListWithArticle(
+                pageRequest.page,
+                pageRequest.size,
+                pageRequest.sort
+            )
+
+            "article" -> predictionRepository.getPredictionListWithArticle(
+                pageRequest.page,
+                pageRequest.size,
+                pageRequest.sort
+            )
+
+            "graph" -> predictionRepository.getPredictionListWithGraph(
+                pageRequest.page,
+                pageRequest.size,
+                pageRequest.sort
+            )
+
+            null -> predictionRepository.getPredictionListDefault(
+                pageRequest.page,
+                pageRequest.size,
+                pageRequest.sort
+            )
+
+            else -> throw DomainPolicyViolationException("지원하지 않는 param 옵셥입니다.")
+        }
     }
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {

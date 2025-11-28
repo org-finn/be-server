@@ -3,7 +3,6 @@ package finn.repository.impl
 import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
 import finn.entity.query.PredictionStrategy
-import finn.exception.CriticalDataPollutedException
 import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
@@ -12,12 +11,15 @@ import finn.repository.PredictionRepository
 import finn.repository.exposed.PredictionExposedRepository
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.LocalDateTime
 import java.util.*
 
 @Repository
 class PredictionRepositoryImpl(
-    private val predictionExposedRepository: PredictionExposedRepository
+    private val predictionExposedRepository: PredictionExposedRepository,
+    private val marketStatusRepositoryImpl: MarketStatusRepositoryImpl,
+    private val clock: Clock
 ) : PredictionRepository {
 
     override suspend fun save(
@@ -42,41 +44,61 @@ class PredictionRepositoryImpl(
         )
     }
 
-    override fun getPredictionList(
+    override fun getPredictionListDefault(
         page: Int,
         size: Int,
-        sort: String,
-        param: String?
+        sort: String
     ): PageResponse<PredictionQueryDto> {
-        val predictionExposedList = when (sort) {
-            "popular" -> predictionExposedRepository.findAllPredictionByPopular(
-                page,
-                size,
-                param
-            )
+        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
 
-            "upward" -> predictionExposedRepository.findAllPredictionBySentimentScore(
-                page,
-                size,
-                false,
-                param
-            )
+        return PageResponse(
+            predictionExposedList.content,
+            page,
+            size,
+            predictionExposedList.hasNext
+        )
+    }
 
-            "downward" -> predictionExposedRepository.findAllPredictionBySentimentScore(
-                page,
-                size,
-                true,
-                param
-            )
+    override fun getPredictionListWithKeyword(
+        page: Int,
+        size: Int,
+        sort: String
+    ): PageResponse<PredictionQueryDto> {
+        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
+        predictionExposedRepository.setPredictionDataForParam("keyword", predictionExposedList.content)
 
-            "volatility" -> predictionExposedRepository.findAllPredictionByVolatility(
-                page,
-                size,
-                param
-            )
+        return PageResponse(
+            predictionExposedList.content,
+            page,
+            size,
+            predictionExposedList.hasNext
+        )
+    }
 
-            else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
-        }
+    override fun getPredictionListWithArticle(
+        page: Int,
+        size: Int,
+        sort: String
+    ): PageResponse<PredictionQueryDto> {
+        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
+        predictionExposedRepository.setPredictionDataForParam("article", predictionExposedList.content)
+
+        return PageResponse(
+            predictionExposedList.content,
+            page,
+            size,
+            predictionExposedList.hasNext
+        )
+    }
+
+    override fun getPredictionListWithGraph(
+        page: Int,
+        size: Int,
+        sort: String
+    ): PageResponse<PredictionQueryDto> {
+        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
+        predictionExposedRepository.setPredictionDataForParam("graph", predictionExposedList.content)
+
         return PageResponse(
             predictionExposedList.content,
             page,

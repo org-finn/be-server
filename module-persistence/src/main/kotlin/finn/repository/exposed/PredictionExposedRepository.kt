@@ -16,16 +16,13 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.javatime.date
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
-import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
 @Repository
-class PredictionExposedRepository(
-    private val clock: Clock = Clock.system(ZoneId.of("UTC")),
-) {
+class PredictionExposedRepository {
     companion object {
         private val log = KotlinLogging.logger {}
     }
@@ -56,10 +53,44 @@ class PredictionExposedRepository(
         }
     }
 
-    fun findAllPredictionByPopular(
+    fun findAllPrediction(
         page: Int,
         size: Int,
-        param: String?
+        sort: String
+    ): PageResponse<PredictionQueryDto> {
+
+        val predictionExposedList = when (sort) {
+            "popular" -> findAllPredictionByPopular(
+                page,
+                size
+            )
+
+            "upward" -> findAllPredictionBySentimentScore(
+                page,
+                size,
+                false
+            )
+
+            "downward" -> findAllPredictionBySentimentScore(
+                page,
+                size,
+                true
+            )
+
+            "volatility" -> findAllPredictionByVolatility(
+                page,
+                size
+            )
+
+            else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
+        }
+
+        return predictionExposedList
+    }
+
+    private fun findAllPredictionByPopular(
+        page: Int,
+        size: Int,
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -108,7 +139,6 @@ class PredictionExposedRepository(
                 graphData = null
             )
         }
-        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -122,11 +152,10 @@ class PredictionExposedRepository(
     }
 
 
-    fun findAllPredictionBySentimentScore(
+    private fun findAllPredictionBySentimentScore(
         page: Int,
         size: Int,
         isDownward: Boolean,
-        param: String?
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -172,7 +201,6 @@ class PredictionExposedRepository(
                 graphData = null
             )
         }
-        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -185,10 +213,9 @@ class PredictionExposedRepository(
         )
     }
 
-    fun findAllPredictionByVolatility(
+    private fun findAllPredictionByVolatility(
         page: Int,
         size: Int,
-        param: String?
     ): PageResponse<PredictionQueryDto> {
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -231,7 +258,6 @@ class PredictionExposedRepository(
                 graphData = null
             )
         }
-        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -431,7 +457,7 @@ class PredictionExposedRepository(
         }
     }
 
-    private fun setParamData(
+    fun setPredictionDataForParam(
         param: String,
         results: List<PredictionQueryDto>
     ) {
