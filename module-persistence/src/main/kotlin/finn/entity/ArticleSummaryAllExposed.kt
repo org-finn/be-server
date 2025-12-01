@@ -8,9 +8,9 @@ import java.util.*
 
 class ArticleSummaryAllExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<ArticleSummaryAllExposed>(ArticleSummaryAllTable)
-    var summaryDate = ArticleSummaryAllTable.summaryDate
-    var positiveReasoning = ArticleSummaryAllTable.positiveReasoning
-    var negativeReasoning = ArticleSummaryAllTable.negativeReasoning
-    var positiveKeywords = ArticleSummaryAllTable.positiveKeywords
-    var negativeKeywords = ArticleSummaryAllTable.negativeKeywords
+    var summaryDate by ArticleSummaryAllTable.summaryDate
+    var positiveReasoning by ArticleSummaryAllTable.positiveReasoning
+    var negativeReasoning by ArticleSummaryAllTable.negativeReasoning
+    var positiveKeywords by ArticleSummaryAllTable.positiveKeywords
+    var negativeKeywords by ArticleSummaryAllTable.negativeKeywords
 }
