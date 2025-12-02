@@ -12,19 +12,22 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-@SpringBootTest(classes = [TestApplication::class])
+@SpringBootTest(classes = [TestApplication::class, ArticleSummaryRepositoryImplTest.TestClockConfig::class])
 class ArticleSummaryRepositoryImplTest(
     private val repository: ArticleSummaryRepository
 ) : BehaviorSpec({
 
     // 1. 테스트용 고정 시간 설정 (2025-12-01)
     val fixedInstant = Instant.parse("2025-12-01T00:00:00Z")
-    val zoneId = ZoneId.of("Asia/Seoul")
+    val zoneId = ZoneId.of("UTC")
     val fixedClock = Clock.fixed(fixedInstant, zoneId)
 
     // 4. 각 테스트 케이스 실행 전/후 스키마 관리
@@ -116,4 +119,14 @@ class ArticleSummaryRepositoryImplTest(
             }
         }
     }
-})
+}) {
+    // [핵심] 테스트 전용 설정 클래스: Clock 빈을 재정의
+    @TestConfiguration
+    class TestClockConfig {
+        @Bean
+        @Primary // 실제 애플리케이션의 Clock 빈보다 우선적으로 사용됨
+        fun fixedClock(): Clock {
+            return Clock.fixed(Instant.parse("2025-12-01T00:00:00Z"), ZoneId.of("UTC"))
+        }
+    }
+}
