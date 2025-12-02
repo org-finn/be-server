@@ -39,7 +39,8 @@ class PredictionQueryService(
             "graph" -> {
                 val marketStatus =
                     marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
-                val isOpened = MarketStatus.checkIsOpened(marketStatus, clock)
+                val isOpened =
+                    MarketStatus.checkIsOpened(marketStatus, clock)
 
                 predictionRepository.getPredictionListWithGraph(
                     pageRequest.page,

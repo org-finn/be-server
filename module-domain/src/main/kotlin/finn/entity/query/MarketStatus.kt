@@ -1,6 +1,6 @@
 package finn.entity.query
 
-import finn.converter.getTradingHours
+import finn.converter.BusinessDayLocalizer.Companion.getTradingHours
 import finn.exception.DomainPolicyViolationException
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -34,10 +34,11 @@ class MarketStatus private constructor(
             return "휴장"
         }
 
+
         fun checkIsOpened(marketStatus: MarketStatus?, clock: Clock): Boolean {
-            // 1. 개장 시간 문자열 결정
-            val targetTradingHours: String = if (marketStatus == null) {
-                // marketStatus가 null인 경우: 풀 개장일로 간주(서머타임 변수가 고려된 한국 시간(KST)의 개장 시간을 가져옴)
+            // 1. 개장 시간 문자열 결정 (KST 기준)
+            val targetTradingHoursKST: String = if (marketStatus == null) {
+                // marketStatus가 null인 경우: 풀 개장일로 간주
                 getTradingHours()
             } else if (marketStatus.tradingHours == getClosedDayTradingHours()) { // 명시적으로 휴장일("휴장")인 경우 닫힘
                 return false
@@ -49,38 +50,55 @@ class MarketStatus private constructor(
             // --- TradingHours 파싱 및 유효성 검증 ---
 
             // tradingHours 문자열 (예: "09:00~14:00")에서 시각 정보 파싱
-            val hoursString = targetTradingHours.split("~")
-            if (hoursString.size != 2) {
-                throw DomainPolicyViolationException("유효하지 않은 TradingHours 형식입니다. DB를 확인해주세요. (Value: $targetTradingHours)")
+            val hoursStringKST = targetTradingHoursKST.split("~")
+            if (hoursStringKST.size != 2) {
+                throw DomainPolicyViolationException("유효하지 않은 TradingHours 형식입니다. DB를 확인해주세요. (Value: $targetTradingHoursKST)")
             }
 
             val formatter = DateTimeFormatter.ofPattern("HH:mm")
 
-            val openTime: LocalTime
-            val closeTime: LocalTime
+            val openTimeKst: LocalTime
+            val closeTimeKst: LocalTime
 
             try {
-                openTime = LocalTime.parse(hoursString[0].trim(), formatter)
-                closeTime = LocalTime.parse(hoursString[1].trim(), formatter)
+                openTimeKst = LocalTime.parse(hoursStringKST[0].trim(), formatter)
+                closeTimeKst = LocalTime.parse(hoursStringKST[1].trim(), formatter)
             } catch (e: Exception) {
                 throw DomainPolicyViolationException("유효하지 않은 TradingHours 형식입니다. DB를 확인해주세요.")
             }
 
-            // --- 개장 시간 검증 로직 ---
+            // --- KST -> UTC 변환 및 검증 로직 ---
 
-            // 현재 시각의 시간(Hour)과 분(Minute) 정보만 추출
-            // clock을 사용하여 현재 시각을 고정하고 LocalTime으로 변환
-            val curTime = LocalDateTime.now(clock).toLocalTime()
+            val kstZone = ZoneId.of("Asia/Seoul")
+
+            // clock은 이미 UTC 기준이라고 가정하지만, 안전을 위해 clock.zone을 사용하거나 명시적으로 UTC 변환
+            // 여기서는 clock의 타임존을 그대로 따르도록 clock.zone을 사용합니다.
+            // 만약 clock이 UTC라면 utcZone은 ZoneId.of("UTC")가 됩니다.
+            val currentZone = clock.zone
+
+            // KST 기준의 오늘 날짜를 구함 (개장 시간 기준일을 맞추기 위함)
+            // 주의: 현재 시각(UTC)을 KST로 변환했을 때의 날짜를 기준으로 해야 함
+            val todayKst = LocalDate.now(clock.withZone(kstZone))
+
+            // KST ZonedDateTime 생성 (오늘 날짜 + 파싱된 KST 시간)
+            val openZdtKst = ZonedDateTime.of(todayKst, openTimeKst, kstZone)
+            val closeZdtKst = ZonedDateTime.of(todayKst, closeTimeKst, kstZone)
+
+            // 현재 clock의 타임존(UTC)으로 변환된 LocalTime 추출
+            val openTimeCurrentZone = openZdtKst.withZoneSameInstant(currentZone).toLocalTime()
+            val closeTimeCurrentZone = closeZdtKst.withZoneSameInstant(currentZone).toLocalTime()
+
+            // 현재 시각 (clock 기준)
+            val curTime = LocalTime.now(clock)
 
             // 오픈 시각 <= 현재 시각 < 클로즈드 시각인지 체크
-            return if (openTime.isBefore(closeTime)) {
-                // 일반적인 경우 (예: 09:00~14:00)
-                // curTime >= openTime && curTime < closeTime
-                !curTime.isBefore(openTime) && curTime.isBefore(closeTime)
+            // 날짜가 넘어가는 경우(예: UTC로 변환했더니 23:00 ~ 05:00이 된 경우)를 처리하기 위해 로직 분기
+            return if (openTimeCurrentZone.isBefore(closeTimeCurrentZone)) {
+                // 일반적인 경우 (예: 00:00 ~ 06:30) -> AND 조건
+                !curTime.isBefore(openTimeCurrentZone) && curTime.isBefore(closeTimeCurrentZone)
             } else {
-                // 자정을 넘어가는 경우 (예: 22:30~05:00)
-                // curTime >= openTime || curTime < closeTime
-                !curTime.isBefore(openTime) || curTime.isBefore(closeTime)
+                // 자정을 넘어가는 경우 (예: 22:30 ~ 05:00) -> OR 조건
+                !curTime.isBefore(openTimeCurrentZone) || curTime.isBefore(closeTimeCurrentZone)
             }
         }
     }
