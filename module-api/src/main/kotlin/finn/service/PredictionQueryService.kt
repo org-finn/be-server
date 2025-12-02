@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
-import java.time.ZoneId
 import java.util.*
 
 @Service
@@ -41,7 +40,7 @@ class PredictionQueryService(
                 val marketStatus =
                     marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
                 val isOpened =
-                    MarketStatus.checkIsOpened(marketStatus, Clock.system(ZoneId.of("Asia/Seoul")))
+                    MarketStatus.checkIsOpened(marketStatus, clock)
 
                 predictionRepository.getPredictionListWithGraph(
                     pageRequest.page,
