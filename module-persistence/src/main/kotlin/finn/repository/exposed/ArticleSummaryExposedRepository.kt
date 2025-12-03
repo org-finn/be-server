@@ -19,7 +19,7 @@ class ArticleSummaryExposedRepository(
                 ArticleSummaryAllTable.summaryDate.date() greaterEq LocalDate.now(clock)
             }
             .limit(1)
-            .singleOrNull()
+            .firstOrNull()
             ?: throw CriticalDataOmittedException("금일 날짜로 생성된 종합 뉴스 데이터를 찾을 수 없습니다.")
     }
 }

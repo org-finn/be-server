@@ -12,6 +12,6 @@ class MarketStatusExposedRepository {
     fun findMarketStatusByDate(today: LocalDate): MarketStatusExposed? {
         return MarketStatusExposed.find(
             MarketStatusTable.date eq today
-        ).singleOrNull()
+        ).firstOrNull()
     }
 }

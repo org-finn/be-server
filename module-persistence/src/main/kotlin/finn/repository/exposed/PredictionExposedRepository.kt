@@ -337,7 +337,7 @@ class PredictionExposedRepository {
                     low = row[TickerPriceTable.low],
                     volume = row[TickerPriceTable.volume]
                 )
-            }.singleOrNull()
+            }.firstOrNull()
             ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 
@@ -405,7 +405,7 @@ class PredictionExposedRepository {
             }
             .map { row ->
                 row[PredictionTable.score]
-            }.singleOrNull()
+            }.firstOrNull()
             ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 
@@ -432,7 +432,7 @@ class PredictionExposedRepository {
             .limit(1)
             .map {
                 it[PredictionTable.volatility]
-            }.singleOrNull()
+            }.firstOrNull()
             ?: throw CriticalDataOmittedException("${tickerId}의 전일 변동성 지표 값이 존재하지 않습니다.")
     }
 

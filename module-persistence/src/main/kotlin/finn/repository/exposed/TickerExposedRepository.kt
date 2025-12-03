@@ -69,7 +69,7 @@ class TickerExposedRepository {
             .limit(1, offset = 1) // 1개만 가져오되, 1개를 건너뜀 (즉, 2번째 행)
             .map {
                 it[TickerPriceTable.atr]
-            }.singleOrNull()
+            }.firstOrNull()
             ?: throw CriticalDataOmittedException("최근 ${tickerId}의 ATR이 존재하지 않습니다.")
     }
 
