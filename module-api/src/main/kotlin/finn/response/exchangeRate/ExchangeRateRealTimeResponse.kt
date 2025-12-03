@@ -4,6 +4,7 @@ import java.math.BigDecimal
 
 data class ExchangeRateRealTimeResponse(
     val date: String,
+    val indexCode: String,
     val indexInfo: String,
     val value: BigDecimal,
     val changeRate: BigDecimal

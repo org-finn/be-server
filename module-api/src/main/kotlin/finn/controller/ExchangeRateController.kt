@@ -11,8 +11,8 @@ class ExchangeRateController(
     private val exchangeRateOrchestrator: ExchangeRateOrchestrator
 ) : ExchangeRateApiSpec {
 
-    override fun getExchangeRateRealTime(): SuccessResponse<ExchangeRateRealTimeResponse> {
-        val response = exchangeRateOrchestrator.getExchangeRateRealTime()
+    override fun getExchangeRateRealTime(indexCode: String): SuccessResponse<ExchangeRateRealTimeResponse> {
+        val response = exchangeRateOrchestrator.getExchangeRateRealTime(indexCode)
         return SuccessResponse("200 OK", "실시간 환율 조회에 성공하였습니다.", response)
     }
 }
