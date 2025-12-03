@@ -142,6 +142,7 @@ object ExchangeRateTable : UUIDTable("exchange_rate") {
     val date = datetime( "date")
     val indexCode = varchar("index_code", 30) // C01
     val indexInfo = varchar("index_info", 50) // 원/달러
+    val value = decimal("value", 10, 4)
     val changeRate = decimal("change_rate", 10, 4).nullable()
     val createdAt = datetime("created_at")
 }

@@ -10,7 +10,9 @@ class ExchangeRateExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<ExchangeRateExposed>(ExchangeRateTable)
 
     var date by ExchangeRateTable.date
+    var indexCode by ExchangeRateTable.indexCode
     var indexInfo by ExchangeRateTable.indexInfo
+    var value by ExchangeRateTable.value
     var changeRate by ExchangeRateTable.changeRate
     var createdAt by ExchangeRateTable.createdAt
 }

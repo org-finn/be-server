@@ -101,7 +101,7 @@ class ArticleExposedRepository {
     fun findArticleDetailById(articleId: UUID): ArticleDetailQueryDto {
         val article = ArticleTable.selectAll()
             .where { ArticleTable.id eq articleId }
-            .singleOrNull()
+            .firstOrNull()
 
         val tickers = ArticleTickerTable.select(
             ArticleTickerTable.shortCompanyName,
