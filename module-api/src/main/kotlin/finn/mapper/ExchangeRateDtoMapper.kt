@@ -8,7 +8,7 @@ class ExchangeRateDtoMapper {
     companion object {
         fun toDto(exchangeRate: ExchangeRate): ExchangeRateRealTimeResponse {
             return ExchangeRateRealTimeResponse(
-                exchangeRate.toString(), exchangeRate.indexCode,
+                exchangeRate.date.toString(), exchangeRate.indexCode,
                 exchangeRate.indexInfo, exchangeRate.value, exchangeRate.changeRate
             )
         }
