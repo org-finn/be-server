@@ -15,4 +15,5 @@ class ExchangeRateExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var value by ExchangeRateTable.value
     var changeRate by ExchangeRateTable.changeRate
     var createdAt by ExchangeRateTable.createdAt
+    var updatedAt by ExchangeRateTable.updatedAt
 }

@@ -145,4 +145,5 @@ object ExchangeRateTable : UUIDTable("exchange_rate") {
     val value = decimal("value", 10, 4)
     val changeRate = decimal("change_rate", 10, 4)
     val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
 }
