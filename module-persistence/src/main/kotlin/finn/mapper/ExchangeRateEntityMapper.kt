@@ -2,7 +2,6 @@ package finn.mapper
 
 import finn.entity.ExchangeRate
 import finn.entity.ExchangeRateExposed
-import java.math.BigDecimal
 
 fun toDomain(exchangeRateExposed: ExchangeRateExposed): ExchangeRate {
     return ExchangeRate.create(
@@ -10,6 +9,6 @@ fun toDomain(exchangeRateExposed: ExchangeRateExposed): ExchangeRate {
         exchangeRateExposed.indexCode,
         exchangeRateExposed.indexInfo,
         exchangeRateExposed.value,
-        exchangeRateExposed.changeRate ?: BigDecimal.ZERO
+        exchangeRateExposed.changeRate
     )
 }
