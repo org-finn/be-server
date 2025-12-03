@@ -137,3 +137,10 @@ object ArticleSummaryAllTable : UUIDTable("article_summary_all") {
     val negativeKeywords = varchar("negative_keywords", 100).nullable()
     val createdAt = datetime("created_at")
 }
+
+object ExchangeRateTable : UUIDTable("exchange_rate") {
+    val date = datetime( "date")
+    val indexInfo = varchar("index_info", 50)
+    val changeRate = decimal("change_rate", 10, 4).nullable()
+    val createdAt = datetime("created_at")
+}

@@ -23,7 +23,8 @@ class DatabaseInitializer : ApplicationRunner {
                 MarketStatusTable,
                 ArticleTickerTable,
                 ArticleSummaryTable,
-                ArticleSummaryAllTable
+                ArticleSummaryAllTable,
+                ExchangeRateTable
             )
 
         // transaction 블록 안에서 테이블 생성을 시도합니다.
