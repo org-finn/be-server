@@ -21,6 +21,6 @@ interface ArticleSummaryApiSpec {
             description = "뉴스 목록을 성공적으로 조회하였습니다."
         )]
     )
-    @GetMapping
+    @GetMapping("/all")
     fun getArticleSummaryForAll(): SuccessResponse<ArticleSummaryAllResponse>
 }
