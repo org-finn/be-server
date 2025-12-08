@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -29,7 +30,7 @@ internal class PredictionRepositoryImplTest(
 
     val ticker1Id = UUID.randomUUID()
     val ticker2Id = UUID.randomUUID()
-    val latestDate = LocalDateTime.now(ZoneId.of("America/New_York"))
+    val latestDate = LocalDateTime.now(ZoneId.of("UTC"))
 
     beforeTest {
         transaction {
@@ -114,11 +115,10 @@ internal class PredictionRepositoryImplTest(
     Given("getPredictionList 메서드에") {
         When("sort 파라미터가 'popular'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListDefault(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = null
                 )
             }
 
@@ -131,11 +131,10 @@ internal class PredictionRepositoryImplTest(
 
         When("sort 파라미터가 'upward'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListDefault(
                     page = 0,
                     size = 10,
                     sort = "upward",
-                    param = null
                 )
             }
 
@@ -147,11 +146,10 @@ internal class PredictionRepositoryImplTest(
 
         When("sort 파라미터가 'downward'일 때") {
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListDefault(
                     page = 0,
                     size = 10,
                     sort = "downward",
-                    param = null
                 )
             }
 
@@ -168,11 +166,10 @@ internal class PredictionRepositoryImplTest(
                 // shouldThrow 블록 안에서 예외가 발생하면 테스트 성공
                 shouldThrow<CriticalDataPollutedException> {
                     transaction {
-                        predictionRepository.getPredictionList(
+                        predictionRepository.getPredictionListDefault(
                             page = 0,
                             size = 10,
                             sort = invalidSort,
-                            param = null
                         )
                     }
                 }
@@ -193,17 +190,16 @@ internal class PredictionRepositoryImplTest(
                     it[positiveKeywords] = "호재,상승,기대"
                     it[negativeKeywords] = "우려,하락"
                     it[shortCompanyName] = "Company B"
-                    it[summaryDate] = LocalDateTime.now() // 쿼리 조건: 오늘 날짜
+                    it[summaryDate] = LocalDateTime.now(ZoneId.of("UTC")) // 쿼리 조건: 오늘 날짜
                     it[createdAt] = LocalDateTime.now()
                 }
             }
 
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListWithKeyword(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = keywordParam
                 )
             }
 
@@ -237,17 +233,17 @@ internal class PredictionRepositoryImplTest(
                     it[tickerCode] = "tickerCode"
                     it[shortCompanyName] = "Company B"
                     it[title] = article1Title
-                    it[publishedDate] = Instant.now() // 쿼리 조건: 오늘 날짜
+                    it[titleKr] = article1Title
+                    it[publishedDate] = Instant.now(Clock.system(ZoneId.of("UTC"))) // 쿼리 조건: 오늘 날짜
                     it[createdAt] = LocalDateTime.now()
                 }
             }
 
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListWithArticle(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = articleParam
                 )
             }
 
@@ -263,7 +259,7 @@ internal class PredictionRepositoryImplTest(
             }
         }
 
-        When("param 파라미터가 'graph'일 때") {
+        When("param 파라미터가 'graph'일 때(비 정규장)") {
             val graphParam = "graph"
 
             // 주가 데이터 준비 (최근 15일 이내 데이터)
@@ -297,11 +293,11 @@ internal class PredictionRepositoryImplTest(
             }
 
             val result = transaction {
-                predictionRepository.getPredictionList(
+                predictionRepository.getPredictionListWithGraph(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    param = graphParam
+                    isOpened = false
                 )
             }
 
@@ -317,20 +313,6 @@ internal class PredictionRepositoryImplTest(
                 // Repository 쿼리: orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
                 priceData[0] shouldBe BigDecimal("150.0000") // 어제 (최신)
                 priceData[1] shouldBe BigDecimal("145.0000") // 3일 전
-            }
-        }
-
-        When("param 파라미터가 지원하지 않는 값일 때") {
-            val invalidParam = "invalid_param_type"
-
-            Then("CriticalDataPollutedException 예외가 발생해야 한다") {
-                shouldThrow<CriticalDataPollutedException> {
-                    transaction {
-                        predictionRepository.getPredictionList(
-                            page = 0, size = 10, sort = "popular", param = invalidParam
-                        )
-                    }
-                }
             }
         }
     }

@@ -15,5 +15,4 @@ class ArticleSummaryExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var negativeReasoning = ArticleSummaryTable.negativeReasoning
     var positiveKeywords = ArticleSummaryTable.positiveKeywords
     var negativeKeywords = ArticleSummaryTable.negativeKeywords
-    var neutralKeywords = ArticleSummaryTable.neutralKeywords
 }

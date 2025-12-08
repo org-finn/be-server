@@ -53,10 +53,44 @@ class PredictionExposedRepository {
         }
     }
 
-    fun findAllPredictionByPopular(
+    fun findAllPrediction(
         page: Int,
         size: Int,
-        param: String?
+        sort: String
+    ): PageResponse<PredictionQueryDto> {
+
+        val predictionExposedList = when (sort) {
+            "popular" -> findAllPredictionByPopular(
+                page,
+                size
+            )
+
+            "upward" -> findAllPredictionBySentimentScore(
+                page,
+                size,
+                false
+            )
+
+            "downward" -> findAllPredictionBySentimentScore(
+                page,
+                size,
+                true
+            )
+
+            "volatility" -> findAllPredictionByVolatility(
+                page,
+                size
+            )
+
+            else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
+        }
+
+        return predictionExposedList
+    }
+
+    private fun findAllPredictionByPopular(
+        page: Int,
+        size: Int,
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -105,7 +139,6 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
-        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -119,11 +152,10 @@ class PredictionExposedRepository {
     }
 
 
-    fun findAllPredictionBySentimentScore(
+    private fun findAllPredictionBySentimentScore(
         page: Int,
         size: Int,
         isDownward: Boolean,
-        param: String?
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -169,7 +201,6 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
-        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -182,10 +213,9 @@ class PredictionExposedRepository {
         )
     }
 
-    fun findAllPredictionByVolatility(
+    private fun findAllPredictionByVolatility(
         page: Int,
         size: Int,
-        param: String?
     ): PageResponse<PredictionQueryDto> {
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -228,7 +258,6 @@ class PredictionExposedRepository {
                 graphData = null
             )
         }
-        param?.let { setParamData(param, results) }
 
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
@@ -308,7 +337,7 @@ class PredictionExposedRepository {
                     low = row[TickerPriceTable.low],
                     volume = row[TickerPriceTable.volume]
                 )
-            }.singleOrNull()
+            }.firstOrNull()
             ?: throw CriticalDataOmittedException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 
@@ -351,7 +380,7 @@ class PredictionExposedRepository {
 
     // 최근 6일 간의 prediction score를 반환(추세 반영 목적)
     suspend fun findTodaySentimentScoreListByTickerId(tickerId: UUID): List<Int> {
-        val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val today = LocalDate.now(ZoneId.of("UTC"))
         val sevenDaysAgo = today.minusDays(6) // 오늘을 제외한 이전 6일
 
         return PredictionTable
@@ -366,7 +395,7 @@ class PredictionExposedRepository {
     }
 
     suspend fun findTodaySentimentScoreByTickerId(tickerId: UUID): Int {
-        val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val today = LocalDate.now(ZoneId.of("UTC"))
 
         return PredictionTable
             .select(PredictionTable.score)
@@ -376,12 +405,12 @@ class PredictionExposedRepository {
             }
             .map { row ->
                 row[PredictionTable.score]
-            }.singleOrNull()
+            }.firstOrNull()
             ?: throw CriticalDataOmittedException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 
     suspend fun findTodaySentimentScoreList(): List<TickerScore> {
-        val today = LocalDate.now(ZoneId.of("America/New_York"))
+        val today = LocalDate.now(ZoneId.of("UTC"))
 
         return PredictionTable
             .select(PredictionTable.tickerId, PredictionTable.score)
@@ -403,7 +432,7 @@ class PredictionExposedRepository {
             .limit(1)
             .map {
                 it[PredictionTable.volatility]
-            }.singleOrNull()
+            }.firstOrNull()
             ?: throw CriticalDataOmittedException("${tickerId}의 전일 변동성 지표 값이 존재하지 않습니다.")
     }
 
@@ -415,7 +444,10 @@ class PredictionExposedRepository {
             ArticleSummaryTable.tickerId,
             ArticleSummaryTable.positiveKeywords,
             ArticleSummaryTable.negativeKeywords
-        ).where { ArticleSummaryTable.summaryDate.date() eq LocalDateTime.now().toLocalDate() }
+        ).where {
+            ArticleSummaryTable.summaryDate.date() eq LocalDateTime.now(ZoneId.of("UTC"))
+                .toLocalDate()
+        }
 
         return result.associate { row ->
             row[ArticleSummaryTable.tickerId] to listOf(
@@ -425,7 +457,7 @@ class PredictionExposedRepository {
         }
     }
 
-    private fun setParamData(
+    fun setPredictionDataForParam(
         param: String,
         results: List<PredictionQueryDto>
     ) {
@@ -475,12 +507,19 @@ class PredictionExposedRepository {
      * key: tickerId, value: List<Pair<title, articleId>>
      */
     private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
+        val targetDate = LocalDate.now(ZoneId.of("UTC"))
+        // 비교하려는 날짜의 UTC 시작(00:00)과 끝(다음날 00:00)을 구함
+        val startOfDay = targetDate.atStartOfDay(ZoneId.of("UTC")).toInstant()
+        val endOfDay = targetDate.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant()
+
         val result = ArticleTickerTable.select(
             ArticleTickerTable.title,
-            ArticleTickerTable.articleId,
-            ArticleTickerTable.tickerId
+            ArticleTickerTable.titleKr,
+            ArticleTickerTable.tickerId,
+            ArticleTickerTable.articleId
         ).where {
-            ArticleTickerTable.publishedDate.date() eq LocalDateTime.now().toLocalDate()
+            (ArticleTickerTable.publishedDate greaterEq startOfDay) and
+                    (ArticleTickerTable.publishedDate less endOfDay)
         }
 
         return result.groupBy(
@@ -489,7 +528,8 @@ class PredictionExposedRepository {
             },
             // Value: Pair(ArticleId, Title) 리스트
             valueTransform = { row ->
-                row[ArticleTickerTable.articleId] to row[ArticleTickerTable.title]
+                row[ArticleTickerTable.articleId] to (row[ArticleTickerTable.titleKr]
+                    ?: row[ArticleTickerTable.title]) // 안전 장치로 원문 타이틀 도입
             }
         )
     }

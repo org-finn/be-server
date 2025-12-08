@@ -104,14 +104,12 @@ object TickerPriceTable : UUIDTable("ticker_prices") {
     }
 }
 
-// MarketStatus 테이블
 object MarketStatusTable : LongIdTable("market_status") {
     val date = date("date").uniqueIndex()
     val tradingHours = varchar("trading_hours", 20)
     val eventName = varchar("event_name", 50).nullable()
 }
 
-// ArticleSummary 테이블
 object ArticleSummaryTable : UUIDTable("article_summary") {
     val tickerId = uuid("ticker_id")
     val shortCompanyName = varchar("short_company_name", 100)
@@ -120,7 +118,6 @@ object ArticleSummaryTable : UUIDTable("article_summary") {
     val negativeReasoning = text("negative_reasoning").nullable()
     val positiveKeywords = varchar("positive_keywords", 100).nullable()
     val negativeKeywords = varchar("negative_keywords", 100).nullable()
-    val neutralKeywords = varchar("neutral_keywords", 100).nullable()
     val createdAt = datetime("created_at")
 
     init {
@@ -130,4 +127,23 @@ object ArticleSummaryTable : UUIDTable("article_summary") {
             "article_summary_ticker_date_idx"
         )
     }
+}
+
+object ArticleSummaryAllTable : UUIDTable("article_summary_all") {
+    val summaryDate = timestamp("summary_date")
+    val positiveReasoning = text("positive_reasoning").nullable()
+    val negativeReasoning = text("negative_reasoning").nullable()
+    val positiveKeywords = varchar("positive_keywords", 100).nullable()
+    val negativeKeywords = varchar("negative_keywords", 100).nullable()
+    val createdAt = datetime("created_at")
+}
+
+object ExchangeRateTable : UUIDTable("exchange_rate") {
+    val date = datetime( "date")
+    val indexCode = varchar("index_code", 30) // C01
+    val indexInfo = varchar("index_info", 50) // 원/달러
+    val value = decimal("value", 10, 4)
+    val changeRate = decimal("change_rate", 10, 4)
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
 }
