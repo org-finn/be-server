@@ -533,10 +533,7 @@ class PredictionExposedRepository(
      * key: tickerId, value: List<Pair<title, articleId>>
      */
     private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
-        val targetDate = LocalDate.now(clock)
-        // 비교하려는 날짜의 UTC 시작(00:00)과 끝(다음날 00:00)을 구함
-        val startOfDay = targetDate.atStartOfDay(ZoneId.of("UTC")).toInstant()
-        val endOfDay = targetDate.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant()
+        val targetDate = Instant.now(clock).minus(1, ChronoUnit.DAYS)
 
         val result = ArticleTickerTable.select(
             ArticleTickerTable.title,
@@ -544,8 +541,7 @@ class PredictionExposedRepository(
             ArticleTickerTable.tickerId,
             ArticleTickerTable.articleId
         ).where {
-            (ArticleTickerTable.publishedDate greaterEq startOfDay) and
-                    (ArticleTickerTable.publishedDate less endOfDay)
+            ArticleTickerTable.publishedDate greaterEq targetDate
         }
 
         return result.groupBy(
