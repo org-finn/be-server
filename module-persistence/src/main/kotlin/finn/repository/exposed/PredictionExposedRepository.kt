@@ -9,20 +9,27 @@ import finn.queryDto.ArticleTitleQueryDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionListGraphDataQueryDto
 import finn.queryDto.PredictionQueryDto
-import finn.table.*
+import finn.table.ArticleTickerTable
+import finn.table.PredictionTable
+import finn.table.TickerPriceTable
+import finn.table.TickerTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.sql.ResultSet
+import java.time.*
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Repository
-class PredictionExposedRepository {
+class PredictionExposedRepository(
+    private val clock: Clock,
+) {
     companion object {
         private val log = KotlinLogging.logger {}
     }
@@ -380,7 +387,7 @@ class PredictionExposedRepository {
 
     // 최근 6일 간의 prediction score를 반환(추세 반영 목적)
     suspend fun findTodaySentimentScoreListByTickerId(tickerId: UUID): List<Int> {
-        val today = LocalDate.now(ZoneId.of("UTC"))
+        val today = LocalDate.now(clock)
         val sevenDaysAgo = today.minusDays(6) // 오늘을 제외한 이전 6일
 
         return PredictionTable
@@ -395,7 +402,7 @@ class PredictionExposedRepository {
     }
 
     suspend fun findTodaySentimentScoreByTickerId(tickerId: UUID): Int {
-        val today = LocalDate.now(ZoneId.of("UTC"))
+        val today = LocalDate.now(clock)
 
         return PredictionTable
             .select(PredictionTable.score)
@@ -410,7 +417,7 @@ class PredictionExposedRepository {
     }
 
     suspend fun findTodaySentimentScoreList(): List<TickerScore> {
-        val today = LocalDate.now(ZoneId.of("UTC"))
+        val today = LocalDate.now(clock)
 
         return PredictionTable
             .select(PredictionTable.tickerId, PredictionTable.score)
@@ -438,23 +445,42 @@ class PredictionExposedRepository {
 
     /**
      * key: tickerId, value: positiveKeywords, negativeKeywords
+     * keywords의 기근 문제를 해결하기 위해, 키워드 별로 3일 이내 중 가장 최신 데이터를 가져온다.
      */
     private fun findArticleSummaryKeywordsForPrediction(): Map<UUID, List<String?>> {
-        val result = ArticleSummaryTable.select(
-            ArticleSummaryTable.tickerId,
-            ArticleSummaryTable.positiveKeywords,
-            ArticleSummaryTable.negativeKeywords
-        ).where {
-            ArticleSummaryTable.summaryDate.date() eq LocalDateTime.now(ZoneId.of("UTC"))
-                .toLocalDate()
+        val sevenDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"))
+            .minusDays(2)
+            .truncatedTo(ChronoUnit.DAYS) // 시/분/초를 0으로 절삭
+            .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) // DB가 인식 가능한 포맷 문자열로 변환
+
+        val query = """
+            SELECT
+                ticker_id,
+                (ARRAY_AGG(positive_keywords ORDER BY summary_date DESC) 
+                 FILTER (WHERE positive_keywords IS NOT NULL))[1] AS latest_pos,
+                (ARRAY_AGG(negative_keywords ORDER BY summary_date DESC) 
+                 FILTER (WHERE negative_keywords IS NOT NULL))[1] AS latest_neg
+            FROM article_summary
+            WHERE summary_date >= '$sevenDaysAgo'::timestamptz
+            GROUP BY ticker_id;
+        """
+
+        val resultMap = mutableMapOf<UUID, List<String?>>()
+
+        // Exposed 트랜잭션 내에서 Raw SQL 실행
+        TransactionManager.current().exec(query) { rs: ResultSet ->
+            while (rs.next()) {
+                val tickerIdStr = rs.getString("ticker_id")
+                val tickerId = UUID.fromString(tickerIdStr)
+
+                val positiveKeywords = rs.getString("latest_pos")
+                val negativeKeywords = rs.getString("latest_neg")
+
+                resultMap[tickerId] = listOf(positiveKeywords, negativeKeywords)
+            }
         }
 
-        return result.associate { row ->
-            row[ArticleSummaryTable.tickerId] to listOf(
-                row[ArticleSummaryTable.positiveKeywords],
-                row[ArticleSummaryTable.negativeKeywords]
-            )
-        }
+        return resultMap
     }
 
     fun setPredictionDataForParam(
@@ -507,10 +533,7 @@ class PredictionExposedRepository {
      * key: tickerId, value: List<Pair<title, articleId>>
      */
     private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
-        val targetDate = LocalDate.now(ZoneId.of("UTC"))
-        // 비교하려는 날짜의 UTC 시작(00:00)과 끝(다음날 00:00)을 구함
-        val startOfDay = targetDate.atStartOfDay(ZoneId.of("UTC")).toInstant()
-        val endOfDay = targetDate.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant()
+        val targetDate = Instant.now(clock).minus(1, ChronoUnit.DAYS)
 
         val result = ArticleTickerTable.select(
             ArticleTickerTable.title,
@@ -518,8 +541,7 @@ class PredictionExposedRepository {
             ArticleTickerTable.tickerId,
             ArticleTickerTable.articleId
         ).where {
-            (ArticleTickerTable.publishedDate greaterEq startOfDay) and
-                    (ArticleTickerTable.publishedDate less endOfDay)
+            ArticleTickerTable.publishedDate greaterEq targetDate
         }
 
         return result.groupBy(
