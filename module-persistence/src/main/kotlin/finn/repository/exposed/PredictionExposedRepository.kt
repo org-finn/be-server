@@ -445,11 +445,11 @@ class PredictionExposedRepository(
 
     /**
      * key: tickerId, value: positiveKeywords, negativeKeywords
-     * keywords의 기근 문제를 해결하기 위해, 키워드 별로 7일 이내 중 가장 최신 데이터를 가져온다.
+     * keywords의 기근 문제를 해결하기 위해, 키워드 별로 3일 이내 중 가장 최신 데이터를 가져온다.
      */
     private fun findArticleSummaryKeywordsForPrediction(): Map<UUID, List<String?>> {
         val sevenDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"))
-            .minusDays(6)
+            .minusDays(2)
             .truncatedTo(ChronoUnit.DAYS) // 시/분/초를 0으로 절삭
             .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) // DB가 인식 가능한 포맷 문자열로 변환
 
