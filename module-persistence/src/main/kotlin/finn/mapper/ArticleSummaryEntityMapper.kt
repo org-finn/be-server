@@ -9,9 +9,9 @@ fun toDomain(articleSummaryAll: ArticleSummaryAllExposed): ArticleSummaryAll {
     return ArticleSummaryAll.create(
         articleSummaryAll.id.value,
         ZonedDateTime.ofInstant(articleSummaryAll.summaryDate, ZoneId.of("Asia/Seoul")),
-        articleSummaryAll.positiveReasoning.toString().split(","),
-        articleSummaryAll.negativeReasoning.toString().split(","),
-        articleSummaryAll.positiveKeywords.toString().split(","),
-        articleSummaryAll.negativeKeywords.toString().split(",")
+        articleSummaryAll.positiveReasoning?.split("\n"),
+        articleSummaryAll.negativeReasoning?.split("\n"),
+        articleSummaryAll.positiveKeywords?.trim()?.split(",")?.map { it.trim() },
+        articleSummaryAll.negativeKeywords?.trim()?.split(",")?.map { it.trim() }
     )
 }
