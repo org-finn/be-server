@@ -11,7 +11,7 @@ fun toDomain(articleSummaryAll: ArticleSummaryAllExposed): ArticleSummaryAll {
         ZonedDateTime.ofInstant(articleSummaryAll.summaryDate, ZoneId.of("Asia/Seoul")),
         articleSummaryAll.positiveReasoning?.split("\n"),
         articleSummaryAll.negativeReasoning?.split("\n"),
-        articleSummaryAll.positiveKeywords?.trim()?.split(","),
-        articleSummaryAll.negativeKeywords?.trim()?.split(",")
+        articleSummaryAll.positiveKeywords?.split(Regex("\\s*,\\s*")),
+        articleSummaryAll.negativeKeywords?.split(Regex("\\s*,\\s*"))
     )
 }
