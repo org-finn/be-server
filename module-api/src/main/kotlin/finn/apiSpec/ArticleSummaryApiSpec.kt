@@ -1,9 +1,13 @@
 package finn.apiSpec
 
+import finn.response.ErrorResponse
 import finn.response.SuccessResponse
 import finn.response.articleSummary.ArticleSummaryAllResponse
 import finn.response.articleSummary.ArticleSummaryTickerResponse
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -34,8 +38,19 @@ interface ArticleSummaryApiSpec {
         value = [ApiResponse(
             responseCode = "200",
             description = "종목 뉴스 요약을 성공적으로 조회하였습니다."
+        ), ApiResponse(
+            responseCode = "404",
+            description = "존재하지 않는 종목 Id 값입니다.",
+            content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
         )]
     )
     @GetMapping("/{tickerId}")
-    fun getArticleSummaryForTicker(@PathVariable("tickerId") tickerId: UUID): SuccessResponse<ArticleSummaryTickerResponse>
+    fun getArticleSummaryForTicker(
+        @Parameter(
+            description = "종목 ID (UUID)",
+            required = true,
+            example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        )
+        @PathVariable tickerId: UUID
+    ): SuccessResponse<ArticleSummaryTickerResponse>
 }

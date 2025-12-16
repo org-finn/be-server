@@ -8,11 +8,12 @@ import java.util.*
 
 class ArticleSummaryExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<ArticleSummaryExposed>(ArticleSummaryTable)
+
     var tickerId by ArticleSummaryTable.tickerId
     var shortCompanyName by ArticleSummaryTable.shortCompanyName
-    var summaryDate = ArticleSummaryTable.summaryDate
-    var positiveReasoning = ArticleSummaryTable.positiveReasoning
-    var negativeReasoning = ArticleSummaryTable.negativeReasoning
-    var positiveKeywords = ArticleSummaryTable.positiveKeywords
-    var negativeKeywords = ArticleSummaryTable.negativeKeywords
+    var summaryDate by ArticleSummaryTable.summaryDate
+    var positiveReasoning by ArticleSummaryTable.positiveReasoning
+    var negativeReasoning by ArticleSummaryTable.negativeReasoning
+    var positiveKeywords by ArticleSummaryTable.positiveKeywords
+    var negativeKeywords by ArticleSummaryTable.negativeKeywords
 }
