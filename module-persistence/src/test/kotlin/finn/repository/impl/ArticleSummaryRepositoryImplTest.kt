@@ -65,16 +65,9 @@ class ArticleSummaryRepositoryImplTest(
             }
         }
 
-        When("어제 날짜(2025-11-30)의 데이터만 존재하면") {
+        When("데이터가 존재하지 않으면") {
             transaction {
-                ArticleSummaryAllTable.insert {
-                    it[summaryDate] = fixedInstant.minusSeconds(86400) // 하루 전의 데이터
-                    it[positiveReasoning] = "어제 긍정 요인"
-                    it[negativeReasoning] = "어제 부정 요인"
-                    it[positiveKeywords] = "어제, 키워드"
-                    it[negativeKeywords] = "어제, 리스크"
-                    it[createdAt] = LocalDateTime.now(fixedClock).minusDays(1)
-                }
+                // Nothing
             }
 
             Then("CriticalDataOmittedException 예외를 던져야 한다") {
@@ -82,7 +75,7 @@ class ArticleSummaryRepositoryImplTest(
                     val exception = shouldThrow<CriticalDataOmittedException> {
                         repository.findSummaryAll()
                     }
-                    exception.message shouldBe "금일 날짜로 생성된 종합 뉴스 데이터를 찾을 수 없습니다."
+                    exception.message shouldBe "종합 뉴스 요약 데이터를 찾을 수 없습니다."
                 }
             }
         }
@@ -120,7 +113,7 @@ class ArticleSummaryRepositoryImplTest(
         }
     }
 }) {
-    // [핵심] 테스트 전용 설정 클래스: Clock 빈을 재정의
+    // 테스트 전용 설정 클래스: Clock 빈을 재정의
     @TestConfiguration
     class TestClockConfig {
         @Bean
