@@ -1,11 +1,13 @@
 package finn.exception
 
-class InvalidParameterException(
+open class ServerErrorException(
     message: String,
     cause: Throwable?
-) : BadRequestException(message, cause) {
+) : CommonException(message, cause) {
+    override val code: ResponseCode = ResponseCode.SERVER_ERROR
 
     constructor(message: String) : this(
         message, null
     )
+
 }
