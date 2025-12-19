@@ -1,6 +1,6 @@
 import finn.TestApplication
-import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
+import finn.exception.NotFoundDataException
 import finn.repository.PredictionRepository
 import finn.table.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -355,9 +355,9 @@ internal class PredictionRepositoryImplTest(
         When("존재하지 않는 예측 데이터에 업데이트를 요청하면") {
             val nonExistentTickerId = UUID.randomUUID()
 
-            Then("CriticalDataOmittedException 예외가 발생해야 한다") {
+            Then("NotFoundDataException 예외가 발생해야 한다") {
                 newSuspendedTransaction {
-                    shouldThrow<CriticalDataOmittedException> {
+                    shouldThrow<NotFoundDataException> {
                         predictionRepository.updatePredictionByArticle(
                             tickerId = nonExistentTickerId,
                             predictionDate = latestDate,

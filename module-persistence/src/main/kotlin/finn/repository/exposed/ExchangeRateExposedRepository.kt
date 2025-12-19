@@ -1,7 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.ExchangeRateExposed
-import finn.exception.CriticalDataOmittedException
+import finn.exception.NotFoundDataException
 import finn.table.ExchangeRateTable
 import org.jetbrains.exposed.sql.SortOrder
 import org.springframework.stereotype.Repository
@@ -16,6 +16,6 @@ class ExchangeRateExposedRepository {
             }.orderBy(ExchangeRateTable.date to SortOrder.DESC)
             .limit(1)
             .firstOrNull()
-            ?: throw CriticalDataOmittedException("index code로 조회한 환율 데이터가 존재하지 않습니다. code를 확인해주세요.")
+            ?: throw NotFoundDataException("index code로 조회한 환율 데이터가 존재하지 않습니다. code를 확인해주세요.")
     }
 }

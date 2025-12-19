@@ -15,9 +15,31 @@ class GlobalExceptionHandler() {
     }
 
 
-    @ExceptionHandler(CommonException::class)
-    @ResponseStatus(HttpStatus.OK)
-    fun handleCommonEx(e: CommonException): ErrorResponse {
+    @ExceptionHandler(BadRequestException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handle400Ex(e: CommonException): ErrorResponse {
+        printException(e)
+        val responseCode = e.code
+        val message = e.message ?: responseCode.defaultMessage
+        val errorResponse = ErrorResponse(responseCode.code, message)
+
+        return errorResponse
+    }
+
+    @ExceptionHandler(NotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handle404Ex(e: CommonException): ErrorResponse {
+        printException(e)
+        val responseCode = e.code
+        val message = e.message ?: responseCode.defaultMessage
+        val errorResponse = ErrorResponse(responseCode.code, message)
+
+        return errorResponse
+    }
+
+    @ExceptionHandler(ServerErrorException::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handle500Ex(e: CommonException): ErrorResponse {
         printException(e)
         val responseCode = e.code
         val message = e.message ?: responseCode.defaultMessage

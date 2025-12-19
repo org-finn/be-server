@@ -1,7 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.TickerExposed
-import finn.exception.CriticalDataOmittedException
+import finn.exception.NotFoundDataException
 import finn.queryDto.TickerQueryDto
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
@@ -70,7 +70,7 @@ class TickerExposedRepository {
             .map {
                 it[TickerPriceTable.atr]
             }.firstOrNull()
-            ?: throw CriticalDataOmittedException("최근 ${tickerId}의 ATR이 존재하지 않습니다.")
+            ?: throw NotFoundDataException("최근 ${tickerId}의 ATR이 존재하지 않습니다.")
     }
 
     fun updateTodayAtrByTickerId(tickerId: UUID, todayAtr: BigDecimal) {
@@ -86,7 +86,7 @@ class TickerExposedRepository {
         }
 
         if (updatedRowCount == 0) {
-            throw CriticalDataOmittedException("업데이트할 ${tickerId}의 최신 가격 데이터가 존재하지 않습니다.")
+            throw NotFoundDataException("업데이트할 ${tickerId}의 최신 가격 데이터가 존재하지 않습니다.")
         }
     }
 }

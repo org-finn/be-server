@@ -1,7 +1,7 @@
 package finn.repository.impl
 
 import finn.TestApplication
-import finn.exception.CriticalDataPollutedException
+import finn.exception.NotFoundDataException
 import finn.repository.GraphRepository
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
@@ -72,8 +72,8 @@ internal class GraphRepositoryImplTest(
         val endDate = LocalDate.of(2025, 1, 31)
 
         When("getTickerGraph를 호출하면") {
-            Then("CriticalDataPollutedException 예외가 발생해야 한다") {
-                shouldThrow<CriticalDataPollutedException> {
+            Then("NotFoundDataException 예외가 발생해야 한다") {
+                shouldThrow<NotFoundDataException> {
                     transaction {
                         graphRepository.getTickerGraph(tickerId, startDate, endDate, 7)
                     }

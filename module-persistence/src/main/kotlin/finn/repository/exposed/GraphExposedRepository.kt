@@ -1,6 +1,6 @@
 package finn.repository.exposed
 
-import finn.exception.CriticalDataPollutedException
+import finn.exception.NotFoundDataException
 import finn.queryDto.TickerGraphQueryDto
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
@@ -44,7 +44,7 @@ class GraphExposedRepository {
 
         // 데이터가 전혀 없는 경우 예외 처리
         if (count == 0L || maxDate == null) {
-            throw CriticalDataPollutedException("해당 id로 조회한 데이터가 없습니다, tickerId를 다시 확인해주세요.")
+            throw NotFoundDataException("해당 id로 조회한 데이터가 없습니다, tickerId를 다시 확인해주세요.")
         }
 
         return TickerPriceTable
@@ -129,7 +129,7 @@ class GraphExposedRepository {
             }
 
         if (dataMap.isEmpty()) {
-            throw CriticalDataPollutedException("해당 id로 조회한 데이터가 없습니다, tickerId를 다시 확인해주세요.")
+            throw NotFoundDataException("해당 id로 조회한 데이터가 없습니다, tickerId를 다시 확인해주세요.")
         }
 
         val businessDays = dataMap.keys
