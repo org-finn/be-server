@@ -560,7 +560,6 @@ class PredictionExposedRepository(
     /**
      * key: tickerId, value: List<BigDecimal>
      */
-    // [TODO]: 장이 열렸울때 실시간 데이터 8개를 받아오는 쿼리 추가 구현(dynamoDBRepo 여기서 호출 혹은 impl에서 호출 방식 고민 필요)
     private fun findGraphDataForPredictionWhenClosed(): Map<UUID, List<BigDecimal>> {
         val startDate = LocalDate.now().minusDays(15)
 
@@ -568,7 +567,7 @@ class PredictionExposedRepository(
             TickerPriceTable.tickerId,
             TickerPriceTable.close
         ).where { TickerPriceTable.priceDate.date() greaterEq startDate }
-            .orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
+            .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
 
         return result.groupBy(
             keySelector = { row ->

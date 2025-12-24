@@ -77,7 +77,9 @@ class TickerPriceRealTimeDynamoDbRepository(
                 hours = convertUtcTimeToKst(utcHours, priceDate),
                 index = priceDataMap["index"]?.n()?.toInt() ?: 0
             )
-        } ?: emptyList()
+        }
+            ?.sortedBy { it.hours } // 날짜 기준 오름차순 정렬 명시
+            ?: emptyList()
 
         // 가장 최근 8개 주가 데이터를 추출
         val latest8PriceDataList = fullPriceDataList.takeLast(8).map {
