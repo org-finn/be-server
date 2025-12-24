@@ -309,10 +309,9 @@ internal class PredictionRepositoryImplTest(
                 val priceData = targetItem.graphData!!.priceData
                 priceData shouldHaveSize 2
 
-                // 정렬 조건 확인 (쿼리가 날짜 내림차순인지 확인)
-                // Repository 쿼리: orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
-                priceData[0] shouldBe BigDecimal("150.0000") // 어제 (최신)
-                priceData[1] shouldBe BigDecimal("145.0000") // 3일 전
+                // 정렬 조건 확인 (쿼리가 날짜 오름차순인지 확인)
+                priceData[0] shouldBe BigDecimal("145.0000") // 3일 전
+                priceData[1] shouldBe BigDecimal("150.0000") // 어제
             }
         }
     }
