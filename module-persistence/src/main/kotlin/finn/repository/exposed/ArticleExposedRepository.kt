@@ -1,7 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.ArticleExposed
-import finn.exception.CriticalDataOmittedException
+import finn.exception.NotFoundDataException
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.queryDto.ArticleDetailQueryDto
@@ -130,7 +130,7 @@ class ArticleExposedRepository {
                 source = row[ArticleTable.author],
                 tickers = tickers
             )
-        } ?: throw CriticalDataOmittedException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
+        } ?: throw NotFoundDataException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
     }
 
 

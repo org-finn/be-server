@@ -1,11 +1,13 @@
 package finn.exception
 
-class InvalidParameterException(
+open class NotFoundException(
     message: String,
     cause: Throwable?
-) : BadRequestException(message, cause) {
+) : CommonException(message, cause) {
+    override val code: ResponseCode = ResponseCode.NOT_FOUND
 
     constructor(message: String) : this(
         message, null
     )
+
 }

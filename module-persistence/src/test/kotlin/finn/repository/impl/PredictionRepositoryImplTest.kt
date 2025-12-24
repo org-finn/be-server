@@ -1,6 +1,6 @@
 import finn.TestApplication
-import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
+import finn.exception.NotFoundDataException
 import finn.repository.PredictionRepository
 import finn.table.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -309,10 +309,9 @@ internal class PredictionRepositoryImplTest(
                 val priceData = targetItem.graphData!!.priceData
                 priceData shouldHaveSize 2
 
-                // 정렬 조건 확인 (쿼리가 날짜 내림차순인지 확인)
-                // Repository 쿼리: orderBy(TickerPriceTable.priceDate, SortOrder.DESC)
-                priceData[0] shouldBe BigDecimal("150.0000") // 어제 (최신)
-                priceData[1] shouldBe BigDecimal("145.0000") // 3일 전
+                // 정렬 조건 확인 (쿼리가 날짜 오름차순인지 확인)
+                priceData[0] shouldBe BigDecimal("145.0000") // 3일 전
+                priceData[1] shouldBe BigDecimal("150.0000") // 어제
             }
         }
     }
@@ -355,9 +354,9 @@ internal class PredictionRepositoryImplTest(
         When("존재하지 않는 예측 데이터에 업데이트를 요청하면") {
             val nonExistentTickerId = UUID.randomUUID()
 
-            Then("CriticalDataOmittedException 예외가 발생해야 한다") {
+            Then("NotFoundDataException 예외가 발생해야 한다") {
                 newSuspendedTransaction {
-                    shouldThrow<CriticalDataOmittedException> {
+                    shouldThrow<NotFoundDataException> {
                         predictionRepository.updatePredictionByArticle(
                             tickerId = nonExistentTickerId,
                             predictionDate = latestDate,

@@ -3,6 +3,7 @@ package finn.repository.exposed
 import finn.entity.ArticleSummaryAllExposed
 import finn.entity.ArticleSummaryExposed
 import finn.exception.CriticalDataOmittedException
+import finn.exception.NotFoundDataException
 import finn.table.ArticleSummaryAllTable
 import finn.table.ArticleSummaryTable
 import org.jetbrains.exposed.sql.SortOrder
@@ -28,7 +29,7 @@ class ArticleSummaryExposedRepository{
             .orderBy(ArticleSummaryTable.summaryDate to SortOrder.DESC)
             .limit(1)
             .firstOrNull()
-            ?: throw CriticalDataOmittedException("$tickerId 뉴스 요약 데이터를 찾을 수 없습니다.")
+            ?: throw NotFoundDataException("$tickerId 뉴스 요약 데이터를 찾을 수 없습니다.")
 
     }
 }
