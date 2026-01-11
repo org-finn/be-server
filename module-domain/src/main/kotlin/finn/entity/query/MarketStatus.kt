@@ -36,6 +36,12 @@ class MarketStatus private constructor(
 
 
         fun checkIsOpened(marketStatus: MarketStatus?, clock: Clock): Boolean {
+            // 0. 주말인지 선제 검토
+            val todayDate = LocalDate.now(clock).dayOfWeek
+            if (todayDate == DayOfWeek.SATURDAY || todayDate == DayOfWeek.SUNDAY) {
+                return false
+            }
+
             // 1. 개장 시간 문자열 결정 (KST 기준)
             val targetTradingHoursKST: String = if (marketStatus == null) {
                 // marketStatus가 null인 경우: 풀 개장일로 간주
