@@ -1,7 +1,6 @@
 package finn.orchestrator
 
 import finn.handler.PredictionHandlerFactory
-import finn.lock.CoroutineReadWriteLock
 import finn.mapper.toDto
 import finn.paging.PredictionPageRequest
 import finn.response.prediciton.PredictionDetailResponse
@@ -11,17 +10,13 @@ import finn.service.PredictionQueryService
 import finn.task.PredictionTask
 import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class PredictionOrchestrator(
     private val handlerFactory: PredictionHandlerFactory,
-    private val coroutineReadWriteLock: CoroutineReadWriteLock,
     private val predictionQueryService: PredictionQueryService,
     private val articleQueryService: ArticleQueryService
 ) {
@@ -30,31 +25,27 @@ class PredictionOrchestrator(
         private val wildcard: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
     }
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    // Consumer에서 호출됨. 트랜잭션 범위는 Handler 내부에서 설정
+    fun processBatch(tasks: List<PredictionTask>) = runBlocking {
+        // 1. 와일드카드(전체 계산) 작업 분리
+        val wildcardTasks = tasks.filter { it.tickerId == wildcard }
+        val specificTasks = tasks.filter { it.tickerId != wildcard }
 
+        // 2. 일반 종목 배치 처리 (타입별로 핸들러 찾아서 위임)
+        if (specificTasks.isNotEmpty()) {
+            val tasksByType = specificTasks.groupBy { it.type }
 
-    fun updatePrediction(task: PredictionTask) {
-        val tickerId = task.tickerId
-        val type = task.type
-        val handler = handlerFactory.findHandler(type)
-        scope.launch {
-            if (tickerId == wildcard) {
-                // 와일드카드(*) 작업: 쓰기 락(Write Lock)을 사용
-                log.info { "글로벌 작업(*) 시작. 쓰기 락 획득 시도..." }
-                coroutineReadWriteLock.write {
-                    log.info { "쓰기 락 획득 성공. 모든 개별 티커 작업을 막고 전체 예측을 수행합니다." }
-                    handler.handle(task)
-                    log.info { "전체 예측 수행 완료. 쓰기 락을 반납합니다." }
-                }
-            } else {
-                // 개별 티커 작업: 글로벌 읽기 락(Read Lock) + 개별 Mutex를 함께 사용
-                log.info { "개별 작업(${tickerId}) 시작. 읽기 락 획득 시도..." }
-                coroutineReadWriteLock.read(key = tickerId) {
-                    log.info { "읽기 락 획득 성공. (${tickerId}): 예측을 수행합니다." }
-                    handler.handle(task)
-                    log.info { "(${tickerId}): 예측 수행 완료. 개별 락을 반납합니다." }
-                }
+            tasksByType.forEach { (type, tasks) ->
+                val handler = handlerFactory.findHandler(type)
+                log.info { "Processing batch for type: $type, count: ${tasks.size}" }
+                handler.handle(tasks)
             }
+        }
+
+        // 3. 와일드카드(글로벌) 작업 처리
+        wildcardTasks.forEach { task ->
+            log.info { "Processing Wildcard Task" }
+            handlerFactory.findHandler(task.type).handle(listOf(task))
         }
     }
 

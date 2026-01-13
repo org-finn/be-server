@@ -37,4 +37,23 @@ class PredictionQ private constructor(
             )
         }
     }
+
+    fun update(
+        positiveArticleCount: Long, negativeArticleCount: Long,
+        neutralArticleCount: Long, sentimentScore: Int, sentiment: Int,
+        strategy: String
+    ): PredictionQ {
+        return create(
+            this.tickerId,
+            this.tickerCode,
+            this.shortCompanyName,
+            positiveArticleCount,
+            negativeArticleCount,
+            neutralArticleCount,
+            sentimentScore,
+            sentiment,
+            strategy,
+            this.predictionDate
+        )
+    }
 }

@@ -2,6 +2,7 @@ package finn.service
 
 import finn.entity.TickerScore
 import finn.entity.query.MarketStatus
+import finn.entity.query.PredictionQ
 import finn.exception.DomainPolicyViolationException
 import finn.paging.PageResponse
 import finn.paging.PredictionPageRequest
@@ -78,5 +79,10 @@ class PredictionQueryService(
 
     suspend fun getYesterdayVolatility(tickerId: UUID): BigDecimal {
         return predictionRepository.getYesterdayVolatilityByTickerId(tickerId)
+    }
+
+
+    suspend fun findAllByTickerIdsForPrediction(tickerIds: List<UUID>): List<PredictionQ> {
+        return predictionRepository.findAllByTickerIdsForUpdate(tickerIds)
     }
 }

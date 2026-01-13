@@ -1,6 +1,8 @@
 package finn.handler
 
+import finn.converter.SentimentConverter
 import finn.exception.NotSupportedTypeException
+import finn.queryDto.PredictionUpdateDto
 import finn.service.PredictionCommandService
 import finn.service.PredictionQueryService
 import finn.strategy.ArticleSentimentScoreStrategy
@@ -15,37 +17,84 @@ import java.sql.Connection
 @Component
 class ArticlePredictionHandler(
     private val predictionCommandService: PredictionCommandService,
+    private val sentimentConverter: SentimentConverter,
     private val predictionQueryService: PredictionQueryService,
     private val strategyFactory: StrategyFactory
 ) : PredictionHandler {
 
     override fun supports(type: String): Boolean = type == "article"
 
-    override suspend fun handle(task: PredictionTask) {
+    override suspend fun handle(tasks: List<PredictionTask>) {
+        // 타입 캐스팅 검증
+        val articleTasks = tasks.filterIsInstance<ArticlePredictionTask>()
+        if (articleTasks.isEmpty()) return
+
         newSuspendedTransaction(
             context = Dispatchers.IO,
             transactionIsolation = Connection.TRANSACTION_READ_COMMITTED
         ) {
-            if (task !is ArticlePredictionTask) {
-                throw NotSupportedTypeException("Unsupported prediction task type in Article Prediction: ${task.type}")
-            }
-            val tickerId = task.tickerId
+            // 1. Ticker 별로 그룹화
+            val tasksByTicker = articleTasks.groupBy { it.tickerId }
+            val tickerIds = tasksByTicker.keys.toList()
 
-            val sentimentScoreStrategy = strategyFactory.findSentimentScoreStrategy(task.type)
-            if (sentimentScoreStrategy !is ArticleSentimentScoreStrategy) {
-                throw NotSupportedTypeException("Unsupported sentiment score strategy in Init Prediction: ${sentimentScoreStrategy.javaClass}")
-            }
-            task.payload.previousScore = predictionQueryService.getTodaySentimentScore(tickerId)
-            val score = sentimentScoreStrategy.calculate(task)
+            // 2. DB 락(Pessimistic Write)을 걸고 현재 상태 일괄 조회
+            // 정렬된 ID로 조회하여 데드락 방지
+            val currentPredictions =
+                predictionQueryService.findAllByTickerIdsForPrediction(tickerIds)
+            val predictionMap = currentPredictions.associateBy { it.tickerId }
 
-            predictionCommandService.updatePredictionByArticle(
-                tickerId,
-                task.payload.predictionDate,
-                task.payload.positiveArticleCount,
-                task.payload.negativeArticleCount,
-                task.payload.neutralArticleCount,
-                score
-            )
+            // 업데이트할 내역을 담을 리스트
+            val updates = mutableListOf<PredictionUpdateDto>()
+
+            // 3. 메모리 상에서 변경사항 누적 (Aggregation)
+            tasksByTicker.forEach { (tickerId, tasksForTicker) ->
+                // 해당 종목의 현재 상태 (없으면 예외 혹은 생성 로직)
+                val prediction = predictionMap[tickerId]
+                    ?: throw RuntimeException("Prediction data not found for $tickerId")
+
+                // 누적 변수 초기화 (현재 DB 값에서 시작)
+                var currentScore = prediction.sentimentScore
+                var posCount = prediction.positiveArticleCount
+                var negCount = prediction.negativeArticleCount
+                var neuCount = prediction.neutralArticleCount
+                val predictionDate = prediction.predictionDate
+
+                // 여러 개의 Task 순차 적용
+                tasksForTicker.forEach { task ->
+                    val payload = task.payload
+
+                    // 전략 찾기
+                    val strategy = strategyFactory.findSentimentScoreStrategy(task.type)
+                            as? ArticleSentimentScoreStrategy
+                        ?: throw NotSupportedTypeException("Invalid strategy")
+
+                    // 이전 점수를 기반으로 새 점수 계산
+                    // 주의: payload.previousScore는 DB 조회가 아니라,
+                    // 루프 내에서 갱신되는 currentScore를 써야 정확함.
+                    task.payload.previousScore = currentScore
+
+                    val newCalculatedScore = strategy.calculate(task) // 전략 실행
+
+                    // 상태 누적
+                    currentScore = newCalculatedScore
+                    posCount += payload.positiveArticleCount
+                    negCount += payload.negativeArticleCount
+                    neuCount += payload.neutralArticleCount
+                }
+                val strategy = sentimentConverter.getStrategyFromScore(currentScore)
+                val sentiment = sentimentConverter.getSentiment(strategy)
+
+                val updatedPrediction = PredictionUpdateDto(
+                    tickerId, posCount, negCount, neuCount, currentScore,
+                    sentiment, strategy.strategy, predictionDate
+                )
+                updates += updatedPrediction
+            }
+
+            // 4. 변경된 내역 일괄 업데이트 (Command Service 호출)
+            if (updates.isNotEmpty()) {
+                predictionCommandService.updatePredictionByArticle(updates)
+            }
         }
     }
 }

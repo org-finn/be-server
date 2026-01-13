@@ -7,6 +7,7 @@ import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
+import finn.queryDto.PredictionUpdateDto
 import finn.repository.PredictionRepository
 import finn.repository.dynamodb.TickerPriceRealTimeDynamoDbRepository
 import finn.repository.exposed.PredictionExposedRepository
@@ -164,7 +165,17 @@ class PredictionRepositoryImpl(
         )
     }
 
+    override suspend fun updateAll(predictions: List<PredictionUpdateDto>) {
+        predictionExposedRepository.batchUpdatePredictions(predictions)
+    }
+
     override suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): BigDecimal {
         return predictionExposedRepository.findPreviousVolatilityByTickerId(tickerId)
+    }
+
+    override suspend fun findAllByTickerIdsForUpdate(tickerIds: List<UUID>): List<PredictionQ> {
+        return predictionExposedRepository.findAllByTickerIdsForUpdate(tickerIds)
+            .map { toDomain(it) }
+            .toList()
     }
 }
