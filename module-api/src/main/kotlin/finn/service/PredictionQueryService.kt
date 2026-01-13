@@ -85,4 +85,12 @@ class PredictionQueryService(
     suspend fun findAllByTickerIdsForPrediction(tickerIds: List<UUID>): List<PredictionQ> {
         return predictionRepository.findAllByTickerIdsForUpdate(tickerIds)
     }
+
+    suspend fun findAllForPrediction(): List<PredictionQ> {
+        return predictionRepository.findAllForUpdate()
+    }
+
+    suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
+        return predictionRepository.findYesterdayVolatilityMap(tickerIds)
+    }
 }

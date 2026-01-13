@@ -93,7 +93,7 @@ class ArticlePredictionHandler(
 
             // 4. 변경된 내역 일괄 업데이트 (Command Service 호출)
             if (updates.isNotEmpty()) {
-                predictionCommandService.updatePredictionByArticle(updates)
+                predictionCommandService.updatePredictions(updates)
             }
         }
     }

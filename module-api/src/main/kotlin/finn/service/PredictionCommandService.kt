@@ -2,6 +2,7 @@ package finn.service
 
 import finn.converter.SentimentConverter
 import finn.entity.TickerScore
+import finn.queryDto.PredictionCreateDto
 import finn.queryDto.PredictionUpdateDto
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
@@ -37,7 +38,11 @@ class PredictionCommandService(
         )
     }
 
-    suspend fun updatePredictionByArticle(
+    suspend fun createPredictions(newPredictions: List<PredictionCreateDto>) {
+        predictionRepository.saveAll(newPredictions)
+    }
+
+    suspend fun updatePredictions(
         predictions: List<PredictionUpdateDto>,
     ) {
         predictionRepository.updateAll(

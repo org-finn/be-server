@@ -12,4 +12,8 @@ class TickerCommandService(
     suspend fun updateAtr(tickerId: UUID, todayAtr: BigDecimal) {
         tickerRepository.updateTodayAtr(tickerId, todayAtr)
     }
+
+    suspend fun updateAtrs(updates: Map<UUID, BigDecimal>) {
+        tickerRepository.updateAtrs(updates)
+    }
 }

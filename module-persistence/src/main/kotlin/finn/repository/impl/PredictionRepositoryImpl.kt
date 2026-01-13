@@ -5,6 +5,7 @@ import finn.entity.query.PredictionQ
 import finn.entity.query.PredictionStrategy
 import finn.mapper.toDomain
 import finn.paging.PageResponse
+import finn.queryDto.PredictionCreateDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.queryDto.PredictionUpdateDto
@@ -42,6 +43,10 @@ class PredictionRepositoryImpl(
             volatility,
             predictionDate
         )
+    }
+
+    override suspend fun saveAll(predictions: List<PredictionCreateDto>) {
+        predictionExposedRepository.batchInsertPredictions(predictions)
     }
 
     override fun getPredictionListDefault(
@@ -177,5 +182,15 @@ class PredictionRepositoryImpl(
         return predictionExposedRepository.findAllByTickerIdsForUpdate(tickerIds)
             .map { toDomain(it) }
             .toList()
+    }
+
+    override suspend fun findAllForUpdate(): List<PredictionQ> {
+        return predictionExposedRepository.findAllForUpdate()
+            .map { toDomain(it) }
+            .toList()
+    }
+
+    override suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
+        return predictionExposedRepository.findYesterdayVolatilities(tickerIds)
     }
 }
