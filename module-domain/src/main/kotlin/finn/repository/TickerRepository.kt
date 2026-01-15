@@ -14,4 +14,8 @@ interface TickerRepository {
     suspend fun getPreviousAtrByTickerId(tickerId: UUID): BigDecimal
 
     suspend fun updateTodayAtr(tickerId: UUID, todayAtr: BigDecimal)
+
+    suspend fun updateAtrs(updates: Map<UUID, BigDecimal>)
+
+    suspend fun getPreviousAtrsByIds(tickerIds: List<UUID>) : Map<UUID, BigDecimal>
 }

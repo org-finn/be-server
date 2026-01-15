@@ -4,6 +4,7 @@ import finn.entity.TickerExposed
 import finn.exception.NotFoundDataException
 import finn.queryDto.TickerQueryDto
 import finn.table.TickerPriceTable
+import finn.table.TickerPriceTable.atr
 import finn.table.TickerTable
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.lowerCase
@@ -87,6 +88,24 @@ class TickerExposedRepository {
 
         if (updatedRowCount == 0) {
             throw NotFoundDataException("업데이트할 ${tickerId}의 최신 가격 데이터가 존재하지 않습니다.")
+        }
+    }
+
+    fun findAtrsByIds(ids: List<UUID>): Map<UUID, BigDecimal> {
+        if (ids.isEmpty()) return emptyMap()
+
+        return TickerPriceTable.select(TickerPriceTable.id, TickerPriceTable.atr)
+            .where { TickerPriceTable.tickerId inList ids }
+            .associate { row ->
+                row[TickerPriceTable.tickerId] to (row[TickerPriceTable.atr] ?: BigDecimal.ZERO)
+            }
+    }
+
+    fun batchUpdateAtr(updates: Map<UUID, BigDecimal>) {
+        updates.forEach { (id, newAtr) ->
+            TickerTable.update({ TickerPriceTable.id eq id }) {
+                it[atr] = newAtr
+            }
         }
     }
 }

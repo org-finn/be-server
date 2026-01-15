@@ -4,8 +4,10 @@ import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
 import finn.entity.query.PredictionStrategy
 import finn.paging.PageResponse
+import finn.queryDto.PredictionCreateDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
+import finn.queryDto.PredictionUpdateDto
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -23,6 +25,7 @@ interface PredictionRepository {
         predictionDate: LocalDateTime
     )
 
+    suspend fun saveAll(predictions: List<PredictionCreateDto>)
 
     fun getPredictionListDefault(
         page: Int,
@@ -68,10 +71,18 @@ interface PredictionRepository {
         strategy: String
     ): PredictionQ
 
+    suspend fun findAllByTickerIdsForUpdate(tickerIds: List<UUID>): List<PredictionQ>
+
+    suspend fun findAllForUpdate(): List<PredictionQ>
+
+    suspend fun updateAll(predictions: List<PredictionUpdateDto>)
+
     suspend fun updatePredictionByExponent(
         predictionDate: LocalDateTime,
         scores: List<TickerScore>
     )
 
     suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): BigDecimal
+
+    suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal>
 }

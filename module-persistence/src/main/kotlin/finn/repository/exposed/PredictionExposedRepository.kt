@@ -6,10 +6,7 @@ import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
 import finn.exception.NotFoundDataException
 import finn.paging.PageResponse
-import finn.queryDto.ArticleTitleQueryDto
-import finn.queryDto.PredictionDetailQueryDto
-import finn.queryDto.PredictionListGraphDataQueryDto
-import finn.queryDto.PredictionQueryDto
+import finn.queryDto.*
 import finn.table.ArticleTickerTable
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
@@ -58,6 +55,22 @@ class PredictionExposedRepository(
             this.shortCompanyName = shortCompanyName
             this.tickerId = tickerId
             this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
+        }
+    }
+
+    fun batchInsertPredictions(predictions: List<PredictionCreateDto>) {
+        PredictionTable.batchInsert(predictions) { dto ->
+            this[PredictionTable.tickerId] = dto.tickerId
+            this[PredictionTable.predictionDate] = dto.predictionDate
+            this[PredictionTable.tickerCode] = dto.tickerCode
+            this[PredictionTable.shortCompanyName] = dto.shortCompanyName
+            this[PredictionTable.score] = dto.score
+            this[PredictionTable.volatility] = dto.volatility
+            this[PredictionTable.positiveArticleCount] = dto.positiveCount
+            this[PredictionTable.negativeArticleCount] = dto.negativeCount
+            this[PredictionTable.neutralArticleCount] = dto.neutralCount
+            this[PredictionTable.sentiment] = dto.sentiment
+            this[PredictionTable.strategy] = dto.strategy
         }
     }
 
@@ -349,6 +362,26 @@ class PredictionExposedRepository(
             ?: throw NotFoundDataException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 
+    suspend fun findAllByTickerIdsForUpdate(tickerIds: List<UUID>): List<PredictionExposed> {
+        if (tickerIds.isEmpty()) return emptyList()
+
+        // 데드락 방지를 위해 ID 정렬
+        val sortedIds = tickerIds.sorted()
+
+        return PredictionExposed.find {
+            (PredictionTable.tickerId inList sortedIds) and
+                    (PredictionTable.predictionDate eq LocalDateTime.now().toLocalDate()
+                        .atStartOfDay()) // 날짜 조건 예시
+        }.forUpdate()
+            .toList()
+    }
+
+    suspend fun findAllForUpdate(): List<PredictionExposed> {
+        return PredictionExposed.all()
+            .forUpdate()
+            .toList()
+    }
+
     suspend fun updateByArticle(
         tickerId: UUID,
         predictionDate: LocalDateTime,
@@ -369,6 +402,22 @@ class PredictionExposedRepository(
             it.sentiment = sentiment
             it.strategy = strategy
         } ?: throw NotFoundDataException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
+    }
+
+    fun batchUpdatePredictions(updates: List<PredictionUpdateDto>) {
+        updates.forEach { dto ->
+            PredictionTable.update({
+                (PredictionTable.tickerId eq dto.tickerId) and
+                        (PredictionTable.predictionDate eq dto.predictionDate)
+            }) {
+                it[score] = dto.score
+                it[positiveArticleCount] = dto.positiveArticleCount
+                it[negativeArticleCount] = dto.negativeArticleCount
+                it[neutralArticleCount] = dto.neutralArticleCount
+                it[sentiment] = dto.sentiment
+                it[strategy] = dto.strategy
+            }
+        }
     }
 
     suspend fun updateByExponent(
@@ -579,4 +628,20 @@ class PredictionExposedRepository(
         )
     }
 
+    fun findYesterdayVolatilities(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
+        if (tickerIds.isEmpty()) return emptyMap()
+
+        // "어제"의 기준 정의 (휴일 처리가 이미 되었다면 하루 전 날짜, 혹은 가장 최근 날짜)
+        // 여기서는 단순하게 하루 전 00:00:00 기준 데이터를 조회한다고 가정
+        val yesterday = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay()
+
+        return PredictionTable.slice(PredictionTable.tickerId, PredictionTable.volatility)
+            .select {
+                (PredictionTable.tickerId inList tickerIds) and
+                        (PredictionTable.predictionDate eq yesterday)
+            }
+            .associate { row ->
+                row[PredictionTable.tickerId] to row[PredictionTable.volatility]
+            }
+    }
 }

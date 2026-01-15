@@ -30,4 +30,8 @@ class TickerQueryService(
     suspend fun getYesterdayAtr(tickerId: UUID): BigDecimal {
         return tickerRepository.getPreviousAtrByTickerId(tickerId)
     }
+
+    suspend fun findYesterdayAtrMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
+        return tickerRepository.getPreviousAtrsByIds(tickerIds)
+    }
 }
