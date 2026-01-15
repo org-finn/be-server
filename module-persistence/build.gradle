@@ -33,7 +33,7 @@ dependencies {
 
     // Caffeine(Local Cache)
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    api 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
     // Exposed Core & JDBC Driver
     implementation("org.jetbrains.exposed:exposed-core")
@@ -52,7 +52,6 @@ dependencies {
     // AWS DynamoDB
     implementation("io.awspring.cloud:spring-cloud-aws-starter-dynamodb")
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"))
-    implementation('org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE')
 
     runtimeOnly("org.postgresql:postgresql")
 }

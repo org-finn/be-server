@@ -35,4 +35,12 @@ class TickerRepositoryImpl(
     override suspend fun updateTodayAtr(tickerId: UUID, todayAtr: BigDecimal) {
         tickerExposedRepository.updateTodayAtrByTickerId(tickerId, todayAtr)
     }
+
+    override suspend fun updateAtrs(updates: Map<UUID, BigDecimal>) {
+        tickerExposedRepository.batchUpdateAtr(updates)
+    }
+
+    override suspend fun getPreviousAtrsByIds(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
+        return tickerExposedRepository.findAtrsByIds(tickerIds)
+    }
 }

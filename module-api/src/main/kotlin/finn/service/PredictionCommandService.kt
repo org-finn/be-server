@@ -1,7 +1,8 @@
 package finn.service
 
 import finn.converter.SentimentConverter
-import finn.entity.TickerScore
+import finn.queryDto.PredictionCreateDto
+import finn.queryDto.PredictionUpdateDto
 import finn.repository.PredictionRepository
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -36,35 +37,24 @@ class PredictionCommandService(
         )
     }
 
-    suspend fun updatePredictionByArticle(
-        tickerId: UUID,
-        predictionDate: OffsetDateTime,
-        positiveArticleCount: Long,
-        negativeArticleCount: Long,
-        neutralArticleCount: Long,
-        score: Int,
+    suspend fun createPredictions(newPredictions: List<PredictionCreateDto>) {
+        setStrategyAndSentimentForInit(newPredictions)
+        predictionRepository.saveAll(newPredictions)
+    }
+
+    suspend fun updatePredictions(
+        predictions: List<PredictionUpdateDto>,
     ) {
-        val strategy = sentimentConverter.getStrategyFromScore(score)
-        val sentiment = sentimentConverter.getSentiment(strategy)
-        predictionRepository.updatePredictionByArticle(
-            tickerId, predictionDate.toLocalDateTime(),
-            positiveArticleCount, negativeArticleCount, neutralArticleCount, score,
-            sentiment, strategy.strategy
+        predictionRepository.updateAll(
+            predictions
         )
     }
 
-    suspend fun updatePredictionByExponent(
-        predictionDate: OffsetDateTime,
-        scores: List<TickerScore>
-    ) {
-        scores.forEach {
+    private fun setStrategyAndSentimentForInit(newPredictions: List<PredictionCreateDto>) {
+        newPredictions.forEach {
             it.strategy = sentimentConverter.getStrategyFromScore(it.score)
             it.sentiment = sentimentConverter.getSentiment(it.strategy)
         }
-
-        predictionRepository.updatePredictionByExponent(
-            predictionDate.toLocalDateTime(), scores
-        )
     }
 
 }

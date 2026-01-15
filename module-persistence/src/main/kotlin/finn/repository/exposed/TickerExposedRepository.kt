@@ -89,4 +89,22 @@ class TickerExposedRepository {
             throw NotFoundDataException("업데이트할 ${tickerId}의 최신 가격 데이터가 존재하지 않습니다.")
         }
     }
+
+    fun findAtrsByIds(ids: List<UUID>): Map<UUID, BigDecimal> {
+        if (ids.isEmpty()) return emptyMap()
+
+        return TickerPriceTable.select(TickerPriceTable.tickerId, TickerPriceTable.atr)
+            .where { TickerPriceTable.tickerId inList ids }
+            .associate { row ->
+                row[TickerPriceTable.tickerId] to (row[TickerPriceTable.atr] ?: BigDecimal.ZERO)
+            }
+    }
+
+    fun batchUpdateAtr(updates: Map<UUID, BigDecimal>) {
+        updates.forEach { (id, newAtr) ->
+            TickerPriceTable.update({ TickerPriceTable.id eq id }) {
+                it[atr] = newAtr
+            }
+        }
+    }
 }
