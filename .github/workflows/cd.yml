@@ -1,36 +1,19 @@
-name: CD for Canary Deployment
-
+name: Deploy to Single EC2 Articker Prod Server
 on:
-  # 수동 실행 옵션(main에 푸시되어도 자동으로 실행되지 않음)
-  workflow_dispatch:
-    inputs:
-      duration:
-        description: '배포 총 소요 시간 (시간 단위)'
-        required: true
-        default: '9'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
+      # 1. 코드 체크아웃
       - name: Checkout source code
         uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Define image name and tag
         run: |
@@ -38,76 +21,102 @@ jobs:
           IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${REPO_NAME}:${{ github.sha }}"
           echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
 
-      - name: Build and push image
-        uses: docker/build-push-action@v5
+      # 2. JDK 21 설치
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'corretto' # Amazon Corretto JDK 사용
+
+      # 3. Gradle 실행 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 4. Spring Boot 애플리케이션 빌드
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      #  Docker Buildx 설정
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 5. Docker Hub 로그인
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 6. Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
+          # 이미지 태그: {DockerHub유저명}/{리포지토리명}:{브랜치명}-{commit해시}
           tags: ${{ env.IMAGE_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
-      - name: Create new Launch Template Version
-        id: create_lt_version
-        run: |
-          # 1. 최신 버전의 시작 템플릿에서 현재 User Data를 가져옵니다 (Base64 인코딩 상태).
-          BASE64_USER_DATA=$(aws ec2 describe-launch-template-versions \
-            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} \
-            --versions '$Latest' \
-            --query "LaunchTemplateVersions[0].LaunchTemplateData.UserData" \
-            --output text)
-          DECODED_USER_DATA=$(echo "$BASE64_USER_DATA" | base64 --decode)
+      # 7-1. 필요한 설정 파일들을 EC2 서버로 복사
+      - name: Copy configuration to EC2
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          # ⭐️ docker-compose.yml과 prometheus 디렉토리 전체를 복사
+          source: "docker-compose.yml,prometheus"
+          target: "/home/ubuntu"
 
-          # --- ⭐️ 디버깅 로그 (유지 권장) ⭐️ ---
-          echo "--- User Data Before Replacement ---"
-          echo "$DECODED_USER_DATA"
-          echo "------------------------------------"
-          echo "Image Tag to be inserted: ${IMAGE_NAME}" # $IMAGE_NAME 사용 확인
-          echo "------------------------------------"
+      # 7-2. EC2에 접속하여 배포 스크립트 실행
+      - name: Deploy to EC2 instance
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e # 스크립트 실행 중 오류 발생 시 즉시 중단
+            
+            # ⭐️ 1. GitHub Actions에서 만든 이미지 이름을 EC2의 쉘 변수로 export
+            export SPRING_APP_IMAGE=${{ env.IMAGE_NAME }}
+            
+            # ⭐️ 2. GitHub Actions의 Secrets를 사용하여 .env-prod 파일을 서버에 동적으로 생성
+            cat <<EOF > .env-prod
+            SPRING_PROFILES_ACTIVE=prod
+            DB_HOST=${{ secrets.PROD_DB_HOST }}
+            DB_PORT=${{ secrets.PROD_DB_PORT }}
+            DB_NAME=${{ secrets.PROD_DB_NAME }}
+            DB_USERNAME=${{ secrets.PROD_DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            TRANSACTION_ISOLATION_LEVEL=${{ secrets.PROD_TRANSACTION_ISOLATION_LEVEL }}
+            AWS_REGION=${{ secrets.AWS_REGION }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            SQS_QUEUE_NAME=${{ secrets.SQS_QUEUE_NAME }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_TOKEN_VALIDITY=${{ secrets.JWT_ACCESS_TOKEN_VALIDITY }}
+            JWT_REFRESH_TOKEN_VALIDITY=${{ secrets.JWT_REFRESH_TOKEN_VALIDITY}}
+            EOF
+            
+            # ⭐️ 3. Docker Hub에서 최신 이미지 가져오기
+            # docker-compose up이 자동으로 이미지를 pull 하지만, 명시적으로 실행하는 것이 안전합니다.
+            docker pull ${{ env.IMAGE_NAME }}
 
-          # ⭐️ 2. 정규식을 사용하여 이미지 태그 부분을 교체합니다.
-          # 이미지 태그 내의 '/' 문자를 '\/'로 이스케이프 처리합니다.
-          ESCAPED_IMAGE_NAME=$(echo "${IMAGE_NAME}" | sed 's/\//\\\//g')
+            # ⭐️ 4. docker compose로 컨테이너 실행
+            
+            # 이름 충돌을 방지하기 위해 기존 컨테이너를 이름으로 직접 중지 및 제거
+            echo "Stopping and removing potentially conflicting containers by name..."
+            docker stop spring-app prometheus grafana || true
+            docker rm spring-app prometheus grafana || true
+            
+            # 기존 컨테이너가 있다면 중지
+            docker compose down
+            
+            # 새 컨테이너 실행
+            docker compose up -d --force-recreate
 
-          # 더 명확한 sed 패턴을 사용합니다. 구분자도 '@'로 변경합니다.
-          #    'export SPRING_APP_IMAGE="' 로 시작하고 '"'로 끝나는 줄을 찾습니다.
-          MODIFIED_USER_DATA=$(echo "$DECODED_USER_DATA" | sed "s@^export SPRING_APP_IMAGE=\".*\"@export SPRING_APP_IMAGE=\"${ESCAPED_IMAGE_NAME}\"@g")
-          
-          # --- ⭐️ 디버깅 로그 (유지 권장) ⭐️ ---
-          echo "--- User Data After Replacement ---"
-          echo "$MODIFIED_USER_DATA"
-          echo "-----------------------------------"
+            # ⭐️ 5. 보안을 위해 생성했던 .env-prod 파일 즉시 삭제
+            rm .env-prod
 
-          # 4. 수정된 User Data를 다시 Base64로 인코딩합니다.
-          NEW_BASE64_USER_DATA=$(echo "$MODIFIED_USER_DATA" | base64 -w 0)
-
-          # 5. 수정된 User Data를 담아 새 시작 템플릿 버전을 생성합니다.
-          FULL_RESPONSE=$(aws ec2 create-launch-template-version \
-            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} \
-            --version-description "Image tag ${IMAGE_NAME}" \
-            --source-version '$Latest' \
-            --launch-template-data '{"UserData": "'"$NEW_BASE64_USER_DATA"'"}')
-          
-          VERSION=$(echo "$FULL_RESPONSE" | jq -r ".LaunchTemplateVersion.VersionNumber")
-          
-          if [ -z "$VERSION" ] || [ "$VERSION" == "null" ]; then
-            echo "::error::Failed to create new launch template version. Full response: $FULL_RESPONSE"
-            exit 1
-          fi
-
-          # 6. 방금 생성한 버전을 시작 템플릿의 '기본(Default)' 버전으로 설정합니다.
-          aws ec2 modify-launch-template --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }} --default-version $VERSION
-          
-          echo "Successfully created and set Launch Template Version: $VERSION as default"
-          echo "lt_version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Start Step Functions execution
-        run: |
-          SFN_INPUT=$(jq -n \
-            --arg duration "${{ github.event.inputs.duration }}" \
-            --arg lt_version "${{ steps.create_lt_version.outputs.lt_version }}" \
-            --arg image_tag "${{ env.IMAGE_NAME }}" \
-            '{ "total_duration_hours": ($duration | tonumber), "launchTemplateVersion": ($lt_version | tonumber), "imageTag": $image_tag }')
-          aws stepfunctions start-execution \
-            --state-machine-arn "${{ secrets.STATE_MACHINE_ARN }}" \
-            --input "$SFN_INPUT"
+            # ⭐️ 6. 사용하지 않는 Docker 이미지 정리
+            docker image prune -a -f

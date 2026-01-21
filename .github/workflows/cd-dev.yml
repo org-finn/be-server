@@ -94,6 +94,9 @@ jobs:
             AWS_ACCESS_KEY_ID=${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY=${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
             SQS_QUEUE_NAME=${{ secrets.DEV_SQS_QUEUE_NAME }}
+            JWT_SECRET=${{ secrets.DEV_JWT_SECRET }}
+            JWT_ACCESS_TOKEN_VALIDITY=${{ secrets.DEV_JWT_ACCESS_TOKEN_VALIDITY }}
+            JWT_REFRESH_TOKEN_VALIDITY=${{ secrets.DEV_JWT_REFRESH_TOKEN_VALIDITY}}
             EOF
             
             # ⭐️ 3. Docker Hub에서 최신 이미지 가져오기

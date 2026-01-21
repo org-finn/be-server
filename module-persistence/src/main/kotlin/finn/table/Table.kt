@@ -147,3 +147,31 @@ object ExchangeRateTable : UUIDTable("exchange_rate") {
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")
 }
+
+object OAuthUserTable : UUIDTable("oauth_user") {
+    val provider = varchar("provider", 30)
+    val email = varchar("email", 255)
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
+}
+
+object UserInfoTable : UUIDTable("user_info") {
+    val oauthUserId = uuid("oauth_user_id")
+    val nickname = varchar("nickname", 50)
+    val role = varchar("role", 20)
+    val status = varchar("status", 20)
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
+    val deletedAt = datetime("deleted_at")
+}
+
+object UserTokenTable : UUIDTable("user_token") {
+    val userInfoId = uuid("user_info_id")
+    val deviceId = uuid("device_id").uniqueIndex()
+    val deviceType = varchar("device_type", 20)
+    val refreshToken = text("refresh_token")
+    val expiredAt = datetime("expired_at")
+    val issuedAt = datetime("issued_at")
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
+}
