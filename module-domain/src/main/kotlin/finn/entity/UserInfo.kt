@@ -10,8 +10,8 @@ class UserInfo private constructor(
 ) {
 
     companion object {
-        fun create(id: UUID, nickname: String, role: UserRole, status: UserStatus): UserInfo {
-            return UserInfo(id, nickname, role, status)
+        fun create(id: UUID, nickname: String, role: String, status: String): UserInfo {
+            return UserInfo(id, nickname, UserRole.valueOf(role), UserStatus.valueOf(status))
         }
     }
 }
