@@ -7,22 +7,45 @@ import finn.table.UserTokenTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
+import java.time.Clock
+import java.time.LocalDateTime
 import java.util.*
 
 @Repository
-class UserTokenExposedRepository() {
+class UserTokenExposedRepository(
+    private val clock: Clock
+) {
 
     companion object {
         private val log = KotlinLogging.logger {}
     }
 
-    fun findByDeviceId(deviceId: UUID): String {
+    fun save(
+        userInfoId: UUID,
+        deviceId: UUID,
+        deviceType: String,
+        refreshToken: String,
+        expiresAt: Date,
+        issuedAt: Date
+    ) {
+        UserTokenExposed.new {
+            this.userInfoId = userInfoId
+            this.deviceId = deviceId
+            this.deviceType = deviceType
+            this.refreshToken = refreshToken
+            this.expiredAt = expiresAt.toInstant().atZone(clock.zone).toLocalDateTime()
+            this.issuedAt = issuedAt.toInstant().atZone(clock.zone).toLocalDateTime()
+            this.createdAt = LocalDateTime.now(clock)
+            this.updatedAt = LocalDateTime.now(clock)
+        }
+    }
+
+    fun findByDeviceId(deviceId: UUID): UserTokenExposed {
         return UserTokenExposed.find { UserTokenTable.deviceId eq deviceId }
-            .singleOrNull()?.refreshToken
-            ?: run {
-                log.error { "${deviceId}의 user_token이 존재하지 않습니다." }
-                throw AuthenticationCriticalProblemException("auth 관련 로직 중 문제가 발생하였습니다.")
-            }
+            .singleOrNull() ?: run {
+            log.error { "${deviceId}의 user_token이 존재하지 않습니다." }
+            throw AuthenticationCriticalProblemException("auth 관련 로직 중 문제가 발생하였습니다.")
+        }
     }
 
     fun update(refreshToken: String, deviceId: UUID) {

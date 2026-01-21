@@ -73,7 +73,7 @@ class JwtProviderTest : DescribeSpec({
                 val claims = Jwts.parser()
                     .verifyWith(testSecretKey)
                     .build()
-                    .parseSignedClaims(token)
+                    .parseSignedClaims(token.tokenValue)
                     .payload
 
                 claims["deviceId"] shouldBe deviceId.toString()

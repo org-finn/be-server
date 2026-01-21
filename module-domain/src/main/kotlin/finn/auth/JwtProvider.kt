@@ -1,5 +1,6 @@
 package finn.auth
 
+import finn.entity.RefreshToken
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -35,16 +36,17 @@ class JwtProvider(
             .compact()
     }
 
-    fun createRefreshToken(deviceId: UUID): String {
+    fun createRefreshToken(deviceId: UUID): RefreshToken {
         val now = Date()
         val validity = Date(now.time + refreshTokenValidity)
 
-        return Jwts.builder()
+        val tokenValue = Jwts.builder()
             .claim("deviceId", deviceId.toString()) // 어떤 기기 토큰인지 식별용
             .issuedAt(now)
             .expiration(validity)
             .signWith(key)
             .compact()
+        return RefreshToken.create(tokenValue, deviceId, now, validity)
     }
 
 

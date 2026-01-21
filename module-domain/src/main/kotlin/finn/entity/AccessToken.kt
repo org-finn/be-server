@@ -3,11 +3,10 @@ package finn.entity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class Token private constructor(
+class AccessToken private constructor(
     val subject: UUID,
-    val role: String?,
-    val status: String?,
-    val deviceId: UUID?,
+    val role: String,
+    val status: String,
     val issuedAt: Date,
     val expiresAt: Date
 ) {
@@ -16,22 +15,22 @@ class Token private constructor(
         val log = KotlinLogging.logger { }
         fun create(
             subject: String,
-            role: String?,
-            status: String?,
-            deviceId: String?,
+            role: String,
+            status: String,
             issuedAt: Date,
             expiresAt: Date
-        ): Token {
+        ): AccessToken {
 
-            return Token(
+            return AccessToken(
                 UUID.fromString(subject),
                 role,
                 status,
-                deviceId?.let { UUID.fromString(it) },
                 issuedAt,
                 expiresAt
             )
         }
+
+
     }
 
 }

@@ -171,6 +171,7 @@ object UserTokenTable : UUIDTable("user_token") {
     val deviceType = varchar("device_type", 20)
     val refreshToken = text("refresh_token")
     val expiredAt = datetime("expired_at")
+    val issuedAt = datetime("issued_at")
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")
 }

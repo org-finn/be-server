@@ -1,6 +1,7 @@
 package finn.auth
 
-import finn.entity.Token
+import finn.entity.AccessToken
+import finn.entity.RefreshToken
 import finn.exception.auth.InvalidTokenException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.Claims
@@ -9,6 +10,7 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.util.*
 import javax.crypto.SecretKey
 
 @Component
@@ -23,16 +25,31 @@ class JwtValidator(
     fun refreshTokenEquals(userRefreshToken: String, dbRefreshToken: String): Boolean {
         return userRefreshToken == dbRefreshToken
     }
+
     private val key: SecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey))
 
-    fun validateAndExtractToken(token: String): Token {
+    fun validateAndExtractAccessToken(token: String): AccessToken {
         return try {
             val claims = getClaims(token)
-            Token.create(
+            AccessToken.create(
                 subject = claims.subject,
-                role = claims["role"]?.toString(),
-                status = claims["status"]?.toString(),
-                deviceId = claims["deviceId"]?.toString(),
+                role = claims["role"].toString(),
+                status = claims["status"].toString(),
+                issuedAt = claims.issuedAt,
+                expiresAt = claims.expiration
+            )
+        } catch (e: Exception) {
+            log.error { "jwt validation error: ${e.message}" }
+            throw InvalidTokenException("만료되었거나 유효하지 않은 토큰입니다.")
+        }
+    }
+
+    fun validateAndExtractRefreshToken(token: String): RefreshToken {
+        return try {
+            val claims = getClaims(token)
+            RefreshToken.create(
+                tokenValue = token,
+                deviceId = claims["deviceId"].toString().let { UUID.fromString(it) },
                 issuedAt = claims.issuedAt,
                 expiresAt = claims.expiration
             )

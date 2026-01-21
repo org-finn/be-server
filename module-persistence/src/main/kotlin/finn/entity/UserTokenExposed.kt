@@ -14,6 +14,7 @@ class UserTokenExposed(id: EntityID<UUID>) : UUIDEntity(id) {
     var deviceType by UserTokenTable.deviceType
     var refreshToken by UserTokenTable.refreshToken
     var expiredAt by UserTokenTable.expiredAt
+    var issuedAt by UserTokenTable.issuedAt
     var createdAt by UserTokenTable.createdAt
     var updatedAt by UserTokenTable.updatedAt
 }

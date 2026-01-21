@@ -35,11 +35,10 @@ class JwtValidatorTest : DescribeSpec({
 
         describe("validateAndExtractToken 메서드는") {
 
-            context("유효한 토큰이 주어지면") {
+            context("유효한 액세스 토큰이 주어지면") {
                 val subject = UUID.randomUUID()
                 val role = UserRole.USER.name
                 val status = UserStatus.REGISTERED.name
-                val deviceId = UUID.randomUUID()
                 val now = Date()
                 val validity = Date(now.time + 100000)
 
@@ -47,19 +46,35 @@ class JwtValidatorTest : DescribeSpec({
                     .subject(subject.toString())
                     .claim("role", role)
                     .claim("status", status)
+                    .issuedAt(now)
+                    .expiration(validity)
+                    .signWith(testSecretKey)
+                    .compact()
+
+                it("파싱하여 올바른 AccessToken 객체를 반환한다") {
+                    val result = jwtValidator.validateAndExtractAccessToken(validToken)
+
+                    result.subject.toString() shouldBe subject.toString()
+                    result.role shouldBe role
+                    result.status shouldBe status
+                }
+            }
+
+            context("유효한 리프레쉬 토큰이 주어지면") {
+                val deviceId = UUID.randomUUID()
+                val now = Date()
+                val validity = Date(now.time + 100000)
+
+                val validToken = Jwts.builder()
                     .claim("deviceId", deviceId.toString())
                     .issuedAt(now)
                     .expiration(validity)
                     .signWith(testSecretKey)
                     .compact()
 
-                it("파싱하여 올바른 Token 객체를 반환한다") {
-                    val result = jwtValidator.validateAndExtractToken(validToken)
-
-                    result.subject.toString() shouldBe subject.toString()
-                    result.role shouldBe role
-                    result.status shouldBe status
-                    result.deviceId.toString() shouldBe deviceId.toString()
+                it("파싱하여 올바른 AccessToken 객체를 반환한다") {
+                    val result = jwtValidator.validateAndExtractRefreshToken(validToken)
+                    result.deviceId shouldBe deviceId
                 }
             }
 
@@ -73,7 +88,7 @@ class JwtValidatorTest : DescribeSpec({
 
                 it("InvalidTokenException을 던진다") {
                     val exception = shouldThrow<InvalidTokenException> {
-                        jwtValidator.validateAndExtractToken(expiredToken)
+                        jwtValidator.validateAndExtractAccessToken(expiredToken)
                     }
                     exception.message shouldBe "만료되었거나 유효하지 않은 토큰입니다."
                 }
@@ -88,7 +103,7 @@ class JwtValidatorTest : DescribeSpec({
 
                 it("InvalidTokenException을 던진다") {
                     shouldThrow<InvalidTokenException> {
-                        jwtValidator.validateAndExtractToken(forgedToken)
+                        jwtValidator.validateAndExtractAccessToken(forgedToken)
                     }
                 }
             }
@@ -98,7 +113,7 @@ class JwtValidatorTest : DescribeSpec({
 
                 it("InvalidTokenException을 던진다") {
                     shouldThrow<InvalidTokenException> {
-                        jwtValidator.validateAndExtractToken(garbageToken)
+                        jwtValidator.validateAndExtractAccessToken(garbageToken)
                     }
                 }
             }
@@ -111,7 +126,7 @@ class JwtValidatorTest : DescribeSpec({
 
                 it("InvalidTokenException을 던진다") {
                     shouldThrow<InvalidTokenException> {
-                        jwtValidator.validateAndExtractToken(simpleToken)
+                        jwtValidator.validateAndExtractAccessToken(simpleToken)
                     }
                 }
             }
