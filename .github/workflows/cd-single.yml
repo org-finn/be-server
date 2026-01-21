@@ -1,7 +1,10 @@
 name: Deploy to Single EC2 Articker Prod Server
 on:
-  # 수동 실행 옵션(main에 푸시되어도 자동으로 실행되지 않음)
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   deploy:
