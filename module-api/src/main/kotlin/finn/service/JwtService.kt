@@ -16,7 +16,7 @@ import java.util.*
 class JwtService(
     private val jwtProvider: JwtProvider,
     private val jwtValidator: JwtValidator,
-    private val userTokenRepository: UserTokenRepository, // JPA Repository
+    private val userTokenRepository: UserTokenRepository,
     private val userInfoRepository: UserInfoRepository
 ) {
     companion object {
