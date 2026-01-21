@@ -155,17 +155,18 @@ object OAuthUserTable : UUIDTable("oauth_user") {
     val updatedAt = datetime("updated_at")
 }
 
-object MemberTable : UUIDTable("member") {
+object UserInfoTable : UUIDTable("user_info") {
     val oauthUserId = uuid("oauth_user_id")
     val nickname = varchar("nickname", 50)
-    val role = varchar("role", 50)
+    val role = varchar("role", 20)
+    val status = varchar("status", 20)
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")
     val deletedAt = datetime("deleted_at")
 }
 
 object UserTokenTable : UUIDTable("user_token") {
-    val memberId = uuid("member_id")
+    val userInfoId = uuid("user_info_id")
     val deviceId = uuid("device_id")
     val deviceType = varchar("device_type", 20)
     val refreshToken = text("refresh_token")
