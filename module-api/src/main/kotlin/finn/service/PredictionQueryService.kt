@@ -1,6 +1,5 @@
 package finn.service
 
-import finn.entity.TickerScore
 import finn.entity.query.MarketStatus
 import finn.entity.query.PredictionQ
 import finn.exception.DomainPolicyViolationException
@@ -67,18 +66,6 @@ class PredictionQueryService(
 
     suspend fun getRecentSentimentScores(tickerId: UUID): List<Int> {
         return predictionRepository.getRecentSentimentScoreList(tickerId)
-    }
-
-    suspend fun getTodaySentimentScore(tickerId: UUID): Int {
-        return predictionRepository.getRecentScoreByTickerId(tickerId)
-    }
-
-    suspend fun getAllTickerTodaySentimentScore(): List<TickerScore> {
-        return predictionRepository.getAllTickerRecentScore()
-    }
-
-    suspend fun getYesterdayVolatility(tickerId: UUID): BigDecimal {
-        return predictionRepository.getYesterdayVolatilityByTickerId(tickerId)
     }
 
 

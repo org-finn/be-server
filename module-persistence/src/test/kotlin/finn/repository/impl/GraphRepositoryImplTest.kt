@@ -204,8 +204,8 @@ internal class GraphRepositoryImplTest(
                 result shouldHaveSize 1
                 val data = result[0]
                 data.date shouldBeEqual joinDate
-                data.positiveArticleCount shouldBeEqual 123L
-                data.negativeArticleCount shouldBeEqual 56L
+                data.positiveArticleRatio shouldBeEqual 0.69
+                data.negativeArticleRatio shouldBeEqual 0.31
             }
         }
     }

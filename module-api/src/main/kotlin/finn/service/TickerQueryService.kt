@@ -1,6 +1,5 @@
 package finn.service
 
-import finn.entity.query.Ticker
 import finn.filter.TickerSearchFilter
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
@@ -21,14 +20,6 @@ class TickerQueryService(
 
     fun getAllTickerList() : List<TickerQueryDto> {
         return tickerRepository.findAll()
-    }
-
-    fun getTickerByTickerCode(tickerCode: String): Ticker {
-        return tickerRepository.getTickerByTickerCode(tickerCode)
-    }
-
-    suspend fun getYesterdayAtr(tickerId: UUID): BigDecimal {
-        return tickerRepository.getPreviousAtrByTickerId(tickerId)
     }
 
     suspend fun findYesterdayAtrMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {

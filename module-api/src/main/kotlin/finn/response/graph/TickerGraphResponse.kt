@@ -10,7 +10,7 @@ data class TickerGraphResponse(
         val date: String,
         val price: BigDecimal,
         val changeRate: BigDecimal,
-        val positiveArticleCount: Long,
-        val negativeArticleCount: Long
+        val positiveArticleRatio: Double,
+        val negativeArticleRatio: Double
     )
 }
