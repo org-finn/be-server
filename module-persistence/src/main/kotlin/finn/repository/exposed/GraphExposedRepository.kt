@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
+import kotlin.math.round
 
 @Repository
 class GraphExposedRepository {
@@ -71,13 +72,16 @@ class GraphExposedRepository {
             }
             .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
             .map { row ->
+                val positiveNewsCount = row.getOrNull(PredictionTable.positiveArticleCount) ?: 0L
+                val negativeNewsCount = row.getOrNull(PredictionTable.negativeArticleCount) ?: 0L
+                val totalNewsCount = positiveNewsCount + negativeNewsCount
+
                 TickerGraphQueryDto(
                     date = row[TickerPriceTable.priceDate].toLocalDate(),
                     price = row[TickerPriceTable.close],
                     changeRate = row[TickerPriceTable.changeRate],
-                    positiveArticleCount = row.getOrNull(PredictionTable.positiveArticleCount)
-                        ?: 0L,
-                    negativeArticleCount = row.getOrNull(PredictionTable.negativeArticleCount) ?: 0L
+                    positiveArticleRatio = getRatio(positiveNewsCount, totalNewsCount),
+                    negativeArticleRatio = getRatio(negativeNewsCount, totalNewsCount)
                 )
             }
     }
@@ -152,13 +156,17 @@ class GraphExposedRepository {
                         )
 
                     // 4. DTO를 생성할 때 Map에서 가져온 count 값들을 추가합니다.
+                    val positiveNewsCount = currentData.positiveCount
+                    val negativeNewsCount = currentData.negativeCount
+                    val totalNewsCount = positiveNewsCount + negativeNewsCount
+
                     graphData.add(
                         TickerGraphQueryDto(
                             date = currentBusinessDay,
                             price = currentData.closePrice,
                             changeRate = changeRate,
-                            positiveArticleCount = currentData.positiveCount,
-                            negativeArticleCount = currentData.negativeCount
+                            positiveArticleRatio = getRatio(positiveNewsCount, totalNewsCount),
+                            negativeArticleRatio = getRatio(negativeNewsCount, totalNewsCount)
                         )
                     )
                 }
@@ -169,6 +177,12 @@ class GraphExposedRepository {
         return graphData.sortedBy { it.date }
     }
 
+
+    private fun getRatio(count: Long, total: Long): Double {
+        if (total == 0L) return 0.0
+        val ratio = count.toDouble() / total
+        return round(ratio * 100) / 100.0
+    }
 
     /**
      * 가격 데이터가 존재하는 날짜들(businessDays) 중에서,

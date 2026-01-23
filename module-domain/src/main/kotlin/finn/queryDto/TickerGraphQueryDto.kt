@@ -7,6 +7,6 @@ data class TickerGraphQueryDto(
     val date: LocalDate,
     val price: BigDecimal,
     val changeRate: BigDecimal,
-    val positiveArticleCount: Long,
-    val negativeArticleCount: Long
+    val positiveArticleRatio: Double,
+    val negativeArticleRatio: Double
 )
