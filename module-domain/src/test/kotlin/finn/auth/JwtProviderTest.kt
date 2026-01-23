@@ -64,7 +64,7 @@ class JwtProviderTest : DescribeSpec({
 
             it("deviceId 정보가 포함된 유효한 토큰을 생성해야 한다") {
                 // when
-                val token = jwtProvider.createRefreshToken(deviceId)
+                val token = jwtProvider.createRefreshToken()
 
                 // then
                 token.shouldNotBeNull()
@@ -75,8 +75,6 @@ class JwtProviderTest : DescribeSpec({
                     .build()
                     .parseSignedClaims(token.tokenValue)
                     .payload
-
-                claims["deviceId"] shouldBe deviceId.toString()
 
                 // 만료 시간 검증
                 val expirationDiff = claims.expiration.time - Date().time

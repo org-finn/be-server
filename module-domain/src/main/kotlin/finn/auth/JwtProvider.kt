@@ -36,17 +36,16 @@ class JwtProvider(
             .compact()
     }
 
-    fun createRefreshToken(deviceId: UUID): RefreshToken {
+    fun createRefreshToken(): RefreshToken {
         val now = Date()
         val validity = Date(now.time + refreshTokenValidity)
 
         val tokenValue = Jwts.builder()
-            .claim("deviceId", deviceId.toString()) // 어떤 기기 토큰인지 식별용
             .issuedAt(now)
             .expiration(validity)
             .signWith(key)
             .compact()
-        return RefreshToken.create(tokenValue, deviceId, now, validity)
+        return RefreshToken.create(tokenValue,  now, validity)
     }
 
 
