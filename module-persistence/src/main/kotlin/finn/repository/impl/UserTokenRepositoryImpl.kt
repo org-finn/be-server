@@ -32,6 +32,6 @@ class UserTokenRepositoryImpl(
     }
 
     override fun deleteRefreshToken(deviceId: UUID) {
-        userTokenExposedRepository.delete(deviceId)
+        userTokenExposedRepository.deleteByDeviceId(deviceId)
     }
 }

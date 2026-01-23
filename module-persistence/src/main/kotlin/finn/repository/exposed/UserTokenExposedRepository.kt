@@ -4,7 +4,9 @@ import finn.entity.UserTokenExposed
 import finn.exception.AuthenticationCriticalProblemException
 import finn.table.UserTokenTable
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
 import java.time.Clock
 import java.time.LocalDateTime
@@ -17,6 +19,7 @@ class UserTokenExposedRepository(
 
     companion object {
         private val log = KotlinLogging.logger {}
+        private val REFRESH_TOKEN_MAX_COUNT = 5
     }
 
     fun save(
@@ -27,6 +30,25 @@ class UserTokenExposedRepository(
         expiresAt: Date,
         issuedAt: Date
     ) {
+        val curCount = UserTokenTable.selectAll()
+            .where { UserTokenTable.userInfoId eq userInfoId }
+            .count()
+
+        // 기존 제한 개수를 초과하는 경우 제일 오래된 만료 시간의 토큰을 제거함
+        if (curCount > REFRESH_TOKEN_MAX_COUNT) {
+            val oldestTokenId = UserTokenTable.select(UserTokenTable.id)
+                .where { UserTokenTable.userInfoId eq userInfoId }
+                .orderBy(UserTokenTable.expiredAt, SortOrder.ASC)
+                .limit(1)
+                .map { it[UserTokenTable.id].value }
+                .singleOrNull()
+            if (oldestTokenId == null) {
+                log.error { "${userInfoId}의 user_token이 ${curCount}개 존재하지만 다시 조회 시 오류가 발생했습니다." }
+                throw AuthenticationCriticalProblemException("auth 관련 로직 중 문제가 발생하였습니다.")
+            }
+            deleteById(oldestTokenId)
+        }
+
         UserTokenExposed.new {
             this.userInfoId = userInfoId
             this.deviceId = deviceId
@@ -54,9 +76,13 @@ class UserTokenExposedRepository(
         return false
     }
 
-    fun delete(deviceId: UUID) {
+    fun deleteByDeviceId(deviceId: UUID) {
         // 존재하지 않는 row를 지운다해도 굳이 예외를 터뜨리지 않음
         UserTokenExposed.find { UserTokenTable.deviceId eq deviceId }.singleOrNull()?.delete()
     }
 
+    fun deleteById(id: UUID) {
+        // 존재하지 않는 row를 지운다해도 굳이 예외를 터뜨리지 않음
+        UserTokenExposed.find { UserTokenTable.id eq id }.singleOrNull()?.delete()
+    }
 }
