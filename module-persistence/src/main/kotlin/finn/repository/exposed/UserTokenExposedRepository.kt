@@ -2,7 +2,6 @@ package finn.repository.exposed
 
 import finn.entity.UserTokenExposed
 import finn.exception.AuthenticationCriticalProblemException
-import finn.exception.CriticalDataPollutedException
 import finn.table.UserTokenTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -48,13 +47,11 @@ class UserTokenExposedRepository(
         }
     }
 
-    fun update(refreshToken: String, deviceId: UUID) {
+    fun update(refreshToken: String, deviceId: UUID): Boolean {
         UserTokenExposed.findSingleByAndUpdate(UserTokenTable.deviceId eq deviceId) {
             it.refreshToken = refreshToken
-        } ?: run {
-            log.error { "${deviceId}의 user_token이 존재하지 않아 업데이트에 실패했습니다." }
-            throw CriticalDataPollutedException("${deviceId}의 user_token이 존재하지 않습니다.")
-        }
+        }?.let { return true }
+        return false
     }
 
     fun delete(deviceId: UUID) {

@@ -27,8 +27,8 @@ class UserTokenRepositoryImpl(
         return toDomain(userTokenExposedRepository.findByDeviceId(deviceId))
     }
 
-    override fun updateRefreshToken(refreshToken: String, deviceId: UUID) {
-        userTokenExposedRepository.update(refreshToken, deviceId)
+    override fun updateRefreshToken(refreshToken: String, deviceId: UUID): Boolean {
+        return userTokenExposedRepository.update(refreshToken, deviceId)
     }
 
     override fun deleteRefreshToken(deviceId: UUID) {

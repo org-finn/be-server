@@ -74,7 +74,6 @@ class JwtValidatorTest : DescribeSpec({
 
                 it("파싱하여 올바른 AccessToken 객체를 반환한다") {
                     val result = jwtValidator.validateAndExtractRefreshToken(validToken)
-                    result.deviceId shouldBe deviceId
                 }
             }
 

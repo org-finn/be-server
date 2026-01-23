@@ -2,7 +2,7 @@ package finn.service
 
 import finn.auth.JwtProvider
 import finn.auth.JwtValidator
-import finn.exception.auth.InvalidTokenException
+import finn.exception.auth.TokenStolenRiskException
 import finn.repository.UserInfoRepository
 import finn.repository.UserTokenRepository
 import finn.response.auth.TokenResponse
@@ -26,18 +26,17 @@ class JwtService(
     fun issue(userId: UUID, role: String, status: String, deviceType: String): TokenResponse {
         val accessToken = jwtProvider.createAccessToken(userId, role, status)
         val newDeviceId = UUID.randomUUID()
-        val refreshToken = jwtProvider.createRefreshToken(newDeviceId)
+        val refreshToken = jwtProvider.createRefreshToken()
         userTokenRepository.save(
             userId, newDeviceId, deviceType, refreshToken.tokenValue,
             refreshToken.expiredAt, refreshToken.issuedAt
         )
-        return TokenResponse(accessToken, refreshToken.tokenValue)
+        return TokenResponse(accessToken, refreshToken.tokenValue, newDeviceId)
     }
 
-    fun reissue(userRefreshTokenString: String): TokenResponse {
+    fun reissue(userRefreshTokenString: String, deviceId: UUID, deviceType: String): TokenResponse {
         // 1. Refresh Token 자체의 유효성 검증 (위변조/만료 체크 - JWT 레벨)
-        val refreshToken = jwtValidator.validateAndExtractRefreshToken(userRefreshTokenString)
-        val deviceId = refreshToken.deviceId
+        jwtValidator.validateAndExtractRefreshToken(userRefreshTokenString)
 
         // 2. DB에서 device_id로 토큰 정보 조회
         val dbRefreshToken = userTokenRepository.findByDeviceId(deviceId)
@@ -46,19 +45,26 @@ class JwtService(
         if (!jwtValidator.refreshTokenEquals(userRefreshTokenString, dbRefreshToken.refreshToken)) {
             log.error { "db에 저장된 리프레쉬 토큰 값과 일치하지 않습니다. 탈취 가능성 있음" }
             userTokenRepository.deleteRefreshToken(deviceId)
-            throw InvalidTokenException("유효하지 않거나 만료된 토큰입니다.")
+            throw TokenStolenRiskException("유효하지 않거나 만료된 토큰입니다.")
         }
 
         // 4. 멤버 조회
         val userInfo = userInfoRepository.findById(dbRefreshToken.userId)
 
-        // 5. 새 토큰 발급 (Rotation)
+        // 5. 새 토큰 발급
         val newAccessToken =
             jwtProvider.createAccessToken(userInfo.id, userInfo.role.name, userInfo.status.name)
-        val newRefreshToken = jwtProvider.createRefreshToken(deviceId)
+        val newRefreshToken = jwtProvider.createRefreshToken()
 
-        // 6. DB 업데이트 (Rotation 수행)
-        userTokenRepository.updateRefreshToken(newRefreshToken.tokenValue, deviceId)
-        return TokenResponse(newAccessToken, newRefreshToken.tokenValue)
+        // 6. DB 업데이트(만약 일치하는 device_id가 없다면 user_token을 새로 발급하여 리턴)
+        if (!userTokenRepository.updateRefreshToken(newRefreshToken.tokenValue, deviceId)) {
+            val newDeviceId = UUID.randomUUID()
+            userTokenRepository.save(
+                userInfo.id, newDeviceId, deviceType, newRefreshToken.tokenValue,
+                newRefreshToken.expiredAt, newRefreshToken.issuedAt
+            )
+            return TokenResponse(newAccessToken, newRefreshToken.tokenValue, newDeviceId)
+        }
+        return TokenResponse(newAccessToken, newRefreshToken.tokenValue, deviceId)
     }
 }
