@@ -38,9 +38,7 @@ data class ArticlePredictionTask(
         val negativeArticleCount: Long,
         val neutralArticleCount: Long,
         val createdAt: OffsetDateTime,
-    ) {
-        var previousScore: Int by Delegates.notNull()
-    }
+    )
 }
 
 data class InitPredictionTask(

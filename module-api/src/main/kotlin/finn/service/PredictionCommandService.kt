@@ -44,9 +44,10 @@ class PredictionCommandService(
 
     suspend fun updatePredictions(
         predictions: List<PredictionUpdateDto>,
+        alpha: Double
     ) {
         predictionRepository.updateAll(
-            predictions
+            predictions, alpha
         )
     }
 

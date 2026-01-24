@@ -71,11 +71,11 @@ interface PredictionRepository {
         strategy: String
     ): PredictionQ
 
-    suspend fun findAllByTickerIdsForUpdate(tickerIds: List<UUID>): List<PredictionQ>
+    suspend fun findAllByTickerIds(tickerIds: List<UUID>): List<PredictionQ>
 
-    suspend fun findAllForUpdate(): List<PredictionQ>
+    suspend fun findAll(): List<PredictionQ>
 
-    suspend fun updateAll(predictions: List<PredictionUpdateDto>)
+    suspend fun updateAll(predictions: List<PredictionUpdateDto>, alpha: Double)
 
     suspend fun updatePredictionByExponent(
         predictionDate: LocalDateTime,

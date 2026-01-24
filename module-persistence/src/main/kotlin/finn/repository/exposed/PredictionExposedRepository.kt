@@ -15,9 +15,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.sql.statements.jdbc.JdbcConnectionImpl
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
+import java.sql.Date
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -363,7 +366,7 @@ class PredictionExposedRepository(
             ?: throw NotFoundDataException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
     }
 
-    suspend fun findAllByTickerIdsForUpdate(tickerIds: List<UUID>): List<PredictionExposed> {
+    suspend fun findAllByTickerIds(tickerIds: List<UUID>): List<PredictionExposed> {
         if (tickerIds.isEmpty()) return emptyList()
 
         // 데드락 방지를 위해 ID 정렬
@@ -372,14 +375,13 @@ class PredictionExposedRepository(
         return PredictionExposed.find {
             (PredictionTable.tickerId inList sortedIds) and
                     (PredictionTable.predictionDate eq LocalDateTime.now().toLocalDate()
-                        .atStartOfDay()) // 날짜 조건 예시
-        }.forUpdate()
+                        .atStartOfDay())
+        }
             .toList()
     }
 
-    suspend fun findAllForUpdate(): List<PredictionExposed> {
+    suspend fun findAll(): List<PredictionExposed> {
         return PredictionExposed.all()
-            .forUpdate()
             .toList()
     }
 
@@ -405,19 +407,74 @@ class PredictionExposedRepository(
         } ?: throw NotFoundDataException("금일 일자로 생성된 ${tickerId}의 Prediction이 존재하지 않습니다.")
     }
 
-    fun batchUpdatePredictions(updates: List<PredictionUpdateDto>) {
-        updates.forEach { dto ->
-            PredictionTable.update({
-                (PredictionTable.tickerId eq dto.tickerId) and
-                        (PredictionTable.predictionDate eq dto.predictionDate)
-            }) {
-                it[score] = dto.score
-                it[positiveArticleCount] = dto.positiveArticleCount
-                it[negativeArticleCount] = dto.negativeArticleCount
-                it[neutralArticleCount] = dto.neutralArticleCount
-                it[sentiment] = dto.sentiment
-                it[strategy] = dto.strategy
+    fun batchUpdatePredictions(updates: List<PredictionUpdateDto>, alpha: Double) {
+        if (updates.isEmpty()) return
+
+        // 1. 데드락 방지 정렬
+        val sortedUpdates = updates.sortedWith(
+            compareBy<PredictionUpdateDto> { it.tickerId }.thenBy { it.predictionDate }
+        )
+
+        val oneMinusAlpha = 1.0 - alpha
+
+        // 2. SQL 작성
+        // RMA 적용을 DB 단으로 이동(새롭게 계산된 점수를 아예 뒤집어쓰는 방식이 아닌 일부 반영 방식으로 변경)
+        val sql = """
+        UPDATE predictions
+        SET 
+            score = GREATEST(0, LEAST(100, 
+                ROUND(
+                    CASE 
+                        WHEN score = 0 THEN ? 
+                        ELSE (score * $oneMinusAlpha) + (? * $alpha) 
+                    END
+                )::integer
+            )),
+            positive_article_count = positive_article_count + ?,
+            negative_article_count = negative_article_count + ?,
+            neutral_article_count = neutral_article_count + ?,
+            sentiment = ?,
+            strategy = ?
+        WHERE ticker_id = ? AND prediction_date = ?
+    """.trimIndent()
+
+        // 3. JDBC Connection 추출 및 배치 실행
+        val exposedConn = TransactionManager.current().connection
+
+        // Exposed 래퍼를 벗겨내고 실제 JDBC Connection을 가져옵니다.
+        val jdbcConn = (exposedConn as? JdbcConnectionImpl)?.connection
+            ?: throw IllegalStateException("Current connection is not a JDBC connection")
+
+        // Try-Finally로 자원 해제 보장
+        var stmt: PreparedStatement? = null
+        try {
+            stmt = jdbcConn.prepareStatement(sql)
+
+            sortedUpdates.forEach { dto ->
+                var idx = 1
+
+                // -- SET 절 --
+                stmt.setDouble(idx++, dto.score.toDouble())     // 초기값용
+                stmt.setDouble(idx++, dto.score.toDouble())     // EMA 계산용
+                stmt.setLong(idx++, dto.positiveArticleCount)
+                stmt.setLong(idx++, dto.negativeArticleCount)
+                stmt.setLong(idx++, dto.neutralArticleCount)
+                stmt.setInt(idx++, dto.sentiment)
+                stmt.setString(idx++, dto.strategy)
+
+                // -- WHERE 절 --
+                stmt.setObject(idx++, dto.tickerId)
+                stmt.setDate(idx++, Date.valueOf(dto.predictionDate.toLocalDate()))
+
+                // 배치에 추가
+                stmt.addBatch()
             }
+
+            // 일괄 실행
+            stmt.executeBatch()
+
+        } finally {
+            stmt?.close()
         }
     }
 
@@ -636,8 +693,8 @@ class PredictionExposedRepository(
         // 여기서는 단순하게 하루 전 00:00:00 기준 데이터를 조회한다고 가정
         val yesterday = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay()
 
-        return PredictionTable.slice(PredictionTable.tickerId, PredictionTable.volatility)
-            .select {
+        return PredictionTable.select(PredictionTable.tickerId, PredictionTable.volatility)
+            .where {
                 (PredictionTable.tickerId inList tickerIds) and
                         (PredictionTable.predictionDate eq yesterday)
             }
