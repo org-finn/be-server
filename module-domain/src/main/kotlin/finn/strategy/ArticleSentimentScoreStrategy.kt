@@ -5,17 +5,22 @@ import org.springframework.stereotype.Component
 import kotlin.math.ln
 import kotlin.math.roundToInt
 
+/**
+ * 이전 점수 기준으로 계산한 점수가 아닌 50점 기준으로 아예 새롭게 계산한 점수를 리턴
+ * DB 단에서 RMA 공식에 따라 소폭 변동 반영
+ */
 @Component
 class ArticleSentimentScoreStrategy : SentimentScoreStrategy<ArticlePredictionTask> {
 
     companion object {
         // 점수 관찰 후 튜닝 필요
         private const val BASE_SCORE = 50.0 // 기본 점수 (중립)
-        private const val PRIOR_WEIGHT = 3.0 // 사전 가중치 (이 값만큼의 '가상의 중립 기사'가 있다고 가정) -> 값이 클수록 점수 변화가 둔감함
-        private const val EMA_ALPHA = 0.4 // 지수 이동 평균 반영 비율, 높을수록 최신 뉴스 반영이 빠름
+        private const val PRIOR_WEIGHT =
+            3.0 // 사전 가중치 (이 값만큼의 '가상의 중립 기사'가 있다고 가정) -> 값이 클수록 점수 변화가 둔감함
 
         // 지나치게 낮은 로그 함수에 가중치 일부 보정
-        private const val NEGATIVE_WEIGHT_MULTIPLIER = 6.0 // 부정 뉴스는 긍정 뉴스보다 상대적으로 시장 영향력이 높음을 반영, 가중치를 더 높게 설정
+        private const val NEGATIVE_WEIGHT_MULTIPLIER =
+            6.0 // 부정 뉴스는 긍정 뉴스보다 상대적으로 시장 영향력이 높음을 반영, 가중치를 더 높게 설정
         private const val POSITIVE_WEIGHT_MULTIPLIER = 4.0
     }
 
@@ -25,7 +30,6 @@ class ArticleSentimentScoreStrategy : SentimentScoreStrategy<ArticlePredictionTa
         val posCount = task.payload.positiveArticleCount.toDouble()
         val negCount = task.payload.negativeArticleCount.toDouble()
         val neuCount = task.payload.neutralArticleCount.toDouble()
-        val previousScore = task.payload.previousScore.toDouble()
 
         // 1. 로그 함수 적용 (수확 체감 법칙)
         // 기사가 많아질수록 1건당 증가폭 둔화
@@ -42,16 +46,9 @@ class ArticleSentimentScoreStrategy : SentimentScoreStrategy<ArticlePredictionTa
                 (wNeu * 50.0) +
                 (wNeg * 0.0)
 
-        val currentBatchScore = weightedSum / totalWeight
+        val rawBatchScore = weightedSum / totalWeight
 
-        // 3. 지수 이동 평균(EMA)으로 이전 점수와 결합
-        // 이전 점수가 아예 없는 초기 상태(0점 등)라면 현재 점수를 바로 사용
-        val finalScore = if (previousScore == 0.0) {
-            currentBatchScore
-        } else {
-            (currentBatchScore * EMA_ALPHA) + (previousScore * (1.0 - EMA_ALPHA))
-        }
-
-        return finalScore.roundToInt().coerceIn(0, 100)
+        // 3. Int 변환 (반올림 및 0~100 범위 고정)
+        return rawBatchScore.roundToInt().coerceIn(0, 100)
     }
 }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Component
 import java.sql.Connection
+import kotlin.math.roundToInt
 
 @Component
 class ArticlePredictionHandler(
@@ -21,6 +22,10 @@ class ArticlePredictionHandler(
     private val predictionQueryService: PredictionQueryService,
     private val strategyFactory: StrategyFactory
 ) : PredictionHandler {
+
+    companion object {
+        const val ALPHA = 0.1
+    }
 
     override fun supports(type: String): Boolean = type == "article"
 
@@ -37,8 +42,7 @@ class ArticlePredictionHandler(
             val tasksByTicker = articleTasks.groupBy { it.tickerId }
             val tickerIds = tasksByTicker.keys.toList()
 
-            // 2. DB 락(Pessimistic Write)을 걸고 현재 상태 일괄 조회
-            // 정렬된 ID로 조회하여 데드락 방지
+            // 2. 현재 상태 일괄 조회
             val currentPredictions =
                 predictionQueryService.findAllByTickerIdsForPrediction(tickerIds)
             val predictionMap = currentPredictions.associateBy { it.tickerId }
@@ -68,15 +72,10 @@ class ArticlePredictionHandler(
                             as? ArticleSentimentScoreStrategy
                         ?: throw NotSupportedTypeException("Invalid strategy")
 
-                    // 이전 점수를 기반으로 새 점수 계산
-                    // 주의: payload.previousScore는 DB 조회가 아니라,
-                    // 루프 내에서 갱신되는 currentScore를 써야 정확함.
-                    task.payload.previousScore = currentScore
-
                     val newCalculatedScore = strategy.calculate(task) // 전략 실행
 
                     // 상태 누적
-                    currentScore = newCalculatedScore
+                    currentScore = ((newCalculatedScore * ALPHA) + (currentScore * (1-ALPHA))).roundToInt()
                     posCount += payload.positiveArticleCount
                     negCount += payload.negativeArticleCount
                     neuCount += payload.neutralArticleCount
@@ -93,7 +92,7 @@ class ArticlePredictionHandler(
 
             // 4. 변경된 내역 일괄 업데이트 (Command Service 호출)
             if (updates.isNotEmpty()) {
-                predictionCommandService.updatePredictions(updates)
+                predictionCommandService.updatePredictions(updates, ALPHA)
             }
         }
     }
