@@ -170,22 +170,22 @@ class PredictionRepositoryImpl(
         )
     }
 
-    override suspend fun updateAll(predictions: List<PredictionUpdateDto>) {
-        predictionExposedRepository.batchUpdatePredictions(predictions)
+    override suspend fun updateAll(predictions: List<PredictionUpdateDto>, alpha: Double) {
+        predictionExposedRepository.batchUpdatePredictions(predictions, alpha)
     }
 
     override suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): BigDecimal {
         return predictionExposedRepository.findPreviousVolatilityByTickerId(tickerId)
     }
 
-    override suspend fun findAllByTickerIdsForUpdate(tickerIds: List<UUID>): List<PredictionQ> {
-        return predictionExposedRepository.findAllByTickerIdsForUpdate(tickerIds)
+    override suspend fun findAllByTickerIds(tickerIds: List<UUID>): List<PredictionQ> {
+        return predictionExposedRepository.findAllByTickerIds(tickerIds)
             .map { toDomain(it) }
             .toList()
     }
 
-    override suspend fun findAllForUpdate(): List<PredictionQ> {
-        return predictionExposedRepository.findAllForUpdate()
+    override suspend fun findAll(): List<PredictionQ> {
+        return predictionExposedRepository.findAll()
             .map { toDomain(it) }
             .toList()
     }

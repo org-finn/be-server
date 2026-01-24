@@ -24,6 +24,10 @@ class ExponentPredictionHandler(
     private val sentimentConverter: SentimentConverter
 ) : PredictionHandler {
 
+    companion object {
+        const val ALPHA = 0.1
+    }
+
     override fun supports(type: String): Boolean = type == "exponent"
 
     override suspend fun handle(tasks: List<PredictionTask>) {
@@ -77,7 +81,7 @@ class ExponentPredictionHandler(
 
             // 4. Bulk Update 수행
             if (updates.isNotEmpty()) {
-                predictionCommandService.updatePredictions(updates)
+                predictionCommandService.updatePredictions(updates, ALPHA)
             }
         }
     }
