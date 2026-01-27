@@ -21,7 +21,7 @@ class JwtValidator(
         private val log = KotlinLogging.logger {}
     }
 
-    fun refreshTokenEquals(userRefreshToken: String, dbRefreshToken: String): Boolean {
+    fun refreshTokenEquals(userRefreshToken: String, dbRefreshToken: String?): Boolean {
         return userRefreshToken == dbRefreshToken
     }
 

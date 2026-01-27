@@ -63,6 +63,18 @@ class AuthOrchestrator(
         return jwtService.reIssue(refreshTokenString, deviceId, deviceType)
     }
 
+    @ExposedTransactional
+    fun logout(
+        accessToken: String,
+        deviceId: UUID,
+    ) {
+        // 1. 액세스 토큰 무효화
+        jwtService.addToBlacklist(accessToken)
+
+        // 2. 리프레쉬 토큰 해제
+        jwtService.releaseRefreshToken(deviceId)
+    }
+
     /**
      * Google ID Token 발급 API로 요청
      */

@@ -27,7 +27,7 @@ class UserTokenExposedRepository(
         deviceId: UUID,
         deviceType: String,
         refreshToken: String,
-        expiresAt: Date,
+        expiredAt: Date,
         issuedAt: Date
     ) {
         val curCount = UserTokenTable.selectAll()
@@ -54,7 +54,7 @@ class UserTokenExposedRepository(
             this.deviceId = deviceId
             this.deviceType = deviceType
             this.refreshToken = refreshToken
-            this.expiredAt = expiresAt.toInstant().atZone(clock.zone).toLocalDateTime()
+            this.expiredAt = expiredAt.toInstant().atZone(clock.zone).toLocalDateTime()
             this.issuedAt = issuedAt.toInstant().atZone(clock.zone).toLocalDateTime()
             this.createdAt = LocalDateTime.now(clock)
             this.updatedAt = LocalDateTime.now(clock)
@@ -69,11 +69,23 @@ class UserTokenExposedRepository(
         }
     }
 
-    fun update(refreshToken: String, deviceId: UUID): Boolean {
+    fun update(refreshToken: String, deviceId: UUID, issuedAt: Date, expiredAt: Date): Boolean {
         UserTokenExposed.findSingleByAndUpdate(UserTokenTable.deviceId eq deviceId) {
             it.refreshToken = refreshToken
+            it.expiredAt = expiredAt.toInstant().atZone(clock.zone).toLocalDateTime()
+            it.issuedAt = issuedAt.toInstant().atZone(clock.zone).toLocalDateTime()
+            it.updatedAt = LocalDateTime.now(clock)
         }?.let { return true }
         return false
+    }
+
+    fun release(deviceId: UUID) {
+        UserTokenExposed.findSingleByAndUpdate(UserTokenTable.deviceId eq deviceId) {
+            it.refreshToken = null
+            it.issuedAt = null
+            it.expiredAt = null
+            it.updatedAt = LocalDateTime.now(clock)
+        }
     }
 
     fun deleteByDeviceId(deviceId: UUID) {

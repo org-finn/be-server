@@ -3,6 +3,7 @@ package finn.controller
 import finn.apiSpec.AuthApiSpec
 import finn.exception.auth.InvalidTokenException
 import finn.orchestrator.AuthOrchestrator
+import finn.request.auth.LogoutRequest
 import finn.request.auth.OAuthLoginRequest
 import finn.request.auth.ReIssueRequest
 import finn.response.SuccessResponse
@@ -84,5 +85,15 @@ class AuthController(
             ClientTokenResponse(response.accessToken, response.refreshToken, response.deviceId)
         return ResponseEntity.ok()
             .body(SuccessResponse("200 Ok", "액세스/리프레쉬 토큰 재발급 성공", responseForApp))
+    }
+
+    override fun logout(
+        logoutRequest: LogoutRequest,
+        httpServletRequest: HttpServletRequest
+    ): ResponseEntity<SuccessResponse<Nothing>> {
+        val accessToken = "" // [TODO]: 인증 로직 구축되면 액세스 토큰 주입받아 사용
+        authOrchestrator.logout(accessToken, logoutRequest.deviceId)
+
+        return ResponseEntity.ok().body(SuccessResponse("200 Ok", "로그아웃 성공"))
     }
 }

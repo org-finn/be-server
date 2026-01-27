@@ -12,7 +12,14 @@ interface UserTokenRepository {
 
     fun findByDeviceId(deviceId: UUID): UserToken
 
-    fun updateRefreshToken(refreshToken: String, deviceId: UUID): Boolean
+    fun updateRefreshToken(
+        refreshToken: String,
+        deviceId: UUID,
+        issuedAt: Date,
+        expiredAt: Date
+    ): Boolean
+
+    fun releaseRefreshToken(deviceId: UUID)
 
     fun deleteRefreshToken(deviceId: UUID)
 }

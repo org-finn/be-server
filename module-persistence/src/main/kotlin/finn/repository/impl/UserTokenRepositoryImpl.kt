@@ -12,23 +12,35 @@ class UserTokenRepositoryImpl(
     private val userTokenExposedRepository: UserTokenExposedRepository
 ) : UserTokenRepository {
 
-    override fun save(userId: UUID, deviceId: UUID, deviceType: String, tokenValue: String,
-                      expiredAt: Date, issuedAt: Date) {
+    override fun save(
+        userId: UUID, deviceId: UUID, deviceType: String, tokenValue: String,
+        expiredAt: Date, issuedAt: Date
+    ) {
         userTokenExposedRepository.save(
             userId,
             deviceId,
             deviceType,
             tokenValue,
             expiredAt,
-            issuedAt)
+            issuedAt
+        )
     }
 
     override fun findByDeviceId(deviceId: UUID): UserToken {
         return toDomain(userTokenExposedRepository.findByDeviceId(deviceId))
     }
 
-    override fun updateRefreshToken(refreshToken: String, deviceId: UUID): Boolean {
-        return userTokenExposedRepository.update(refreshToken, deviceId)
+    override fun updateRefreshToken(
+        refreshToken: String,
+        deviceId: UUID,
+        issuedAt: Date,
+        expiredAt: Date
+    ): Boolean {
+        return userTokenExposedRepository.update(refreshToken, deviceId, issuedAt, expiredAt)
+    }
+
+    override fun releaseRefreshToken(deviceId: UUID) {
+        userTokenExposedRepository.release(deviceId)
     }
 
     override fun deleteRefreshToken(deviceId: UUID) {

@@ -8,8 +8,11 @@ import finn.repository.UserTokenRepository
 import finn.response.auth.TokenResponse
 import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 @ExposedTransactional(readOnly = true)
@@ -17,8 +20,11 @@ class JwtService(
     private val jwtProvider: JwtProvider,
     private val jwtValidator: JwtValidator,
     private val userTokenRepository: UserTokenRepository,
-    private val userInfoRepository: UserInfoRepository
+    private val userInfoRepository: UserInfoRepository,
+    @Value("\${jwt.access-token-validity}") private val ACCESS_TOKEN_VALIDITY: Long
 ) {
+    private val blackList = ConcurrentHashMap<String, Long>() // key: accessToken, value: validity
+
     companion object {
         private val log = KotlinLogging.logger {}
     }
@@ -57,7 +63,13 @@ class JwtService(
         val newRefreshToken = jwtProvider.createRefreshToken()
 
         // 6. DB 업데이트(만약 일치하는 device_id가 없다면 user_token을 새로 발급하여 리턴)
-        if (!userTokenRepository.updateRefreshToken(newRefreshToken.tokenValue, deviceId)) {
+        if (!userTokenRepository.updateRefreshToken(
+                newRefreshToken.tokenValue,
+                deviceId,
+                newRefreshToken.issuedAt,
+                newRefreshToken.expiredAt
+            )
+        ) {
             val newDeviceId = UUID.randomUUID()
             userTokenRepository.save(
                 userInfo.id, newDeviceId, deviceType, newRefreshToken.tokenValue,
@@ -66,5 +78,29 @@ class JwtService(
             return TokenResponse(newAccessToken, newRefreshToken.tokenValue, newDeviceId)
         }
         return TokenResponse(newAccessToken, newRefreshToken.tokenValue, deviceId)
+    }
+
+    fun releaseRefreshToken(deviceId: UUID) {
+        userTokenRepository.releaseRefreshToken(deviceId)
+    }
+
+
+    fun addToBlacklist(token: String) {
+        blackList[token] = System.currentTimeMillis().plus(ACCESS_TOKEN_VALIDITY)
+    }
+
+    fun isInBlackList(token: String): Boolean {
+        return blackList.containsKey(token)
+    }
+
+
+    @Scheduled(fixedRate = 60000) // 1분마다 실행
+    private fun cleanupExpiredTokens() {
+        val now = System.currentTimeMillis()
+
+        // entrySet을 순회하며 만료된 요소 제거
+        blackList.entries.removeIf { entry ->
+            entry.value < now
+        }
     }
 }

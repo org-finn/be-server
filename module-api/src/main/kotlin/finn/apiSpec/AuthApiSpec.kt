@@ -1,5 +1,6 @@
 package finn.apiSpec
 
+import finn.request.auth.LogoutRequest
 import finn.request.auth.OAuthLoginRequest
 import finn.request.auth.ReIssueRequest
 import finn.response.SuccessResponse
@@ -60,7 +61,34 @@ interface AuthApiSpec {
     )
     @PostMapping("/reIssue")
     fun reIssue(
-        @RequestBody reIssueRequest : ReIssueRequest,
+        @RequestBody reIssueRequest: ReIssueRequest,
         httpServletRequest: HttpServletRequest
     ): ResponseEntity<SuccessResponse<ClientTokenResponse>>
+
+
+    @Operation(
+        summary = "로그아웃", description = "로그아웃을 수행하고 쿠키 내의 토큰을 삭제합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "로그아웃 성공"
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 리프레쉬 토큰으로 로그아웃에 실패하였습니다."
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "리프레쉬 토큰이 누락되었습니다."
+            ),
+        ]
+    )
+    @PostMapping("/logout")
+    fun logout(
+        @RequestBody logoutRequest: LogoutRequest,
+        httpServletRequest: HttpServletRequest
+    ): ResponseEntity<SuccessResponse<Nothing>>
+
 }
