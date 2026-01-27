@@ -138,7 +138,7 @@ class JwtServiceTest : DescribeSpec({
                     every { userTokenRepository.updateRefreshToken(mockNewRefreshTokenValue, deviceId) } returns true
 
                     // when
-                    val response = jwtService.reissue(userRefreshTokenString, deviceId, deviceType)
+                    val response = jwtService.reIssue(userRefreshTokenString, deviceId, deviceType)
 
                     // then
                     response.accessToken shouldBe mockNewAccessToken
@@ -157,7 +157,7 @@ class JwtServiceTest : DescribeSpec({
                     every { userTokenRepository.updateRefreshToken(mockNewRefreshTokenValue, deviceId) } returns false
 
                     // when
-                    val response = jwtService.reissue(userRefreshTokenString, deviceId, deviceType)
+                    val response = jwtService.reIssue(userRefreshTokenString, deviceId, deviceType)
 
                     // then
                     response.accessToken shouldBe mockNewAccessToken
@@ -188,7 +188,7 @@ class JwtServiceTest : DescribeSpec({
 
                     // when & then
                     shouldThrow<TokenStolenRiskException> {
-                        jwtService.reissue(userRefreshTokenString, deviceId, deviceType)
+                        jwtService.reIssue(userRefreshTokenString, deviceId, deviceType)
                     }
 
                     // Verify: 삭제 로직 실행 확인
@@ -206,7 +206,7 @@ class JwtServiceTest : DescribeSpec({
 
                     // when & then
                     shouldThrow<InvalidTokenException> {
-                        jwtService.reissue(userRefreshTokenString, deviceId, deviceType)
+                        jwtService.reIssue(userRefreshTokenString, deviceId, deviceType)
                     }
                 }
             }

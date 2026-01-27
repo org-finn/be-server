@@ -34,7 +34,7 @@ class JwtService(
         return TokenResponse(accessToken, refreshToken.tokenValue, newDeviceId)
     }
 
-    fun reissue(userRefreshTokenString: String, deviceId: UUID, deviceType: String): TokenResponse {
+    fun reIssue(userRefreshTokenString: String, deviceId: UUID, deviceType: String): TokenResponse {
         // 1. Refresh Token 자체의 유효성 검증 (위변조/만료 체크 - JWT 레벨)
         jwtValidator.validateAndExtractRefreshToken(userRefreshTokenString)
 

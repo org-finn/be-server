@@ -46,7 +46,7 @@ class AuthService(
             .body(requestBody)
             .retrieve()
             .body(GoogleIdTokenResponse::class.java)
-            ?: throw OAuthException("Google ID Token 발급 실패: 응답이 비어있습니다.")
+            ?: throw OAuthException("유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다.")
 
     }
 

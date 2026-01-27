@@ -54,6 +54,15 @@ class AuthOrchestrator(
         return tokenResponse
     }
 
+    @ExposedTransactional
+    fun reIssueToken(
+        refreshTokenString: String,
+        deviceType: String,
+        deviceId: UUID
+    ): TokenResponse {
+        return jwtService.reIssue(refreshTokenString, deviceId, deviceType)
+    }
+
     /**
      * Google ID Token 발급 API로 요청
      */
