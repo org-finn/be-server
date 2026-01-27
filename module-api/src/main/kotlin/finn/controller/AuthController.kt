@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @RestController
 class AuthController(
@@ -43,13 +44,13 @@ class AuthController(
         // 4. web일 경우 쿠키에 토큰 set
         if (tokenCookieService.checkDeviceType(oAuthLoginRequest.deviceType)) {
             val cookie = tokenCookieService.setRefreshTokenInCookie(response.refreshToken)
-            val responseForWeb = ClientTokenResponse(response.accessToken, null, response.deviceId)
+            val responseForWeb = ClientTokenResponse(response.accessToken, null)
             return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(SuccessResponse("200 Ok", "구글 로그인 수행 후 액세스/리프레쉬 토큰 발급 성공", responseForWeb))
         }
         val responseForApp =
-            ClientTokenResponse(response.accessToken, response.refreshToken, response.deviceId)
+            ClientTokenResponse(response.accessToken, response.refreshToken)
         return ResponseEntity.ok()
             .body(SuccessResponse("200 Ok", "구글 로그인 수행 후 액세스/리프레쉬 토큰 발급 성공", responseForApp))
     }
@@ -58,6 +59,7 @@ class AuthController(
         reIssueRequest: ReIssueRequest,
         httpServletRequest: HttpServletRequest
     ): ResponseEntity<SuccessResponse<ClientTokenResponse>> {
+        val userId = UUID.randomUUID() // [TODO]: accessToken에서 추출
         // 1. 리프레쉬 토큰 추출(앱/웹 여부에 따라 다르게 추출)
         val refreshToken =
             if (tokenCookieService.checkDeviceType(reIssueRequest.deviceType)) {
@@ -68,21 +70,21 @@ class AuthController(
 
         // 2. 리프레쉬 토큰 발급 후 리턴
         val response = authOrchestrator.reIssueToken(
+            userId,
             refreshToken,
-            reIssueRequest.deviceType,
-            reIssueRequest.deviceId
+            reIssueRequest.deviceType
         )
 
         // 3. web일 경우 쿠키에 토큰 set
         if (tokenCookieService.checkDeviceType(reIssueRequest.deviceType)) {
             val cookie = tokenCookieService.setRefreshTokenInCookie(response.refreshToken)
-            val responseForWeb = ClientTokenResponse(response.accessToken, null, response.deviceId)
+            val responseForWeb = ClientTokenResponse(response.accessToken, null)
             return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(SuccessResponse("200 Ok", "액세스/리프레쉬 토큰 재발급 성공", responseForWeb))
         }
         val responseForApp =
-            ClientTokenResponse(response.accessToken, response.refreshToken, response.deviceId)
+            ClientTokenResponse(response.accessToken, response.refreshToken)
         return ResponseEntity.ok()
             .body(SuccessResponse("200 Ok", "액세스/리프레쉬 토큰 재발급 성공", responseForApp))
     }
@@ -92,7 +94,7 @@ class AuthController(
         httpServletRequest: HttpServletRequest
     ): ResponseEntity<SuccessResponse<Nothing>> {
         val accessToken = "" // [TODO]: 인증 로직 구축되면 액세스 토큰 주입받아 사용
-        authOrchestrator.logout(accessToken, logoutRequest.deviceId)
+        authOrchestrator.logout(accessToken, logoutRequest.refreshToken)
 
         return ResponseEntity.ok().body(SuccessResponse("200 Ok", "로그아웃 성공"))
     }

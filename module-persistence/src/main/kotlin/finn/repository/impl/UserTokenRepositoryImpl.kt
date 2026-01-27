@@ -13,16 +13,13 @@ class UserTokenRepositoryImpl(
 ) : UserTokenRepository {
 
     override fun save(
-        userId: UUID, deviceId: UUID, deviceType: String, tokenValue: String,
-        expiredAt: Date, issuedAt: Date
+        userId: UUID, deviceId: UUID, deviceType: String, tokenValue: String
     ) {
         userTokenExposedRepository.save(
             userId,
             deviceId,
             deviceType,
-            tokenValue,
-            expiredAt,
-            issuedAt
+            tokenValue
         )
     }
 
@@ -31,12 +28,19 @@ class UserTokenRepositoryImpl(
     }
 
     override fun updateRefreshToken(
+        deletingRefreshToken: String,
         refreshToken: String,
+        userId: UUID,
         deviceId: UUID,
-        issuedAt: Date,
-        expiredAt: Date
-    ): Boolean {
-        return userTokenExposedRepository.update(refreshToken, deviceId, issuedAt, expiredAt)
+        deviceType: String
+    ) {
+        userTokenExposedRepository.update(
+            deletingRefreshToken,
+            refreshToken,
+            userId,
+            deviceId,
+            deviceType
+        )
     }
 
     override fun releaseRefreshToken(deviceId: UUID) {

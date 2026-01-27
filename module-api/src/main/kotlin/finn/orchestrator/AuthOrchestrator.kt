@@ -1,5 +1,6 @@
 package finn.orchestrator
 
+import finn.auth.JwtValidator
 import finn.response.auth.*
 import finn.service.AuthService
 import finn.service.JwtService
@@ -13,7 +14,8 @@ import java.util.*
 class AuthOrchestrator(
     private val authService: AuthService,
     private val userInfoService: UserInfoService,
-    private val jwtService: JwtService
+    private val jwtService: JwtService,
+    private val jwtValidator: JwtValidator
 ) {
 
     fun getOAuthUserInfoForGoogle(authorizationCode: String): OAuthUserInfoResponse {
@@ -56,23 +58,24 @@ class AuthOrchestrator(
 
     @ExposedTransactional
     fun reIssueToken(
+        userId: UUID,
         refreshTokenString: String,
-        deviceType: String,
-        deviceId: UUID
+        deviceType: String
     ): TokenResponse {
-        return jwtService.reIssue(refreshTokenString, deviceId, deviceType)
+        return jwtService.reIssue(refreshTokenString, userId, deviceType)
     }
 
     @ExposedTransactional
     fun logout(
         accessToken: String,
-        deviceId: UUID,
+        refreshTokenString: String
     ) {
         // 1. 액세스 토큰 무효화
         jwtService.addToBlacklist(accessToken)
 
         // 2. 리프레쉬 토큰 해제
-        jwtService.releaseRefreshToken(deviceId)
+        val refreshToken = jwtValidator.validateAndExtractRefreshToken(refreshTokenString)
+        jwtService.releaseRefreshToken(refreshToken.deviceId)
     }
 
     /**

@@ -10,6 +10,7 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import java.util.*
 import javax.crypto.SecretKey
 
 @Component
@@ -48,6 +49,7 @@ class JwtValidator(
             val claims = getClaims(token)
             RefreshToken.create(
                 tokenValue = token,
+                deviceId = UUID.fromString(claims["deviceId"].toString()),
                 issuedAt = claims.issuedAt,
                 expiredAt = claims.expiration
             )

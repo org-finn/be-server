@@ -1,6 +1,7 @@
 package finn.orchestrator
 
 
+import finn.auth.JwtValidator
 import finn.entity.UserInfo
 import finn.entity.UserRole
 import finn.entity.UserStatus
@@ -24,12 +25,14 @@ class AuthOrchestratorTest : DescribeSpec({
     val authService = mockk<AuthService>()
     val userInfoService = mockk<UserInfoService>()
     val jwtService = mockk<JwtService>()
+    val jwtValidator = mockk<JwtValidator>()
 
     // 2. 테스트 대상 주입
     val authOrchestrator = AuthOrchestrator(
         authService,
         userInfoService,
-        jwtService
+        jwtService,
+        jwtValidator
     )
 
     describe("AuthOrchestrator") {
