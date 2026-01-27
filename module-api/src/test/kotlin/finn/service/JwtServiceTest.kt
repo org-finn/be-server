@@ -11,6 +11,8 @@ import finn.repository.UserInfoRepository
 import finn.repository.UserTokenRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.maps.shouldContainKey
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
@@ -18,6 +20,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 class JwtServiceTest : DescribeSpec({
 
@@ -26,13 +29,15 @@ class JwtServiceTest : DescribeSpec({
     val jwtValidator = mockk<JwtValidator>()
     val userTokenRepository = mockk<UserTokenRepository>(relaxed = true)
     val userInfoRepository = mockk<UserInfoRepository>()
+    val accessTokenValidity = 30 * 60 * 1000L // 예제: 30분
 
     // 2. 테스트 대상 주입
     val jwtService = JwtService(
         jwtProvider,
         jwtValidator,
         userTokenRepository,
-        userInfoRepository
+        userInfoRepository,
+        accessTokenValidity
     )
 
     describe("JwtService") {
@@ -60,7 +65,13 @@ class JwtServiceTest : DescribeSpec({
 
             it("Access/Refresh 토큰을 생성하고 DB 저장 후, 새로운 deviceId를 포함한 응답을 반환해야 한다") {
                 // given
-                every { jwtProvider.createAccessToken(userId, role, status) } returns mockAccessToken
+                every {
+                    jwtProvider.createAccessToken(
+                        userId,
+                        role,
+                        status
+                    )
+                } returns mockAccessToken
                 every { jwtProvider.createRefreshToken() } returns mockRefreshTokenObj
 
                 // when
@@ -128,14 +139,27 @@ class JwtServiceTest : DescribeSpec({
                 every { mockNewRefreshTokenObj.issuedAt } returns mockNewIssuedAt
                 every { mockNewRefreshTokenObj.expiredAt } returns mockNewExpiredAt
 
-                every { jwtProvider.createAccessToken(any(), any(), any()) } returns mockNewAccessToken
+                every {
+                    jwtProvider.createAccessToken(
+                        any(),
+                        any(),
+                        any()
+                    )
+                } returns mockNewAccessToken
                 every { jwtProvider.createRefreshToken() } returns mockNewRefreshTokenObj
             }
 
             context("정상적인 토큰이고, DB 업데이트(Rotation)가 성공하면") {
                 it("기존 deviceId를 유지하며 새 토큰을 반환한다") {
                     // given
-                    every { userTokenRepository.updateRefreshToken(mockNewRefreshTokenValue, deviceId) } returns true
+                    every {
+                        userTokenRepository.updateRefreshToken(
+                            mockNewRefreshTokenValue,
+                            deviceId,
+                            mockNewIssuedAt,
+                            mockNewExpiredAt
+                        )
+                    } returns true
 
                     // when
                     val response = jwtService.reIssue(userRefreshTokenString, deviceId, deviceType)
@@ -145,8 +169,24 @@ class JwtServiceTest : DescribeSpec({
                     response.refreshToken shouldBe mockNewRefreshTokenValue
                     response.deviceId shouldBe deviceId // 기존 ID 유지
 
-                    verify(exactly = 1) { userTokenRepository.updateRefreshToken(mockNewRefreshTokenValue, deviceId) }
-                    verify(exactly = 0) { userTokenRepository.save(any(), any(), any(), any(), any(), any()) }
+                    verify(exactly = 1) {
+                        userTokenRepository.updateRefreshToken(
+                            mockNewRefreshTokenValue,
+                            deviceId,
+                            mockNewIssuedAt,
+                            mockNewExpiredAt
+                        )
+                    }
+                    verify(exactly = 0) {
+                        userTokenRepository.save(
+                            any(),
+                            any(),
+                            any(),
+                            any(),
+                            any(),
+                            any()
+                        )
+                    }
                 }
             }
 
@@ -154,7 +194,14 @@ class JwtServiceTest : DescribeSpec({
                 it("새로운 deviceId를 생성하여 DB에 저장(save)하고, 새 deviceId를 반환한다") {
                     // given
                     // 업데이트 실패 시뮬레이션
-                    every { userTokenRepository.updateRefreshToken(mockNewRefreshTokenValue, deviceId) } returns false
+                    every {
+                        userTokenRepository.updateRefreshToken(
+                            mockNewRefreshTokenValue,
+                            deviceId,
+                            mockNewIssuedAt,
+                            mockNewExpiredAt
+                        )
+                    } returns false
 
                     // when
                     val response = jwtService.reIssue(userRefreshTokenString, deviceId, deviceType)
@@ -165,7 +212,14 @@ class JwtServiceTest : DescribeSpec({
                     response.deviceId shouldNotBe deviceId // 새로운 ID 발급 확인
 
                     // Verify: update 실패 후 save 호출 확인
-                    verify(exactly = 1) { userTokenRepository.updateRefreshToken(mockNewRefreshTokenValue, deviceId) }
+                    verify(exactly = 1) {
+                        userTokenRepository.updateRefreshToken(
+                            mockNewRefreshTokenValue,
+                            deviceId,
+                            mockNewIssuedAt,
+                            mockNewExpiredAt
+                        )
+                    }
                     verify(exactly = 1) {
                         userTokenRepository.save(
                             userId = userId,
@@ -184,7 +238,12 @@ class JwtServiceTest : DescribeSpec({
                     // given
                     val differentDbTokenValue = "different_db_token"
                     every { mockDbTokenEntity.refreshToken } returns differentDbTokenValue
-                    every { jwtValidator.refreshTokenEquals(userRefreshTokenString, differentDbTokenValue) } returns false
+                    every {
+                        jwtValidator.refreshTokenEquals(
+                            userRefreshTokenString,
+                            differentDbTokenValue
+                        )
+                    } returns false
 
                     // when & then
                     shouldThrow<TokenStolenRiskException> {
@@ -193,7 +252,14 @@ class JwtServiceTest : DescribeSpec({
 
                     // Verify: 삭제 로직 실행 확인
                     verify(exactly = 1) { userTokenRepository.deleteRefreshToken(deviceId) }
-                    verify(exactly = 0) { userTokenRepository.updateRefreshToken(any(), any()) }
+                    verify(exactly = 0) {
+                        userTokenRepository.updateRefreshToken(
+                            any(),
+                            any(),
+                            any(),
+                            any()
+                        )
+                    }
                 }
             }
 
@@ -209,6 +275,85 @@ class JwtServiceTest : DescribeSpec({
                         jwtService.reIssue(userRefreshTokenString, deviceId, deviceType)
                     }
                 }
+            }
+        }
+    }
+
+    // Reflection을 통해 private 멤버들에 접근하기 위한 준비
+    // blackList 필드 가져오기
+    val blackListField = JwtService::class.java.getDeclaredField("blackList").apply {
+        isAccessible = true
+    }
+
+    // cleanupExpiredTokens 메서드 가져오기
+    val cleanupMethod = JwtService::class.java.getDeclaredMethod("cleanupExpiredTokens").apply {
+        isAccessible = true
+    }
+
+    // 검증을 위해 실제 Map 객체 참조 가져오기
+    @Suppress("UNCHECKED_CAST")
+    fun getBlackListMap(): ConcurrentHashMap<String, Long> {
+        return blackListField.get(jwtService) as ConcurrentHashMap<String, Long>
+    }
+
+    describe("JwtService Blacklist Logic") {
+
+        // 테스트 간 데이터 간섭을 막기 위해 매번 맵을 비워줍니다.
+        beforeEach {
+            getBlackListMap().clear()
+        }
+
+        context("addToBlacklist 메서드는") {
+            it("토큰을 블랙리스트(Map)에 추가해야 한다") {
+                // given
+                val token = "access_token_123"
+
+                // when
+                jwtService.addToBlacklist(token)
+
+                // then
+                // 1. public 메서드로 확인
+                jwtService.isInBlackList(token) shouldBe true
+
+                // 2. 내부 맵 상태 직접 확인
+                getBlackListMap() shouldContainKey token
+            }
+        }
+
+        context("isInBlackList 메서드는") {
+            it("맵에 토큰이 존재하면 true, 없으면 false를 반환해야 한다") {
+                // given
+                val token = "existing_token"
+                jwtService.addToBlacklist(token)
+
+                // when & then
+                jwtService.isInBlackList(token) shouldBe true
+                jwtService.isInBlackList("unknown_token") shouldBe false
+            }
+        }
+
+        context("cleanupExpiredTokens 메서드는 (@Scheduled)") {
+            it("현재 시간 기준으로 만료된 토큰만 맵에서 제거해야 한다") {
+                // given
+                val map = getBlackListMap()
+                val now = System.currentTimeMillis()
+
+                val expiredToken = "expired_token"
+                val validToken = "valid_token"
+
+                // 테스트 시나리오 조작:
+                // 1. 만료된 토큰: 현재 시간보다 1초 전으로 설정
+                map[expiredToken] = now - 1000
+                // 2. 유효한 토큰: 현재 시간보다 10초 뒤로 설정
+                map[validToken] = now + 10000
+
+                // when
+                // cleanUp 메서드 실행 (Reflection invoke)
+                cleanupMethod.invoke(jwtService)
+
+                // then
+                map shouldNotContainKey expiredToken // 제거되었어야 함
+                map shouldContainKey validToken      // 남아있어야 함
             }
         }
     }
