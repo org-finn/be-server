@@ -150,6 +150,7 @@ object ExchangeRateTable : UUIDTable("exchange_rate") {
 
 object OAuthUserTable : UUIDTable("oauth_user") {
     val provider = varchar("provider", 30)
+    val providerId = text("provider_id").uniqueIndex()
     val email = varchar("email", 255)
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")

@@ -21,6 +21,9 @@ repositories {
 
 dependencies {
     implementation project(':module-common')
+
+    // nickname 랜덤 생성
+    implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
 }
 
 kotlin {

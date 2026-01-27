@@ -14,4 +14,13 @@ class UserInfoRepositoryImpl(
     override fun findById(userInfoId: UUID): UserInfo {
         return toDomain(userInfoExposedRepository.findById(userInfoId))
     }
+
+    override fun save(
+        oAuthUserId: UUID,
+        nickname: String,
+        role: String,
+        status: String
+    ): UserInfo {
+        return toDomain(userInfoExposedRepository.save(oAuthUserId, nickname, role, status))
+    }
 }
