@@ -53,4 +53,8 @@ class UserInfoService(
     fun updateFavoriteTickerSingle(userId: UUID, tickerCode: String, mode: String) {
         userInfoRepository.updateFavoriteTicker(userId, tickerCode, mode)
     }
+
+    fun withdrawn(userId: UUID) {
+        userInfoRepository.deleteUserInfo(userId, UserStatus.WITHDRAWN.name)
+    }
 }

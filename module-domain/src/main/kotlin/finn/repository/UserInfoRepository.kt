@@ -18,4 +18,6 @@ interface UserInfoRepository {
     fun updateFavoriteTickers(userId: UUID, tickerCodes: List<String>)
 
     fun updateFavoriteTicker(userId: UUID, tickerCode: String, mode: String)
+
+    fun deleteUserInfo(userId: UUID,status: String)
 }

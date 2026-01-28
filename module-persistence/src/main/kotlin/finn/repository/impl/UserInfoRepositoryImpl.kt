@@ -56,4 +56,8 @@ class UserInfoRepositoryImpl(
             else -> throw DomainPolicyViolationException("유효하지 않은 변경 상태 모드 값입니다.")
         }
     }
+
+    override fun deleteUserInfo(userId: UUID, status: String) {
+        userInfoExposedRepository.delete(userId, status)
+    }
 }
