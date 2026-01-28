@@ -33,7 +33,9 @@ class UserInfoController(
     }
 
     override fun updateFavoriteTickers(favoriteTickerRequest: FavoriteTickerRequest): SuccessResponse<Nothing> {
-        TODO("Not yet implemented")
+        val userId = UUID.randomUUID() // [TODO] : userId 추출 로직 구현 필요
+        userInfoOrchestrator.updateFavoriteTickers(userId, favoriteTickerRequest)
+        return SuccessResponse("204 No Content", "관심 종목 리스트 수정 성공", null)
     }
 
     override fun updateFavoriteSingleTicker(

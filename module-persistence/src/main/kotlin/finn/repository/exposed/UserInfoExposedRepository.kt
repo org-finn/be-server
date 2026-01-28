@@ -94,4 +94,10 @@ class UserInfoExposedRepository(
                 )
             }
     }
+
+    fun updateFavoriteTickers(userId: UUID, tickerCodes: List<String>) {
+        UserInfoExposed.findByIdAndUpdate(userId) {
+            it.favoriteTickers = tickerCodes.joinToString(",")
+        }
+    }
 }

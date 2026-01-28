@@ -1,6 +1,7 @@
 package finn.orchestrator
 
 import finn.mapper.FavoriteTIckerDtoMapper.Companion.toDto
+import finn.request.userinfo.FavoriteTickerRequest
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
 import finn.service.UserInfoService
@@ -24,5 +25,9 @@ class UserInfoOrchestrator(
 
     fun getFavoriteTickers(userId: UUID) : FavoriteTickerResponse {
         return toDto(userInfoService.getFavoriteTickers(userId))
+    }
+
+    fun updateFavoriteTickers(userId: UUID, newTickerRequest: FavoriteTickerRequest) {
+        userInfoService.updateFavoriteTickers(userId, newTickerRequest.tickers)
     }
 }

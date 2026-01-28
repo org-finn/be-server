@@ -14,4 +14,6 @@ interface UserInfoRepository {
     fun updateNickname(nickname: String, userId: UUID)
 
     fun findFavoriteTickers(userId: UUID): List<FavoriteTickerQueryDto>
+
+    fun updateFavoriteTickers(userId: UUID, tickerCodes: List<String>)
 }

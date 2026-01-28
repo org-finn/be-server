@@ -36,4 +36,11 @@ class UserInfoRepositoryImpl(
     override fun findFavoriteTickers(userId: UUID): List<FavoriteTickerQueryDto> {
         return userInfoExposedRepository.findFavoriteTickersByUserId(userId)
     }
+
+    override fun updateFavoriteTickers(
+        userId: UUID,
+        tickerCodes: List<String>
+    ) {
+        userInfoExposedRepository.updateFavoriteTickers(userId, tickerCodes)
+    }
 }

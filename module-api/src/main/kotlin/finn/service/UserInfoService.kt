@@ -4,6 +4,7 @@ import finn.entity.UserInfo
 import finn.entity.UserRole
 import finn.entity.UserStatus
 import finn.queryDto.FavoriteTickerQueryDto
+import finn.repository.TickerRepository
 import finn.repository.UserInfoRepository
 import finn.userinfo.NicknameProvider
 import finn.userinfo.NicknameValidator
@@ -13,6 +14,7 @@ import java.util.*
 @Service
 class UserInfoService(
     private val userInfoRepository: UserInfoRepository,
+    private val tickerRepository: TickerRepository,
     private val nicknameProvider: NicknameProvider,
     private val nicknameValidator: NicknameValidator
 ) {
@@ -39,5 +41,12 @@ class UserInfoService(
 
     fun getFavoriteTickers(userId: UUID): List<FavoriteTickerQueryDto> {
         return userInfoRepository.findFavoriteTickers(userId)
+    }
+
+    fun updateFavoriteTickers(userId: UUID, newTickers: List<String>) {
+        // 1. 유효한 종목들인지 선 검증
+        tickerRepository.validTickersByTickerCode(newTickers)
+        // 2. 기존 favorite_tickers 뒤집어쓰기
+        userInfoRepository.updateFavoriteTickers(userId, newTickers)
     }
 }
