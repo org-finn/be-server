@@ -161,6 +161,7 @@ object UserInfoTable : UUIDTable("user_info") {
     val nickname = varchar("nickname", 50)
     val role = varchar("role", 20)
     val status = varchar("status", 20)
+    val favoriteTickers = text("favorite_tickers").nullable()
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")
     val deletedAt = datetime("deleted_at").nullable()

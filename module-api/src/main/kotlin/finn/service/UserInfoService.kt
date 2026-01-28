@@ -3,6 +3,7 @@ package finn.service
 import finn.entity.UserInfo
 import finn.entity.UserRole
 import finn.entity.UserStatus
+import finn.queryDto.FavoriteTickerQueryDto
 import finn.repository.UserInfoRepository
 import finn.userinfo.NicknameProvider
 import finn.userinfo.NicknameValidator
@@ -34,5 +35,9 @@ class UserInfoService(
     fun updateNickname(nickname: String, userId: UUID) {
         nicknameValidator.isValid(nickname)
         userInfoRepository.updateNickname(nickname, userId)
+    }
+
+    fun getFavoriteTickers(userId: UUID): List<FavoriteTickerQueryDto> {
+        return userInfoRepository.findFavoriteTickers(userId)
     }
 }

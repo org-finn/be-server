@@ -4,7 +4,9 @@ import finn.entity.UserInfoExposed
 import finn.exception.CriticalDataPollutedException
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
+import finn.queryDto.FavoriteTickerQueryDto
 import finn.table.OAuthUserTable
+import finn.table.TickerTable
 import finn.table.UserInfoTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.JoinType
@@ -70,5 +72,26 @@ class UserInfoExposedRepository(
             it.nickname = nickname
         } ?: throw NotFoundDataException("존재하지 않는 사용자입니다.")
     }
-    
+
+    fun findFavoriteTickersByUserId(userId: UUID): List<FavoriteTickerQueryDto> {
+        val tickers = UserInfoTable.select(UserInfoTable.favoriteTickers)
+            .where { UserInfoTable.id eq userId }
+            .map { it[UserInfoTable.favoriteTickers] }
+            .singleOrNull()
+
+        if (tickers.isNullOrBlank()) {
+            return emptyList()
+        }
+
+        val tickerCodes = tickers.split(",")
+
+        return TickerTable.select(TickerTable.id, TickerTable.code)
+            .where { TickerTable.code inList tickerCodes }
+            .map { row ->
+                FavoriteTickerQueryDto(
+                    tickerId = row[TickerTable.id].value,
+                    tickerCode = row[TickerTable.code]
+                )
+            }
+    }
 }

@@ -1,7 +1,9 @@
 package finn.apiSpec
 
+import finn.request.userinfo.FavoriteTickerRequest
 import finn.request.userinfo.NicknameRequest
 import finn.response.SuccessResponse
+import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -67,5 +69,74 @@ interface UserInfoApiSpec {
     @PutMapping("/nickname")
     fun updateNickname(
         @RequestBody nicknameRequest: NicknameRequest
+    ): SuccessResponse<Nothing>
+
+    @Operation(
+        summary = "관심 종목 리스트 조회", description = "유저의 관심 종목들을 조회합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "관심 종목 리스트 조회 성공"
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+            )
+        ]
+    )
+    @GetMapping("/favorite/tickers")
+    fun getFavoriteTickers(
+    ): SuccessResponse<FavoriteTickerResponse>
+
+
+    @Operation(
+        summary = "관심 종목 수정", description = "유저의 관심 종목을 수정합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "관심 종목 리스트 수정 성공"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 종목 값으로 인해 수정에 실패했습니다."
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+            )
+        ]
+    )
+    @PutMapping("/favorite/tickers")
+    fun updateFavoriteTickers(
+        @RequestBody favoriteTickerRequest: FavoriteTickerRequest
+    ): SuccessResponse<Nothing>
+
+    @Operation(
+        summary = "관심 종목 등록/해제", description = "유저의 단일 관심 종목을 등록/해제합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "관심 종목 등록/해제 성공"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 종목 값으로 인해 수정에 실패했습니다."
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+            )
+        ]
+    )
+    @PutMapping("/favorite/ticker")
+    fun updateFavoriteSingleTicker(
+        @RequestParam("tickerCode", required = true) tickerCode: String,
+        @RequestParam("mode", required = true, defaultValue = "on") mode: String
     ): SuccessResponse<Nothing>
 }

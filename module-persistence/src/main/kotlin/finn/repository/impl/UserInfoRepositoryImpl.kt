@@ -2,6 +2,7 @@ package finn.repository.impl
 
 import finn.entity.UserInfo
 import finn.mapper.toDomain
+import finn.queryDto.FavoriteTickerQueryDto
 import finn.repository.UserInfoRepository
 import finn.repository.exposed.UserInfoExposedRepository
 import org.springframework.stereotype.Repository
@@ -30,5 +31,9 @@ class UserInfoRepositoryImpl(
 
     override fun updateNickname(nickname: String, userId: UUID) {
         userInfoExposedRepository.updateNickname(nickname, userId)
+    }
+
+    override fun findFavoriteTickers(userId: UUID): List<FavoriteTickerQueryDto> {
+        return userInfoExposedRepository.findFavoriteTickersByUserId(userId)
     }
 }
