@@ -1,0 +1,67 @@
+package finn.apiSpec
+
+import finn.request.userinfo.NicknameRequest
+import finn.response.SuccessResponse
+import finn.response.userinfo.NicknameValidationResponse
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.web.bind.annotation.*
+
+@Tag(name = "유저 API", description = "유저 관련 API")
+@RequestMapping("/api/v1/my")
+interface UserInfoApiSpec {
+    @Operation(
+        summary = "닉네임 중복 검사", description = "변경하려는 닉네임의 중복검사를 수행합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "닉네임 중복 검사 결과 조회 성공"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 조건의 닉네임입니다. (영대소문자/한글/숫자 조합으로 최대 12자)"
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+            ),
+        ]
+    )
+    @PostMapping("/nickname/validation")
+    fun checkNicknameValidation(
+        @RequestParam("nickname", required = true) nickname: String
+    ): SuccessResponse<NicknameValidationResponse>
+
+
+    @Operation(
+        summary = "닉네임 수정", description = "닉네임을 수정합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "닉네임 수정 성공"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 조건의 닉네임입니다. (영대소문자/한글/숫자 조합으로 최대 12자)"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "이미 존재하는 닉네임입니다."
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+            ),
+        ]
+    )
+    @PutMapping("/nickname")
+    fun updateNickname(
+        @RequestBody nicknameRequest: NicknameRequest
+    ): SuccessResponse<NicknameValidationResponse>
+}

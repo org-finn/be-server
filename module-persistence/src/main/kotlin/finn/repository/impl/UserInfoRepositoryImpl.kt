@@ -23,4 +23,8 @@ class UserInfoRepositoryImpl(
     ): UserInfo {
         return toDomain(userInfoExposedRepository.save(oAuthUserId, nickname, role, status))
     }
+
+    override fun existNickname(nickname: String): Boolean {
+        return userInfoExposedRepository.existNickname(nickname)
+    }
 }

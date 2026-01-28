@@ -52,4 +52,11 @@ class UserInfoExposedRepository(
 
         return row?.let { UserInfoExposed.wrapRow(it) }
     }
+
+    fun existNickname(nickname: String): Boolean {
+        return UserInfoTable
+            .select(UserInfoTable.nickname)
+            .where { UserInfoTable.nickname eq nickname }
+            .empty()
+    }
 }
