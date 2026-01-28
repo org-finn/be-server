@@ -24,7 +24,10 @@ class DatabaseInitializer : ApplicationRunner {
                 ArticleTickerTable,
                 ArticleSummaryTable,
                 ArticleSummaryAllTable,
-                ExchangeRateTable
+                ExchangeRateTable,
+                OAuthUserTable,
+                UserInfoTable,
+                UserTokenTable
             )
 
         // transaction 블록 안에서 테이블 생성을 시도합니다.

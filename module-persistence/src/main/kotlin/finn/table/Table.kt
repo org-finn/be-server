@@ -163,7 +163,7 @@ object UserInfoTable : UUIDTable("user_info") {
     val status = varchar("status", 20)
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")
-    val deletedAt = datetime("deleted_at")
+    val deletedAt = datetime("deleted_at").nullable()
 }
 
 object UserTokenTable : UUIDTable("user_token") {
