@@ -29,7 +29,7 @@ interface UserInfoApiSpec {
             ),
             ApiResponse(
                 responseCode = "401",
-                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
             ),
         ]
     )
@@ -58,7 +58,7 @@ interface UserInfoApiSpec {
             ),
             ApiResponse(
                 responseCode = "401",
-                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
             ),
             ApiResponse(
                 responseCode = "404",
@@ -82,7 +82,7 @@ interface UserInfoApiSpec {
             ),
             ApiResponse(
                 responseCode = "401",
-                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
             )
         ]
     )
@@ -106,7 +106,7 @@ interface UserInfoApiSpec {
             ),
             ApiResponse(
                 responseCode = "401",
-                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
             )
         ]
     )
@@ -134,7 +134,7 @@ interface UserInfoApiSpec {
             ),
             ApiResponse(
                 responseCode = "401",
-                description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
             )
         ]
     )
@@ -143,4 +143,23 @@ interface UserInfoApiSpec {
         @RequestParam("tickerCode", required = true) tickerCode: String,
         @RequestParam("mode", required = true, defaultValue = "on") mode: String
     ): SuccessResponse<Nothing>
+
+    @Operation(
+        summary = "회원 탈퇴", description = "회원 탈퇴를 수행합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "회원 탈퇴 성공"
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
+            ),
+        ]
+    )
+    @DeleteMapping("/withdrawn")
+    fun withdrawn(): SuccessResponse<Nothing>
+
 }

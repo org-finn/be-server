@@ -34,4 +34,8 @@ class UserInfoOrchestrator(
     fun updateFavoriteTickerSingle(userId: UUID, tickerCode: String, mode: String) {
         userInfoService.updateFavoriteTickerSingle(userId, tickerCode, mode)
     }
+
+    fun withdrawn(userId: UUID) {
+        userInfoService.withdrawn(userId)
+    }
 }

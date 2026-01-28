@@ -136,4 +136,11 @@ class UserInfoExposedRepository(
             it.favoriteTickers = tickerList.joinToString(",")
         }
     }
+
+    fun delete(userId: UUID, status: String) {
+        UserInfoExposed.findByIdAndUpdate(userId) {
+            it.status = status // 탈퇴 상태로 변경
+            it.deletedAt = LocalDateTime.now() // deletedAt 표시하고 추후 row 배치 삭제
+        }
+    }
 }

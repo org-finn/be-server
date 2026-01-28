@@ -46,4 +46,10 @@ class UserInfoController(
         userInfoOrchestrator.updateFavoriteTickerSingle(userId, tickerCode, mode)
         return SuccessResponse("204 No Content", "관심 종목 등록/해제 성공", null)
     }
+
+    override fun withdrawn(): SuccessResponse<Nothing> {
+        val userId = UUID.randomUUID() // [TODO] : userId 추출 로직 구현 필요
+        userInfoOrchestrator.withdrawn(userId)
+        return SuccessResponse("204 No Content", "회원 탈퇴 성공", null)
+    }
 }
