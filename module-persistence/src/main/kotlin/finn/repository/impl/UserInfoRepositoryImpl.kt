@@ -25,6 +25,10 @@ class UserInfoRepositoryImpl(
     }
 
     override fun existNickname(nickname: String): Boolean {
-        return userInfoExposedRepository.existNickname(nickname)
+        return userInfoExposedRepository.nonExistNickname(nickname)
+    }
+
+    override fun updateNickname(nickname: String, userId: UUID) {
+        userInfoExposedRepository.updateNickname(nickname, userId)
     }
 }

@@ -9,4 +9,6 @@ interface UserInfoRepository {
     fun findById(userInfoId: UUID): UserInfo
 
     fun existNickname(nickname: String): Boolean
+
+    fun updateNickname(nickname: String, userId: UUID)
 }

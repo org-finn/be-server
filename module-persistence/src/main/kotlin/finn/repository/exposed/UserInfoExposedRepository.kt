@@ -2,6 +2,8 @@ package finn.repository.exposed
 
 import finn.entity.UserInfoExposed
 import finn.exception.CriticalDataPollutedException
+import finn.exception.DomainPolicyViolationException
+import finn.exception.NotFoundDataException
 import finn.table.OAuthUserTable
 import finn.table.UserInfoTable
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -53,10 +55,20 @@ class UserInfoExposedRepository(
         return row?.let { UserInfoExposed.wrapRow(it) }
     }
 
-    fun existNickname(nickname: String): Boolean {
+    fun nonExistNickname(nickname: String): Boolean {
         return UserInfoTable
             .select(UserInfoTable.nickname)
             .where { UserInfoTable.nickname eq nickname }
             .empty()
     }
+
+    fun updateNickname(nickname: String, userId: UUID) {
+        if (!nonExistNickname(nickname)) { // 중복 선제 검사
+            throw DomainPolicyViolationException("이미 존재하는 닉네임입니다.")
+        }
+        UserInfoExposed.findByIdAndUpdate(userId) {
+            it.nickname = nickname
+        } ?: throw NotFoundDataException("존재하지 않는 사용자입니다.")
+    }
+    
 }

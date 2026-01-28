@@ -30,4 +30,9 @@ class UserInfoService(
         nicknameValidator.isValid(nickname)
         return userInfoRepository.existNickname(nickname)
     }
+
+    fun updateNickname(nickname: String, userId: UUID) {
+        nicknameValidator.isValid(nickname)
+        userInfoRepository.updateNickname(nickname, userId)
+    }
 }

@@ -58,10 +58,14 @@ interface UserInfoApiSpec {
                 responseCode = "401",
                 description = "유효하지 않은 인가코드 등의 이유로 인증에 실패하였습니다."
             ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 회원입니다."
+            )
         ]
     )
     @PutMapping("/nickname")
     fun updateNickname(
         @RequestBody nicknameRequest: NicknameRequest
-    ): SuccessResponse<NicknameValidationResponse>
+    ): SuccessResponse<Nothing>
 }
