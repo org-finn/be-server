@@ -23,11 +23,15 @@ class UserInfoOrchestrator(
         userInfoService.updateNickname(nickname, userId)
     }
 
-    fun getFavoriteTickers(userId: UUID) : FavoriteTickerResponse {
+    fun getFavoriteTickers(userId: UUID): FavoriteTickerResponse {
         return toDto(userInfoService.getFavoriteTickers(userId))
     }
 
     fun updateFavoriteTickers(userId: UUID, newTickerRequest: FavoriteTickerRequest) {
         userInfoService.updateFavoriteTickers(userId, newTickerRequest.tickers)
+    }
+
+    fun updateFavoriteTickerSingle(userId: UUID, tickerCode: String, mode: String) {
+        userInfoService.updateFavoriteTickerSingle(userId, tickerCode, mode)
     }
 }

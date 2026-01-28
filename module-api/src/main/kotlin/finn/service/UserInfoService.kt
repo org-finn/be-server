@@ -49,4 +49,8 @@ class UserInfoService(
         // 2. 기존 favorite_tickers 뒤집어쓰기
         userInfoRepository.updateFavoriteTickers(userId, newTickers)
     }
+
+    fun updateFavoriteTickerSingle(userId: UUID, tickerCode: String, mode: String) {
+        userInfoRepository.updateFavoriteTicker(userId, tickerCode, mode)
+    }
 }

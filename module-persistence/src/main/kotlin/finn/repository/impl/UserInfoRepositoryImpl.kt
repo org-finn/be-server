@@ -1,6 +1,7 @@
 package finn.repository.impl
 
 import finn.entity.UserInfo
+import finn.exception.DomainPolicyViolationException
 import finn.mapper.toDomain
 import finn.queryDto.FavoriteTickerQueryDto
 import finn.repository.UserInfoRepository
@@ -42,5 +43,17 @@ class UserInfoRepositoryImpl(
         tickerCodes: List<String>
     ) {
         userInfoExposedRepository.updateFavoriteTickers(userId, tickerCodes)
+    }
+
+    override fun updateFavoriteTicker(
+        userId: UUID,
+        tickerCode: String,
+        mode: String
+    ) {
+        when (mode) {
+            "on" -> userInfoExposedRepository.addFavoriteTicker(userId, tickerCode)
+            "off" -> userInfoExposedRepository.removeFavoriteTicker(userId, tickerCode)
+            else -> throw DomainPolicyViolationException("유효하지 않은 변경 상태 모드 값입니다.")
+        }
     }
 }

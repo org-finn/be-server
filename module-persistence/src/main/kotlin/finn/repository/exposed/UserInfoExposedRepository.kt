@@ -100,4 +100,40 @@ class UserInfoExposedRepository(
             it.favoriteTickers = tickerCodes.joinToString(",")
         }
     }
+
+    fun addFavoriteTicker(userId: UUID, tickerCode: String) {
+        val tickers = UserInfoTable.select(UserInfoTable.favoriteTickers)
+            .where { UserInfoTable.id eq userId }
+            .map { it[UserInfoTable.favoriteTickers] }
+            .singleOrNull()
+
+        val tickerList = mutableListOf<String>()
+
+        if (!tickers.isNullOrBlank()) {
+            tickerList.addAll(tickers.split(","))
+        }
+        tickerList.add(tickerCode)
+
+        UserInfoExposed.findByIdAndUpdate(userId) {
+            it.favoriteTickers = tickerList.joinToString(",")
+        }
+    }
+
+    fun removeFavoriteTicker(userId: UUID, tickerCode: String) {
+        val tickers = UserInfoTable.select(UserInfoTable.favoriteTickers)
+            .where { UserInfoTable.id eq userId }
+            .map { it[UserInfoTable.favoriteTickers] }
+            .singleOrNull()
+
+        val tickerList = mutableListOf<String>()
+
+        if (!tickers.isNullOrBlank()) {
+            tickerList.addAll(tickers.split(","))
+        }
+        tickerList.remove(tickerCode)
+
+        UserInfoExposed.findByIdAndUpdate(userId) {
+            it.favoriteTickers = tickerList.joinToString(",")
+        }
+    }
 }

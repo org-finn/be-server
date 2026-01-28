@@ -16,4 +16,6 @@ interface UserInfoRepository {
     fun findFavoriteTickers(userId: UUID): List<FavoriteTickerQueryDto>
 
     fun updateFavoriteTickers(userId: UUID, tickerCodes: List<String>)
+
+    fun updateFavoriteTicker(userId: UUID, tickerCode: String, mode: String)
 }

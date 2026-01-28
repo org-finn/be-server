@@ -42,6 +42,8 @@ class UserInfoController(
         tickerCode: String,
         mode: String
     ): SuccessResponse<Nothing> {
-        TODO("Not yet implemented")
+        val userId = UUID.randomUUID() // [TODO] : userId 추출 로직 구현 필요
+        userInfoOrchestrator.updateFavoriteTickerSingle(userId, tickerCode, mode)
+        return SuccessResponse("204 No Content", "관심 종목 등록/해제 성공", null)
     }
 }

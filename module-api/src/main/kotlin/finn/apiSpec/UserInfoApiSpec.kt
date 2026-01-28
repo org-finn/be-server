@@ -126,6 +126,10 @@ interface UserInfoApiSpec {
             ),
             ApiResponse(
                 responseCode = "400",
+                description = "유효하지 않은 변경 상태 모드 값입니다."
+            ),
+            ApiResponse(
+                responseCode = "400",
                 description = "유효하지 않은 종목 값으로 인해 수정에 실패했습니다."
             ),
             ApiResponse(
