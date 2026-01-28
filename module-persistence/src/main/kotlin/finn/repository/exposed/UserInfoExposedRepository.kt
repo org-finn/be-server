@@ -107,7 +107,7 @@ class UserInfoExposedRepository(
             .map { it[UserInfoTable.favoriteTickers] }
             .singleOrNull()
 
-        val tickerList = mutableListOf<String>()
+        val tickerList = mutableSetOf<String>()
 
         if (!tickers.isNullOrBlank()) {
             tickerList.addAll(tickers.split(","))
@@ -125,7 +125,7 @@ class UserInfoExposedRepository(
             .map { it[UserInfoTable.favoriteTickers] }
             .singleOrNull()
 
-        val tickerList = mutableListOf<String>()
+        val tickerList = mutableSetOf<String>()
 
         if (!tickers.isNullOrBlank()) {
             tickerList.addAll(tickers.split(","))
