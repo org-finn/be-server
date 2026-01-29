@@ -58,11 +58,10 @@ class AuthOrchestrator(
 
     @ExposedTransactional
     fun reIssueToken(
-        userId: UUID,
         refreshTokenString: String,
         deviceType: String
     ): TokenResponse {
-        return jwtService.reIssue(refreshTokenString, userId, deviceType)
+        return jwtService.reIssue(refreshTokenString, deviceType)
     }
 
     @ExposedTransactional
