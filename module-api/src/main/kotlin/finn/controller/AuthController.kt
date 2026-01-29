@@ -90,7 +90,7 @@ class AuthController(
         logoutRequest: LogoutRequest,
         httpServletRequest: HttpServletRequest
     ): ResponseEntity<SuccessResponse<Nothing>> {
-        val accessToken = "" // [TODO]: 인증 로직 구축되면 액세스 토큰 주입받아 사용
+        val accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)
         authOrchestrator.logout(accessToken, logoutRequest.refreshToken)
 
         return ResponseEntity.ok().body(SuccessResponse("200 Ok", "로그아웃 성공"))
