@@ -2,6 +2,7 @@ package finn.apiSpec
 
 import finn.request.userinfo.FavoriteTickerRequest
 import finn.request.userinfo.NicknameRequest
+import finn.resolver.UserId
 import finn.response.SuccessResponse
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @Tag(name = "유저 API", description = "유저 관련 API")
 @RequestMapping("/api/v1/my")
@@ -68,7 +70,8 @@ interface UserInfoApiSpec {
     )
     @PutMapping("/nickname")
     fun updateNickname(
-        @RequestBody nicknameRequest: NicknameRequest
+        @RequestBody nicknameRequest: NicknameRequest,
+        @UserId userId: UUID
     ): SuccessResponse<Nothing>
 
     @Operation(
@@ -88,6 +91,7 @@ interface UserInfoApiSpec {
     )
     @GetMapping("/favorite/tickers")
     fun getFavoriteTickers(
+        @UserId userId: UUID
     ): SuccessResponse<FavoriteTickerResponse>
 
 
@@ -112,7 +116,8 @@ interface UserInfoApiSpec {
     )
     @PutMapping("/favorite/tickers")
     fun updateFavoriteTickers(
-        @RequestBody favoriteTickerRequest: FavoriteTickerRequest
+        @RequestBody favoriteTickerRequest: FavoriteTickerRequest,
+        @UserId userId: UUID
     ): SuccessResponse<Nothing>
 
     @Operation(
@@ -141,7 +146,8 @@ interface UserInfoApiSpec {
     @PutMapping("/favorite/ticker")
     fun updateFavoriteSingleTicker(
         @RequestParam("tickerCode", required = true) tickerCode: String,
-        @RequestParam("mode", required = true, defaultValue = "on") mode: String
+        @RequestParam("mode", required = true, defaultValue = "on") mode: String,
+        @UserId userId: UUID
     ): SuccessResponse<Nothing>
 
     @Operation(
@@ -160,6 +166,6 @@ interface UserInfoApiSpec {
         ]
     )
     @DeleteMapping("/withdrawn")
-    fun withdrawn(): SuccessResponse<Nothing>
+    fun withdrawn(@UserId userId: UUID): SuccessResponse<Nothing>
 
 }

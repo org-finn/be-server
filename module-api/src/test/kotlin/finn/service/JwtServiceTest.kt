@@ -71,7 +71,13 @@ class JwtServiceTest : DescribeSpec({
 
             beforeEach {
                 // Mock 설정
-                every { jwtProvider.createAccessToken(userId, role, status) } returns mockAccessToken
+                every {
+                    jwtProvider.createAccessToken(
+                        userId,
+                        role,
+                        status
+                    )
+                } returns mockAccessToken
 
                 every { mockRefreshTokenObj.tokenValue } returns mockRefreshTokenString
                 every { jwtProvider.createRefreshToken() } returns mockRefreshTokenObj
@@ -135,7 +141,13 @@ class JwtServiceTest : DescribeSpec({
                 every { mockUserInfo.status.name } returns "ACTIVE"
                 every { userInfoRepository.findById(userId) } returns mockUserInfo
 
-                every { jwtProvider.createAccessToken(userId, "MEMBER", "ACTIVE") } returns newAccessToken
+                every {
+                    jwtProvider.createAccessToken(
+                        userId,
+                        "MEMBER",
+                        "ACTIVE"
+                    )
+                } returns newAccessToken
 
                 every { mockNewRefreshTokenObj.tokenValue } returns newRefreshTokenString
                 every { mockNewRefreshTokenObj.deviceId } returns newDeviceId
@@ -144,12 +156,17 @@ class JwtServiceTest : DescribeSpec({
 
             context("요청 토큰이 유효하고 DB 토큰과 일치하면 (정상)") {
                 beforeEach {
-                    every { jwtValidator.refreshTokenEquals(requestRefreshToken, dbRefreshTokenValue) } returns true
+                    every {
+                        jwtValidator.refreshTokenEquals(
+                            requestRefreshToken,
+                            dbRefreshTokenValue
+                        )
+                    } returns true
                 }
 
                 it("RTR(Rotation)을 수행하여 새 토큰들을 발급하고 DB를 업데이트한다") {
                     // when
-                    val response = jwtService.reIssue(requestRefreshToken, userId, deviceType)
+                    val response = jwtService.reIssue(requestRefreshToken, deviceType)
 
                     // then
                     response.accessToken shouldBe newAccessToken
@@ -176,13 +193,18 @@ class JwtServiceTest : DescribeSpec({
                     // DB에는 다른 값이 있다고 가정 (이미 Rotation됨)
                     every { mockDbUserToken.refreshToken } returns "other_value"
                     // Validator가 불일치 감지
-                    every { jwtValidator.refreshTokenEquals(requestRefreshToken, "other_value") } returns false
+                    every {
+                        jwtValidator.refreshTokenEquals(
+                            requestRefreshToken,
+                            "other_value"
+                        )
+                    } returns false
                 }
 
                 it("TokenStolenRiskException을 던지고 해당 기기의 토큰 정보를 삭제한다") {
                     // when & then
                     shouldThrow<TokenStolenRiskException> {
-                        jwtService.reIssue(requestRefreshToken, userId, deviceType)
+                        jwtService.reIssue(requestRefreshToken, deviceType)
                     }
 
                     // Verify: 즉시 삭제 로직 수행 확인
@@ -201,7 +223,7 @@ class JwtServiceTest : DescribeSpec({
 
                 it("InvalidTokenException을 전파한다") {
                     shouldThrow<InvalidTokenException> {
-                        jwtService.reIssue(requestRefreshToken, userId, deviceType)
+                        jwtService.reIssue(requestRefreshToken, deviceType)
                     }
                 }
             }

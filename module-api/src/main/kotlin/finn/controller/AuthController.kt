@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
 
 @RestController
 class AuthController(
@@ -57,9 +56,8 @@ class AuthController(
 
     override fun reIssue(
         reIssueRequest: ReIssueRequest,
-        httpServletRequest: HttpServletRequest
+        httpServletRequest: HttpServletRequest,
     ): ResponseEntity<SuccessResponse<ClientTokenResponse>> {
-        val userId = UUID.randomUUID() // [TODO]: accessToken에서 추출
         // 1. 리프레쉬 토큰 추출(앱/웹 여부에 따라 다르게 추출)
         val refreshToken =
             if (tokenCookieService.checkDeviceType(reIssueRequest.deviceType)) {
@@ -70,7 +68,6 @@ class AuthController(
 
         // 2. 리프레쉬 토큰 발급 후 리턴
         val response = authOrchestrator.reIssueToken(
-            userId,
             refreshToken,
             reIssueRequest.deviceType
         )
@@ -93,7 +90,7 @@ class AuthController(
         logoutRequest: LogoutRequest,
         httpServletRequest: HttpServletRequest
     ): ResponseEntity<SuccessResponse<Nothing>> {
-        val accessToken = "" // [TODO]: 인증 로직 구축되면 액세스 토큰 주입받아 사용
+        val accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)
         authOrchestrator.logout(accessToken, logoutRequest.refreshToken)
 
         return ResponseEntity.ok().body(SuccessResponse("200 Ok", "로그아웃 성공"))
