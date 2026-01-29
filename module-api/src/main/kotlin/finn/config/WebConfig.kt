@@ -1,8 +1,8 @@
 package finn.config
 
 import finn.auth.JwtValidator
+import finn.auth.filter.JwtAuthenticationFilter
 import finn.config.resolver.UserIdArgumentResolver
-import finn.filter.JwtAuthenticationFilter
 import finn.service.JwtService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.servlet.FilterRegistrationBean

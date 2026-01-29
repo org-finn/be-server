@@ -1,4 +1,4 @@
-package finn.resolver
+package finn.auth
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
