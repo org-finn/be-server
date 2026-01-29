@@ -30,26 +30,30 @@ interface PredictionRepository {
     fun getPredictionListDefault(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto>
 
     fun getPredictionListWithKeyword(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto>
 
     fun getPredictionListWithArticle(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto>
 
     fun getPredictionListWithGraph(
         page: Int,
         size: Int,
         sort: String,
-        isOpened: Boolean
+        isOpened: Boolean,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto>
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto

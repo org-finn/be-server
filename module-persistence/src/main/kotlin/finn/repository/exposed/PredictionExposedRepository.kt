@@ -160,6 +160,7 @@ class PredictionExposedRepository(
                 articleCount = articleCount,
                 positiveKeywords = null,
                 negativeKeywords = null,
+                isFavorite = null,
                 articleTitles = null,
                 graphData = null
             )
@@ -222,6 +223,7 @@ class PredictionExposedRepository(
                 articleCount = articleCount,
                 positiveKeywords = null,
                 negativeKeywords = null,
+                isFavorite = null,
                 articleTitles = null,
                 graphData = null
             )
@@ -279,6 +281,7 @@ class PredictionExposedRepository(
                 articleCount = articleCount,
                 positiveKeywords = null,
                 negativeKeywords = null,
+                isFavorite = null,
                 articleTitles = null,
                 graphData = null
             )

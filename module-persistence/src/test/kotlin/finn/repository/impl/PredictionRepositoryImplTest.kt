@@ -32,8 +32,15 @@ internal class PredictionRepositoryImplTest(
     val ticker2Id = UUID.randomUUID()
     val latestDate = LocalDateTime.now(ZoneId.of("UTC"))
 
+    // 테스트용 유저 ID
+    val userId = UUID.randomUUID()
+
     beforeTest {
         transaction {
+            UserInfoTable.deleteAll()
+            ArticleSummaryTable.deleteAll()
+            ArticleTickerTable.deleteAll()
+            TickerPriceTable.deleteAll()
             PredictionTable.deleteAll()
             TickerTable.deleteAll()
 
@@ -109,6 +116,18 @@ internal class PredictionRepositoryImplTest(
                 it[shortCompanyName] = "Company B"
                 it[createdAt] = LocalDateTime.now()
             }
+
+            // UserInfo 데이터 삽입 (관심 종목 설정: AAAA만 등록)
+            UserInfoTable.insert {
+                it[id] = EntityID(userId, UserInfoTable)
+                it[oauthUserId] = UUID.randomUUID()
+                it[nickname] = "Tester"
+                it[role] = "USER"
+                it[status] = "REGISTERED"
+                it[favoriteTickers] = "AAAA" // AAAA는 관심종목, BBBB는 아님
+                it[createdAt] = LocalDateTime.now()
+                it[updatedAt] = LocalDateTime.now()
+            }
         }
     }
 
@@ -119,6 +138,7 @@ internal class PredictionRepositoryImplTest(
                     page = 0,
                     size = 10,
                     sort = "popular",
+                    userId = null
                 )
             }
 
@@ -135,6 +155,7 @@ internal class PredictionRepositoryImplTest(
                     page = 0,
                     size = 10,
                     sort = "upward",
+                    userId = null
                 )
             }
 
@@ -150,6 +171,7 @@ internal class PredictionRepositoryImplTest(
                     page = 0,
                     size = 10,
                     sort = "downward",
+                    userId = null
                 )
             }
 
@@ -170,6 +192,7 @@ internal class PredictionRepositoryImplTest(
                             page = 0,
                             size = 10,
                             sort = invalidSort,
+                            userId = null
                         )
                     }
                 }
@@ -200,6 +223,7 @@ internal class PredictionRepositoryImplTest(
                     page = 0,
                     size = 10,
                     sort = "popular",
+                    userId = null
                 )
             }
 
@@ -244,6 +268,7 @@ internal class PredictionRepositoryImplTest(
                     page = 0,
                     size = 10,
                     sort = "popular",
+                    userId = null
                 )
             }
 
@@ -297,7 +322,8 @@ internal class PredictionRepositoryImplTest(
                     page = 0,
                     size = 10,
                     sort = "popular",
-                    isOpened = false
+                    isOpened = false,
+                    userId = null
                 )
             }
 
@@ -382,6 +408,97 @@ internal class PredictionRepositoryImplTest(
             Then("해당 티커의 7일 이내 점수만 리스트로 반환해야 한다") {
                 result shouldHaveSize 2
                 result shouldContainExactlyInAnyOrder listOf(70, 80)
+            }
+        }
+    }
+
+    Given("관심 종목(Favorite) 마킹 로직은") {
+
+        When("로그인한 사용자(userId 존재)가 목록을 조회할 때") {
+            val result = transaction {
+                predictionRepository.getPredictionListDefault(
+                    page = 0,
+                    size = 10,
+                    sort = "popular",
+                    userId = userId // "AAAA"를 관심종목으로 가진 유저
+                )
+            }
+
+            Then("사용자의 관심종목에 포함된 티커는 isFavorite=true여야 한다") {
+                val itemA = result.content.find { it.tickerCode == "AAAA" }
+                itemA.shouldNotBeNull()
+                itemA.isFavorite shouldBe true
+            }
+
+            Then("사용자의 관심종목에 포함되지 않은 티커는 isFavorite=false여야 한다") {
+                val itemB = result.content.find { it.tickerCode == "BBBB" }
+                itemB.shouldNotBeNull()
+                itemB.isFavorite shouldBe false
+            }
+        }
+
+        When("다른 파라미터 메서드(WithKeyword)에서도 userId가 주어지면") {
+            // 키워드 데이터 사전 준비
+            transaction {
+                ArticleSummaryTable.insert {
+                    it[id] = EntityID(UUID.randomUUID(), ArticleSummaryTable)
+                    it[tickerId] = ticker1Id
+                    it[positiveKeywords] = "상승"
+                    it[negativeKeywords] = "하락"
+                    it[shortCompanyName] = "Company A"
+                    it[summaryDate] = LocalDateTime.now(ZoneId.of("UTC"))
+                    it[createdAt] = LocalDateTime.now()
+                }
+            }
+
+            val result = transaction {
+                predictionRepository.getPredictionListWithKeyword(
+                    page = 0,
+                    size = 10,
+                    sort = "popular",
+                    userId = userId
+                )
+            }
+
+            Then("키워드 데이터와 함께 관심종목 여부도 올바르게 매핑되어야 한다") {
+                val itemA = result.content.find { it.tickerId == ticker1Id }
+
+                // Keyword 확인
+                itemA!!.positiveKeywords shouldBe "상승"
+
+                // Favorite 확인
+                itemA.isFavorite shouldBe true
+            }
+        }
+
+        When("관심 종목이 없는 사용자(새 유저)가 조회할 때") {
+            val newUserUuid = UUID.randomUUID()
+            transaction {
+                UserInfoTable.insert {
+                    it[id] = EntityID(newUserUuid, UserInfoTable)
+                    it[oauthUserId] = UUID.randomUUID()
+                    it[nickname] = "Newbie"
+                    it[role] = "USER"
+                    it[status] = "REGISTERED"
+                    it[favoriteTickers] = "" // 관심종목 없음
+                    it[createdAt] = LocalDateTime.now()
+                    it[updatedAt] = LocalDateTime.now()
+                }
+            }
+
+            val result = transaction {
+                predictionRepository.getPredictionListDefault(
+                    page = 0,
+                    size = 10,
+                    sort = "popular",
+                    userId = newUserUuid
+                )
+            }
+
+            Then("모든 항목의 isFavorite은 false여야 한다") {
+                result.content.forEach {
+                    it.isFavorite shouldBe false
+                }
             }
         }
     }

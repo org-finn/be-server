@@ -22,18 +22,20 @@ class PredictionQueryService(
     private val clock: Clock
 ) {
 
-    fun getPredictionList(pageRequest: PredictionPageRequest): PageResponse<PredictionQueryDto> {
+    fun getPredictionList(pageRequest: PredictionPageRequest, userId: UUID?): PageResponse<PredictionQueryDto> {
         return when (pageRequest.param) {
             "keyword" -> predictionRepository.getPredictionListWithKeyword(
                 pageRequest.page,
                 pageRequest.size,
-                pageRequest.sort
+                pageRequest.sort,
+                userId
             )
 
             "article" -> predictionRepository.getPredictionListWithArticle(
                 pageRequest.page,
                 pageRequest.size,
-                pageRequest.sort
+                pageRequest.sort,
+                userId
             )
 
             "graph" -> {
@@ -46,14 +48,16 @@ class PredictionQueryService(
                     pageRequest.page,
                     pageRequest.size,
                     pageRequest.sort,
-                    isOpened
+                    isOpened,
+                    userId
                 )
             }
 
             null -> predictionRepository.getPredictionListDefault(
                 pageRequest.page,
                 pageRequest.size,
-                pageRequest.sort
+                pageRequest.sort,
+                userId
             )
 
             else -> throw DomainPolicyViolationException("지원하지 않는 param 옵셥입니다.")

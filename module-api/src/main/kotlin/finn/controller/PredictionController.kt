@@ -1,6 +1,7 @@
 package finn.controller
 
 import finn.apiSpec.PredictionApiSpec
+import finn.auth.OptionalAuth
 import finn.orchestrator.PredictionOrchestrator
 import finn.paging.PredictionPageRequest
 import finn.response.SuccessResponse
@@ -14,8 +15,12 @@ class PredictionController(
     private val predictionOrchestrator: PredictionOrchestrator
 ) : PredictionApiSpec {
 
-    override fun getTickerPredictionList(pageRequest: PredictionPageRequest): SuccessResponse<PredictionListResponse> {
-        val response = predictionOrchestrator.getRecentPredictionList(pageRequest)
+    @OptionalAuth
+    override fun getTickerPredictionList(
+        pageRequest: PredictionPageRequest,
+        userId: UUID?
+    ): SuccessResponse<PredictionListResponse> {
+        val response = predictionOrchestrator.getRecentPredictionList(pageRequest, userId)
         return SuccessResponse("200 OK", "종목 예측 목록을 성공적으로 조회하였습니다.", response)
     }
 

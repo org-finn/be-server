@@ -74,10 +74,7 @@ class UserInfoExposedRepository(
     }
 
     fun findFavoriteTickersByUserId(userId: UUID): List<FavoriteTickerQueryDto> {
-        val tickers = UserInfoTable.select(UserInfoTable.favoriteTickers)
-            .where { UserInfoTable.id eq userId }
-            .map { it[UserInfoTable.favoriteTickers] }
-            .singleOrNull()
+        val tickers = getFavoriteTickers(userId)
 
         if (tickers.isNullOrBlank()) {
             return emptyList()
@@ -102,10 +99,7 @@ class UserInfoExposedRepository(
     }
 
     fun addFavoriteTicker(userId: UUID, tickerCode: String) {
-        val tickers = UserInfoTable.select(UserInfoTable.favoriteTickers)
-            .where { UserInfoTable.id eq userId }
-            .map { it[UserInfoTable.favoriteTickers] }
-            .singleOrNull()
+        val tickers = getFavoriteTickers(userId)
 
         val tickerList = mutableSetOf<String>()
 
@@ -120,10 +114,7 @@ class UserInfoExposedRepository(
     }
 
     fun removeFavoriteTicker(userId: UUID, tickerCode: String) {
-        val tickers = UserInfoTable.select(UserInfoTable.favoriteTickers)
-            .where { UserInfoTable.id eq userId }
-            .map { it[UserInfoTable.favoriteTickers] }
-            .singleOrNull()
+        val tickers = getFavoriteTickers(userId)
 
         val tickerList = mutableSetOf<String>()
 
@@ -142,5 +133,26 @@ class UserInfoExposedRepository(
             it.status = status // 탈퇴 상태로 변경
             it.deletedAt = LocalDateTime.now() // deletedAt 표시하고 추후 row 배치 삭제
         }
+    }
+
+    fun existFavorite(userId: UUID, tickerCodes: List<String>): Map<String, Boolean> {
+        val favoriteTickers = getFavoriteTickers(userId)?.split(",")
+        val map = mutableMapOf<String, Boolean>()
+        // favoriteTickers에 존재하는 tickerCodes만 true
+        tickerCodes.forEach {
+            map[it] = favoriteTickers?.any { it2 ->
+                it2 == it
+            } ?: false
+
+        }
+        return map
+    }
+
+    private fun getFavoriteTickers(userId: UUID): String? {
+        val tickers = UserInfoTable.select(UserInfoTable.favoriteTickers)
+            .where { UserInfoTable.id eq userId }
+            .map { it[UserInfoTable.favoriteTickers] }
+            .singleOrNull()
+        return tickers
     }
 }
