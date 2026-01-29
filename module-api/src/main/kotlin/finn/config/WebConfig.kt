@@ -1,14 +1,14 @@
 package finn.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import finn.auth.JwtProvider
 import finn.auth.JwtValidator
+import finn.config.resolver.UserIdArgumentResolver
 import finn.filter.JwtAuthenticationFilter
 import finn.service.JwtService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -16,10 +16,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class WebConfig(
     @Value("\${cors.allowed-origins}")
     private val allowedOrigins: String,
-    private val jwtProvider: JwtProvider,
     private val jwtValidator: JwtValidator,
     private val jwtService: JwtService,
-    private val objectMapper: ObjectMapper
+    private val userIdArgumentResolver: UserIdArgumentResolver
 ) : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
@@ -48,6 +47,11 @@ class WebConfig(
         registrationBean.addUrlPatterns("/api/*")
 
         return registrationBean
+    }
+
+
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(userIdArgumentResolver)
     }
 
 }

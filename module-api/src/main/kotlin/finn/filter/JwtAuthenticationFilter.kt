@@ -9,7 +9,6 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.springframework.util.PatternMatchUtils
 
 class JwtAuthenticationFilter(
@@ -33,7 +32,6 @@ class JwtAuthenticationFilter(
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val httpRequest = request as HttpServletRequest
-        val httpResponse = response as HttpServletResponse
         val requestUri = httpRequest.requestURI
 
         // 1. 화이트리스트 검사 (인증 불필요한 요청은 통과)
@@ -59,7 +57,11 @@ class JwtAuthenticationFilter(
             throw InvalidUserException("가입을 완료하지 않거나 탈퇴한 사용자입니다.")
         }
 
-        // 5. 다음 로직 수행
+        // 6. userId 추출 및 세팅
+        val userId = accessToken.subject
+        httpRequest.setAttribute("userId", userId)
+
+        // 7. 다음 로직 수행
         chain.doFilter(request, response)
     }
 
