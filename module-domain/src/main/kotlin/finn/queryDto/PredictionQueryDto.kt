@@ -13,6 +13,7 @@ data class PredictionQueryDto(
     val articleCount: Long,
     var positiveKeywords: String?,
     var negativeKeywords: String?,
+    var isFavorite: Boolean?,
     var articleTitles: List<ArticleTitleQueryDto>?,
     var graphData: PredictionListGraphDataQueryDto?
 )

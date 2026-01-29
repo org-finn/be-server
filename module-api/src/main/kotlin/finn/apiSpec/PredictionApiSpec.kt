@@ -1,5 +1,6 @@
 package finn.apiSpec
 
+import finn.auth.UserId
 import finn.paging.PredictionPageRequest
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
@@ -37,7 +38,8 @@ interface PredictionApiSpec {
     )
     @GetMapping("/ticker")
     fun getTickerPredictionList(
-        @ParameterObject pageRequest: PredictionPageRequest
+        @ParameterObject pageRequest: PredictionPageRequest,
+        @UserId userId: UUID?
     ): SuccessResponse<PredictionListResponse>
 
     @Operation(summary = "종목 예측 상세 조회", description = "특정 종목의 예측 상세 정보를 조회합니다.")

@@ -23,6 +23,7 @@ fun toDto(predictionList: PageResponse<PredictionQueryDto>): PredictionListRespo
                 it.articleCount,
                 it.positiveKeywords,
                 it.negativeKeywords,
+                it.isFavorite,
                 it.articleTitles?.map {
                     PredictionListResponse.ArticleTitleResponse(it.articleId, it.title)
                 },

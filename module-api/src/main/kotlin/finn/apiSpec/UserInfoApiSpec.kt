@@ -1,8 +1,8 @@
 package finn.apiSpec
 
+import finn.auth.UserId
 import finn.request.userinfo.FavoriteTickerRequest
 import finn.request.userinfo.NicknameRequest
-import finn.resolver.UserId
 import finn.response.SuccessResponse
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse

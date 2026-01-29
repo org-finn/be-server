@@ -12,6 +12,7 @@ import finn.queryDto.PredictionUpdateDto
 import finn.repository.PredictionRepository
 import finn.repository.dynamodb.TickerPriceRealTimeDynamoDbRepository
 import finn.repository.exposed.PredictionExposedRepository
+import finn.repository.exposed.UserInfoExposedRepository
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -19,6 +20,7 @@ import java.util.*
 
 @Repository
 class PredictionRepositoryImpl(
+    private val userInfoExposedRepository: UserInfoExposedRepository,
     private val predictionExposedRepository: PredictionExposedRepository,
     private val tickerPriceRealTimeDynamoDbRepository: TickerPriceRealTimeDynamoDbRepository
 ) : PredictionRepository {
@@ -52,10 +54,17 @@ class PredictionRepositoryImpl(
     override fun getPredictionListDefault(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
-
+        if (userId != null) {
+            setFavoriteTicker(
+                userId,
+                predictionExposedList.content.map { it.tickerCode }.toList(),
+                predictionExposedList.content
+            )
+        }
         return PageResponse(
             predictionExposedList.content,
             page,
@@ -67,13 +76,21 @@ class PredictionRepositoryImpl(
     override fun getPredictionListWithKeyword(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
         predictionExposedRepository.setPredictionDataForParam(
             "keyword",
             predictionExposedList.content
         )
+        if (userId != null) {
+            setFavoriteTicker(
+                userId,
+                predictionExposedList.content.map { it.tickerCode }.toList(),
+                predictionExposedList.content
+            )
+        }
 
         return PageResponse(
             predictionExposedList.content,
@@ -86,13 +103,21 @@ class PredictionRepositoryImpl(
     override fun getPredictionListWithArticle(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
         predictionExposedRepository.setPredictionDataForParam(
             "article",
             predictionExposedList.content
         )
+        if (userId != null) {
+            setFavoriteTicker(
+                userId,
+                predictionExposedList.content.map { it.tickerCode }.toList(),
+                predictionExposedList.content
+            )
+        }
 
         return PageResponse(
             predictionExposedList.content,
@@ -106,7 +131,8 @@ class PredictionRepositoryImpl(
         page: Int,
         size: Int,
         sort: String,
-        isOpened: Boolean
+        isOpened: Boolean,
+        userId: UUID?
     ): PageResponse<PredictionQueryDto> {
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
 
@@ -121,12 +147,37 @@ class PredictionRepositoryImpl(
             }
         }
 
+        if (userId != null) {
+            setFavoriteTicker(
+                userId,
+                predictionExposedList.content.map { it.tickerCode }.toList(),
+                predictionExposedList.content
+            )
+        }
+
         return PageResponse(
             predictionExposedList.content,
             page,
             size,
             predictionExposedList.hasNext
         )
+    }
+
+    private fun setFavoriteTicker(
+        userId: UUID, tickerCodes: List<String>,
+        queryDto: List<PredictionQueryDto>
+    ) {
+        val map = getFavoriteResultMap(userId, tickerCodes)
+        queryDto.forEach {
+            it.isFavorite = map[it.tickerCode] == true
+        }
+    }
+
+    private fun getFavoriteResultMap(
+        userId: UUID,
+        tickerCodes: List<String>
+    ): Map<String, Boolean> {
+        return userInfoExposedRepository.existFavorite(userId, tickerCodes)
     }
 
     override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {

@@ -19,6 +19,7 @@ data class PredictionListResponse(
         // param = keyword
         val positiveKeywords: String?,
         val negativeKeywords: String?,
+        val isFavorite: Boolean?,
         // param = article
         val articleTitles: List<ArticleTitleResponse>?,
         // param = graph
