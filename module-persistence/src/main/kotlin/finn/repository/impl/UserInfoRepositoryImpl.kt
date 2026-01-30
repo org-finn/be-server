@@ -3,15 +3,18 @@ package finn.repository.impl
 import finn.entity.UserInfo
 import finn.exception.DomainPolicyViolationException
 import finn.mapper.toDomain
+import finn.queryDto.FavoriteArticleQueryDto
 import finn.queryDto.FavoriteTickerQueryDto
 import finn.repository.UserInfoRepository
+import finn.repository.exposed.UserArticleExposedRepository
 import finn.repository.exposed.UserInfoExposedRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 class UserInfoRepositoryImpl(
-    private val userInfoExposedRepository: UserInfoExposedRepository
+    private val userInfoExposedRepository: UserInfoExposedRepository,
+    private val userArticleExposedRepository: UserArticleExposedRepository,
 ) : UserInfoRepository {
     override fun findById(userInfoId: UUID): UserInfo {
         return toDomain(userInfoExposedRepository.findById(userInfoId))
@@ -60,5 +63,21 @@ class UserInfoRepositoryImpl(
 
     override fun deleteUserInfo(userId: UUID, status: String) {
         userInfoExposedRepository.delete(userId, status)
+    }
+
+    override fun findFavoriteArticles(userId: UUID): List<FavoriteArticleQueryDto> {
+        return userArticleExposedRepository.findFavoriteArticlesByUserId(userId)
+    }
+
+    override fun updateFavoriteArticle(
+        userId: UUID,
+        articleId: UUID,
+        mode: String
+    ) {
+        when (mode) {
+            "on" -> userArticleExposedRepository.addFavoriteArticle(userId, articleId)
+            "off" -> userArticleExposedRepository.removeFavoriteArticle(userId, articleId)
+            else -> throw DomainPolicyViolationException("유효하지 않은 변경 상태 모드 값입니다.")
+        }
     }
 }

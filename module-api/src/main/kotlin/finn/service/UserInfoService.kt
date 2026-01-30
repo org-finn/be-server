@@ -3,6 +3,7 @@ package finn.service
 import finn.entity.UserInfo
 import finn.entity.UserRole
 import finn.entity.UserStatus
+import finn.queryDto.FavoriteArticleQueryDto
 import finn.queryDto.FavoriteTickerQueryDto
 import finn.repository.TickerRepository
 import finn.repository.UserInfoRepository
@@ -61,5 +62,13 @@ class UserInfoService(
 
     fun getUserInfo(userId: UUID): UserInfo {
         return userInfoRepository.findById(userId)
+    }
+
+    fun getFavoriteArticles(userId: UUID): List<FavoriteArticleQueryDto> {
+        return userInfoRepository.findFavoriteArticles(userId)
+    }
+
+    fun updateFavoriteArticle(userId: UUID, articleId: UUID, mode: String) {
+        userInfoRepository.updateFavoriteArticle(userId, articleId, mode)
     }
 }
