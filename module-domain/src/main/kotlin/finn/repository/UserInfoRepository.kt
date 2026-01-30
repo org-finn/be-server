@@ -5,7 +5,13 @@ import finn.queryDto.FavoriteTickerQueryDto
 import java.util.*
 
 interface UserInfoRepository {
-    fun save(oAuthUserId: UUID, nickname: String, role: String, status: String): UserInfo
+    fun save(
+        oAuthUserId: UUID,
+        nickname: String,
+        imageUrl: String?,
+        role: String,
+        status: String
+    ): UserInfo
 
     fun findById(userInfoId: UUID): UserInfo
 
@@ -19,5 +25,5 @@ interface UserInfoRepository {
 
     fun updateFavoriteTicker(userId: UUID, tickerCode: String, mode: String)
 
-    fun deleteUserInfo(userId: UUID,status: String)
+    fun deleteUserInfo(userId: UUID, status: String)
 }

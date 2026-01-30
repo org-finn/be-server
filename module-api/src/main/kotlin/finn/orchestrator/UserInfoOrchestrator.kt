@@ -1,9 +1,11 @@
 package finn.orchestrator
 
 import finn.mapper.FavoriteTIckerDtoMapper.Companion.toDto
+import finn.mapper.UserInfoDtoMapper
 import finn.request.userinfo.FavoriteTickerRequest
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
+import finn.response.userinfo.UserInfoResponse
 import finn.service.UserInfoService
 import finn.transaction.ExposedTransactional
 import org.springframework.stereotype.Service
@@ -37,5 +39,9 @@ class UserInfoOrchestrator(
 
     fun withdrawn(userId: UUID) {
         userInfoService.withdrawn(userId)
+    }
+
+    fun getUserInfo(userId: UUID): UserInfoResponse {
+        return UserInfoDtoMapper.toDto(userInfoService.getUserInfo(userId))
     }
 }

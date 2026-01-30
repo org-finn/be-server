@@ -21,7 +21,7 @@ class AuthOrchestrator(
     fun getOAuthUserInfoForGoogle(authorizationCode: String): OAuthUserInfoResponse {
         val idTokenResponse = issueIdTokenForGoogle(authorizationCode)
         val payload = getPayloadFromGoogleIdToken(idTokenResponse.idToken)
-        return OAuthUserInfoResponse("google", payload.sub, payload.email)
+        return OAuthUserInfoResponse("google", payload.sub, payload.email, payload.picture)
     }
 
     /**
@@ -33,13 +33,14 @@ class AuthOrchestrator(
     fun accessOAuthUser(
         provider: String,
         providerId: String,
-        email: String
+        email: String,
+        imageUrl: String?
     ): UserInfoForTokenResponse {
         val userInfo = authService.checkExistByOAuthUser(providerId)
 
         if (userInfo == null) {
             val oAuthUserId = authService.createOAuthUser(provider, providerId, email)
-            val createdUserInfo = userInfoService.createUserInfo(oAuthUserId)
+            val createdUserInfo = userInfoService.createUserInfo(oAuthUserId, imageUrl)
             return UserInfoForTokenResponse(
                 createdUserInfo.id,
                 createdUserInfo.role.name,

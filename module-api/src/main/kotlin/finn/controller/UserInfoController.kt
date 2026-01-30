@@ -7,6 +7,7 @@ import finn.request.userinfo.NicknameRequest
 import finn.response.SuccessResponse
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
+import finn.response.userinfo.UserInfoResponse
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
@@ -53,5 +54,10 @@ class UserInfoController(
     override fun withdrawn(userId: UUID): SuccessResponse<Nothing> {
         userInfoOrchestrator.withdrawn(userId)
         return SuccessResponse("204 No Content", "회원 탈퇴 성공", null)
+    }
+
+    override fun getUserInfo(userId: UUID): SuccessResponse<UserInfoResponse> {
+        val response = userInfoOrchestrator.getUserInfo(userId)
+        return SuccessResponse("200 Ok", "유저 정보 조회 성공", response)
     }
 }

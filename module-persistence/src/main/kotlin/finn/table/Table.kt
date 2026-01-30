@@ -139,7 +139,7 @@ object ArticleSummaryAllTable : UUIDTable("article_summary_all") {
 }
 
 object ExchangeRateTable : UUIDTable("exchange_rate") {
-    val date = datetime( "date")
+    val date = datetime("date")
     val indexCode = varchar("index_code", 30) // C01
     val indexInfo = varchar("index_info", 50) // 원/달러
     val value = decimal("value", 10, 4)
@@ -159,6 +159,7 @@ object OAuthUserTable : UUIDTable("oauth_user") {
 object UserInfoTable : UUIDTable("user_info") {
     val oauthUserId = uuid("oauth_user_id")
     val nickname = varchar("nickname", 50)
+    val imageUrl = text("image_url").nullable()
     val role = varchar("role", 20)
     val status = varchar("status", 20)
     val favoriteTickers = text("favorite_tickers").nullable()
@@ -173,4 +174,12 @@ object UserTokenTable : UUIDTable("user_token") {
     val deviceType = varchar("device_type", 20)
     val refreshToken = text("refresh_token").nullable()
     val createdAt = datetime("created_at")
+
+    init {
+        Index(
+            listOf(userInfoId),
+            false,
+            "idx_user_token_user_info_id"
+        )
+    }
 }

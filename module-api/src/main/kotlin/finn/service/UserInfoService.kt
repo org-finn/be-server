@@ -19,11 +19,12 @@ class UserInfoService(
     private val nicknameValidator: NicknameValidator
 ) {
 
-    fun createUserInfo(oAuthUserId: UUID): UserInfo {
+    fun createUserInfo(oAuthUserId: UUID, imageUrl: String?): UserInfo {
         val nickname = nicknameProvider.createUniqueNickname()
         return userInfoRepository.save(
             oAuthUserId,
             nickname,
+            imageUrl,
             UserRole.USER.name,
             UserStatus.REGISTERED.name
         )
@@ -56,5 +57,9 @@ class UserInfoService(
 
     fun withdrawn(userId: UUID) {
         userInfoRepository.deleteUserInfo(userId, UserStatus.WITHDRAWN.name)
+    }
+
+    fun getUserInfo(userId: UUID): UserInfo {
+        return userInfoRepository.findById(userId)
     }
 }
