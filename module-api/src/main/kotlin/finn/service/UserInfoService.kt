@@ -57,4 +57,8 @@ class UserInfoService(
     fun withdrawn(userId: UUID) {
         userInfoRepository.deleteUserInfo(userId, UserStatus.WITHDRAWN.name)
     }
+
+    fun getUserInfo(userId: UUID): UserInfo {
+        return userInfoRepository.findById(userId)
+    }
 }

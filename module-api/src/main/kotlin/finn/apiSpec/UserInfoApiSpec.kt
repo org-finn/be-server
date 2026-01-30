@@ -6,6 +6,7 @@ import finn.request.userinfo.NicknameRequest
 import finn.response.SuccessResponse
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
+import finn.response.userinfo.UserInfoResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -168,4 +169,26 @@ interface UserInfoApiSpec {
     @DeleteMapping("/withdrawn")
     fun withdrawn(@UserId userId: UUID): SuccessResponse<Nothing>
 
+
+    @Operation(
+        summary = "유저 정보 조회", description = "유저 정보를 조회합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "유저 정보 조회 성공"
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "auth 관련 로직 중 문제가 발생하였습니다."
+            ),
+        ]
+    )
+    @GetMapping("/userinfo")
+    fun getUserInfo(@UserId userId: UUID): SuccessResponse<UserInfoResponse>
 }
