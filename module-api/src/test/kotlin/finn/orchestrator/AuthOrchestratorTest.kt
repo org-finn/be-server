@@ -114,6 +114,7 @@ class AuthOrchestratorTest : DescribeSpec({
                     result.userId shouldBe userId
                     result.role shouldBe "USER"
                     result.status shouldBe "REGISTERED"
+                    result.isNewUser shouldBe false
 
                     // Verify: 생성 로직이 호출되지 않았음을 검증
                     verify(exactly = 0) { authService.createOAuthUser(any(), any(), any()) }
@@ -157,6 +158,7 @@ class AuthOrchestratorTest : DescribeSpec({
 
                     // then
                     result.userId shouldBe userId
+                    result.isNewUser shouldBe true
 
                     // Verify: 순서대로 생성 로직 호출 확인
                     verifyOrder {

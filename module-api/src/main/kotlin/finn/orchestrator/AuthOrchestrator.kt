@@ -38,16 +38,18 @@ class AuthOrchestrator(
     ): UserInfoForTokenResponse {
         val userInfo = authService.checkExistByOAuthUser(providerId)
 
+        // 최초 회원 -> 회원가입
         if (userInfo == null) {
             val oAuthUserId = authService.createOAuthUser(provider, providerId, email)
             val createdUserInfo = userInfoService.createUserInfo(oAuthUserId, imageUrl)
             return UserInfoForTokenResponse(
                 createdUserInfo.id,
                 createdUserInfo.role.name,
-                createdUserInfo.status.name
+                createdUserInfo.status.name,
+                true
             )
-        } else {
-            return UserInfoForTokenResponse(userInfo.id, userInfo.role.name, userInfo.status.name)
+        } else { // 기존 회원 -> 로그인
+            return UserInfoForTokenResponse(userInfo.id, userInfo.role.name, userInfo.status.name, false)
         }
     }
 
