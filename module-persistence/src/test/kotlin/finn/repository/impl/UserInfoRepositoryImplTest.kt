@@ -5,15 +5,19 @@ import finn.entity.UserInfoExposed
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
 import finn.repository.UserInfoRepository
+import finn.table.ArticleTable
 import finn.table.TickerTable
+import finn.table.UserArticleTable
 import finn.table.UserInfoTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -22,6 +26,15 @@ internal class UserInfoRepositoryImplTest(
     private val repository: UserInfoRepository
 ) : DescribeSpec({
 
+
+    beforeTest {
+        transaction {
+            UserArticleTable.deleteAll()
+            ArticleTable.deleteAll()
+            UserInfoTable.deleteAll()
+            TickerTable.deleteAll()
+        }
+    }
 
     describe("UserInfoRepository (Integration with PostgreSQL)") {
 
@@ -193,7 +206,10 @@ internal class UserInfoRepositoryImplTest(
 
                     // then
                     result.size shouldBe 2
-                    result.map { it.tickerCode } shouldContainExactlyInAnyOrder listOf("AAPL", "TSLA")
+                    result.map { it.tickerCode } shouldContainExactlyInAnyOrder listOf(
+                        "AAPL",
+                        "TSLA"
+                    )
                     result.map { it.tickerId } shouldContainExactlyInAnyOrder listOf(aaplId, tslaId)
                 }
             }
@@ -246,7 +262,10 @@ internal class UserInfoRepositoryImplTest(
                     // then
                     val user = UserInfoExposed.findById(userId)!!
                     // Set 자료구조 특성상 순서 보장은 안될 수 있으므로 포함 여부 확인
-                    user.favoriteTickers!!.split(",") shouldContainExactlyInAnyOrder listOf("AAPL", "TSLA")
+                    user.favoriteTickers!!.split(",") shouldContainExactlyInAnyOrder listOf(
+                        "AAPL",
+                        "TSLA"
+                    )
                 }
             }
 
@@ -339,7 +358,192 @@ internal class UserInfoRepositoryImplTest(
 
                     // then
                     val user = UserInfoExposed.findById(userId)!!
-                    user.favoriteTickers!!.split(",") shouldContainExactlyInAnyOrder listOf("TSLA", "MSFT")
+                    user.favoriteTickers!!.split(",") shouldContainExactlyInAnyOrder listOf(
+                        "TSLA",
+                        "MSFT"
+                    )
+                }
+            }
+        }
+    }
+
+    describe("UserArticleRepository") {
+
+        // ==========================================
+        // 1. findFavoriteArticles (조회 & 조인)
+        // ==========================================
+        context("findFavoriteArticles 메서드는") {
+            val userId = UUID.randomUUID()
+            var articleId1: UUID = UUID.randomUUID()
+            var articleId2: UUID = UUID.randomUUID()
+
+            beforeTest {
+                transaction {
+                    // Given: 기사 데이터 생성
+                    articleId1 = ArticleTable.insertAndGetId {
+                        it[title] = "Kotlin Guide"
+                        it[description] = ""
+                        it[publishedDate] = Instant.now()
+                        it[articleUrl] = UUID.randomUUID().toString()
+                        it[viewCount] = 0L
+                        it[likeCount] = 0L
+                        it[author] = ""
+                        it[distinctId] = UUID.randomUUID().toString()
+                        it[createdAt] = LocalDateTime.now()
+                        it[thumbnailUrl] = "https://kotlin.com/icon.png"
+                    }.value
+
+                    articleId2 = ArticleTable.insertAndGetId {
+                        it[title] = "Exposed Guide"
+                        it[description] = ""
+                        it[publishedDate] = Instant.now()
+                        it[articleUrl] = UUID.randomUUID().toString()
+                        it[viewCount] = 0L
+                        it[likeCount] = 0L
+                        it[author] = ""
+                        it[distinctId] = UUID.randomUUID().toString()
+                        it[createdAt] = LocalDateTime.now()
+                        it[thumbnailUrl] = null
+                    }.value
+
+                    // Given: 유저가 1번, 2번 기사를 찜함
+                    UserArticleTable.insert {
+                        it[this.userId] = userId
+                        it[articleId] = articleId1
+                        it[createdAt] = LocalDateTime.now()
+                    }
+                    UserArticleTable.insert {
+                        it[this.userId] = userId
+                        it[articleId] = articleId2
+                        it[createdAt] = LocalDateTime.now()
+                    }
+                }
+            }
+
+            it("유저가 찜한 기사 목록을 Article 테이블과 조인하여 반환한다") {
+                transaction {
+                    // When
+                    val result = repository.findFavoriteArticles(userId)
+
+                    // Then
+                    result shouldHaveSize 2
+                    result.map { it.title } shouldContainExactlyInAnyOrder listOf(
+                        "Kotlin Guide",
+                        "Exposed Guide"
+                    )
+                    result.map { it.articleId } shouldContainExactlyInAnyOrder listOf(
+                        articleId1,
+                        articleId2
+                    )
+                }
+            }
+
+            it("찜한 기사가 없는 유저에게는 빈 리스트를 반환한다") {
+                transaction {
+                    // Given
+                    val otherUserId = UUID.randomUUID()
+
+                    // When
+                    val result = repository.findFavoriteArticles(otherUserId)
+
+                    // Then
+                    result shouldHaveSize 0
+                }
+            }
+        }
+
+        // ==========================================
+        // 2. updateFavoriteArticle (추가/삭제)
+        // ==========================================
+        describe("updateFavoriteArticle 메서드는") {
+            val userId = UUID.randomUUID()
+            var articleId: UUID = UUID.randomUUID()
+
+            beforeTest {
+                transaction {
+                    articleId = ArticleTable.insertAndGetId {
+                        it[title] = "Test Article"
+                        it[description] = ""
+                        it[publishedDate] = Instant.now()
+                        it[articleUrl] = UUID.randomUUID().toString()
+                        it[viewCount] = 0L
+                        it[likeCount] = 0L
+                        it[author] = ""
+                        it[distinctId] = UUID.randomUUID().toString()
+                        it[createdAt] = LocalDateTime.now()
+                    }.value
+                }
+            }
+
+            context("mode가 'on'일 때") {
+                it("데이터가 없으면 새로 추가한다") {
+                    transaction {
+                        // When
+                        repository.updateFavoriteArticle(userId, articleId, "on")
+
+                        // Then
+                        val count = UserArticleTable.selectAll()
+                            .where { UserArticleTable.userId eq userId and (UserArticleTable.articleId eq articleId) }
+                            .count()
+                        count shouldBe 1
+                    }
+                }
+
+                it("이미 데이터가 존재하면 중복 추가하지 않는다") {
+                    transaction {
+                        // Given: 이미 추가됨
+                        repository.updateFavoriteArticle(userId, articleId, "on")
+
+                        // When: 다시 추가 요청
+                        repository.updateFavoriteArticle(userId, articleId, "on")
+
+                        // Then
+                        val count = UserArticleTable.selectAll()
+                            .where { UserArticleTable.userId eq userId }
+                            .count()
+                        count shouldBe 1
+                    }
+                }
+            }
+
+            context("mode가 'off'일 때") {
+                it("데이터가 존재하면 삭제한다") {
+                    transaction {
+                        // Given: 데이터 미리 추가
+                        UserArticleTable.insert {
+                            it[this.userId] = userId
+                            it[this.articleId] = articleId
+                            it[createdAt] = LocalDateTime.now()
+                        }
+
+                        // When
+                        repository.updateFavoriteArticle(userId, articleId, "off")
+
+                        // Then
+                        val count = UserArticleTable.selectAll()
+                            .where { UserArticleTable.userId eq userId and (UserArticleTable.articleId eq articleId) }
+                            .count()
+                        count shouldBe 0
+                    }
+                }
+
+                it("데이터가 없어도 예외 없이 처리된다") {
+                    transaction {
+                        // When
+                        repository.updateFavoriteArticle(userId, articleId, "off")
+
+                        // Then: 에러 안 나고 개수는 0
+                        val count = UserArticleTable.selectAll().count()
+                        count shouldBe 0
+                    }
+                }
+            }
+
+            context("유효하지 않은 mode 값일 때") {
+                it("DomainPolicyViolationException을 던진다") {
+                    shouldThrow<DomainPolicyViolationException> {
+                        repository.updateFavoriteArticle(userId, articleId, "unknown")
+                    }
                 }
             }
         }
