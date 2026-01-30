@@ -1,6 +1,7 @@
 package finn.repository
 
 import finn.entity.UserInfo
+import finn.queryDto.FavoriteArticleQueryDto
 import finn.queryDto.FavoriteTickerQueryDto
 import java.util.*
 
@@ -26,4 +27,8 @@ interface UserInfoRepository {
     fun updateFavoriteTicker(userId: UUID, tickerCode: String, mode: String)
 
     fun deleteUserInfo(userId: UUID, status: String)
+
+    fun findFavoriteArticles(userId: UUID): List<FavoriteArticleQueryDto>
+
+    fun updateFavoriteArticle(userId: UUID, articleId: UUID, mode: String)
 }

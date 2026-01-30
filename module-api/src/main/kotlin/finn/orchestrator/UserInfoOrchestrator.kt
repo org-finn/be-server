@@ -1,8 +1,10 @@
 package finn.orchestrator
 
+import finn.mapper.FavoriteArticleDtoMapper
 import finn.mapper.FavoriteTIckerDtoMapper.Companion.toDto
 import finn.mapper.UserInfoDtoMapper
 import finn.request.userinfo.FavoriteTickerRequest
+import finn.response.userinfo.FavoriteArticleResponse
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
 import finn.response.userinfo.UserInfoResponse
@@ -43,5 +45,13 @@ class UserInfoOrchestrator(
 
     fun getUserInfo(userId: UUID): UserInfoResponse {
         return UserInfoDtoMapper.toDto(userInfoService.getUserInfo(userId))
+    }
+
+    fun getFavoriteArticles(userId: UUID): FavoriteArticleResponse {
+        return FavoriteArticleDtoMapper.toDto(userInfoService.getFavoriteArticles(userId))
+    }
+
+    fun updateFavoriteArticle(userId: UUID, articleId: UUID, mode: String) {
+        userInfoService.updateFavoriteArticle(userId, articleId, mode)
     }
 }

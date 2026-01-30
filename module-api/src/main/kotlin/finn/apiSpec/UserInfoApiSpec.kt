@@ -4,6 +4,7 @@ import finn.auth.UserId
 import finn.request.userinfo.FavoriteTickerRequest
 import finn.request.userinfo.NicknameRequest
 import finn.response.SuccessResponse
+import finn.response.userinfo.FavoriteArticleResponse
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
 import finn.response.userinfo.UserInfoResponse
@@ -191,4 +192,64 @@ interface UserInfoApiSpec {
     )
     @GetMapping("/userinfo")
     fun getUserInfo(@UserId userId: UUID): SuccessResponse<UserInfoResponse>
+
+    @Operation(
+        summary = "스크랩 아티클 리스트 조회", description = "유저의 스크랩 아티클들을 조회합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "스크랩 아티클 리스트 조회 성공"
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "auth 관련 로직 중 문제가 발생하였습니다."
+            ),
+        ]
+    )
+    @GetMapping("/favorite/articles")
+    fun getFavoriteArticles(
+        @UserId userId: UUID
+    ): SuccessResponse<FavoriteArticleResponse>
+
+
+    @Operation(
+        summary = "아티클 스크랩 등록/해제", description = "유저의 아티클 스크랩을 등록/해제합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "아티클 스크랩 등록/해제 성공"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 변경 상태 모드 값입니다."
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 아티클 id 값으로 인해 수정에 실패했습니다."
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 토큰 등의 이유로 인증에 실패하였습니다."
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "auth 관련 로직 중 문제가 발생하였습니다."
+            ),
+        ]
+    )
+    @PutMapping("/favorite/article")
+    fun updateFavoriteArticle(
+        @RequestParam("articleId", required = true) articleId: UUID,
+        @RequestParam("mode", required = true, defaultValue = "on") mode: String,
+        @UserId userId: UUID
+    ): SuccessResponse<Nothing>
+
 }

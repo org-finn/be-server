@@ -5,6 +5,7 @@ import finn.orchestrator.UserInfoOrchestrator
 import finn.request.userinfo.FavoriteTickerRequest
 import finn.request.userinfo.NicknameRequest
 import finn.response.SuccessResponse
+import finn.response.userinfo.FavoriteArticleResponse
 import finn.response.userinfo.FavoriteTickerResponse
 import finn.response.userinfo.NicknameValidationResponse
 import finn.response.userinfo.UserInfoResponse
@@ -59,5 +60,19 @@ class UserInfoController(
     override fun getUserInfo(userId: UUID): SuccessResponse<UserInfoResponse> {
         val response = userInfoOrchestrator.getUserInfo(userId)
         return SuccessResponse("200 Ok", "유저 정보 조회 성공", response)
+    }
+
+    override fun getFavoriteArticles(userId: UUID): SuccessResponse<FavoriteArticleResponse> {
+        val response = userInfoOrchestrator.getFavoriteArticles(userId)
+        return SuccessResponse("200 Ok", "스크랩 아티클 리스트 조회 성공", response)
+    }
+
+    override fun updateFavoriteArticle(
+        articleId: UUID,
+        mode: String,
+        userId: UUID
+    ): SuccessResponse<Nothing> {
+        userInfoOrchestrator.updateFavoriteArticle(userId, articleId, mode)
+        return SuccessResponse("200 Ok", "아티클 스크랩 등록/해제 성공", null)
     }
 }
