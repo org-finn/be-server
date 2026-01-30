@@ -7,7 +7,8 @@ import finn.request.auth.LogoutRequest
 import finn.request.auth.OAuthLoginRequest
 import finn.request.auth.ReIssueRequest
 import finn.response.SuccessResponse
-import finn.response.auth.ClientTokenResponse
+import finn.response.auth.ClientLoginResponse
+import finn.response.auth.ReIssueResponse
 import finn.service.TokenCookieService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpHeaders
@@ -22,7 +23,7 @@ class AuthController(
 
     override fun loginForGoogleOAuth(
         oAuthLoginRequest: OAuthLoginRequest
-    ): ResponseEntity<SuccessResponse<ClientTokenResponse>> {
+    ): ResponseEntity<SuccessResponse<ClientLoginResponse>> {
         // 1. 인가코드로 구글 oAuth2에 ID 토큰 발급 후 oauth 정보 추출
         val oAuthUserInfo =
             authOrchestrator.getOAuthUserInfoForGoogle(oAuthLoginRequest.authorizationCode)
@@ -44,21 +45,21 @@ class AuthController(
         // 4. web일 경우 쿠키에 토큰 set
         if (tokenCookieService.checkDeviceType(oAuthLoginRequest.deviceType)) {
             val cookie = tokenCookieService.setRefreshTokenInCookie(response.refreshToken)
-            val responseForWeb = ClientTokenResponse(response.accessToken, null)
+            val responseForWeb = ClientLoginResponse(response.accessToken, null, userInfo.isNewUser)
             return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(SuccessResponse("200 Ok", "구글 로그인 수행 후 액세스/리프레쉬 토큰 발급 성공", responseForWeb))
+                .body(SuccessResponse("200 Ok", "클라이언트 구글 소셜 로그인 성공", responseForWeb))
         }
         val responseForApp =
-            ClientTokenResponse(response.accessToken, response.refreshToken)
+            ClientLoginResponse(response.accessToken, response.refreshToken, userInfo.isNewUser)
         return ResponseEntity.ok()
-            .body(SuccessResponse("200 Ok", "구글 로그인 수행 후 액세스/리프레쉬 토큰 발급 성공", responseForApp))
+            .body(SuccessResponse("200 Ok", "클라이언트 구글 소셜 로그인 성공", responseForApp))
     }
 
     override fun reIssue(
         reIssueRequest: ReIssueRequest,
         httpServletRequest: HttpServletRequest,
-    ): ResponseEntity<SuccessResponse<ClientTokenResponse>> {
+    ): ResponseEntity<SuccessResponse<ReIssueResponse>> {
         // 1. 리프레쉬 토큰 추출(앱/웹 여부에 따라 다르게 추출)
         val refreshToken =
             if (tokenCookieService.checkDeviceType(reIssueRequest.deviceType)) {
@@ -76,13 +77,13 @@ class AuthController(
         // 3. web일 경우 쿠키에 토큰 set
         if (tokenCookieService.checkDeviceType(reIssueRequest.deviceType)) {
             val cookie = tokenCookieService.setRefreshTokenInCookie(response.refreshToken)
-            val responseForWeb = ClientTokenResponse(response.accessToken, null)
+            val responseForWeb = ReIssueResponse(response.accessToken, null)
             return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(SuccessResponse("200 Ok", "액세스/리프레쉬 토큰 재발급 성공", responseForWeb))
         }
         val responseForApp =
-            ClientTokenResponse(response.accessToken, response.refreshToken)
+            ReIssueResponse(response.accessToken, response.refreshToken)
         return ResponseEntity.ok()
             .body(SuccessResponse("200 Ok", "액세스/리프레쉬 토큰 재발급 성공", responseForApp))
     }

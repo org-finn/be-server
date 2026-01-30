@@ -4,7 +4,8 @@ import finn.request.auth.LogoutRequest
 import finn.request.auth.OAuthLoginRequest
 import finn.request.auth.ReIssueRequest
 import finn.response.SuccessResponse
-import finn.response.auth.ClientTokenResponse
+import finn.response.auth.ClientLoginResponse
+import finn.response.auth.ReIssueResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -26,7 +27,7 @@ interface AuthApiSpec {
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "구글 로그인 수행 후 액세스/리프레쉬 토큰 발급 성공"
+                description = "클라이언트 구글 소셜 로그인 성공"
             ),
             ApiResponse(
                 responseCode = "401",
@@ -37,7 +38,7 @@ interface AuthApiSpec {
     @PostMapping("/login/google")
     fun loginForGoogleOAuth(
         @RequestBody oAuthLoginRequest: OAuthLoginRequest
-    ): ResponseEntity<SuccessResponse<ClientTokenResponse>>
+    ): ResponseEntity<SuccessResponse<ClientLoginResponse>>
 
 
     @Operation(
@@ -63,7 +64,7 @@ interface AuthApiSpec {
     fun reIssue(
         @RequestBody reIssueRequest: ReIssueRequest,
         httpServletRequest: HttpServletRequest
-    ): ResponseEntity<SuccessResponse<ClientTokenResponse>>
+    ): ResponseEntity<SuccessResponse<ReIssueResponse>>
 
 
     @Operation(
