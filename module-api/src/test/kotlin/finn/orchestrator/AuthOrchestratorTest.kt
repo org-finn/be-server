@@ -45,6 +45,7 @@ class AuthOrchestratorTest : DescribeSpec({
             val idTokenString = "mock_id_token_string"
             val providerId = "1234567890"
             val email = "test@example.com"
+            val imageUrl = "https://test.url"
 
             // Mock 응답 객체 준비
             val mockTokenResponse = mockk<GoogleIdTokenResponse>()
@@ -54,6 +55,7 @@ class AuthOrchestratorTest : DescribeSpec({
                 every { mockTokenResponse.idToken } returns idTokenString
                 every { mockPayload.sub } returns providerId
                 every { mockPayload.email } returns email
+                every { mockPayload.picture } returns imageUrl
             }
 
             it("인증 코드를 받아 ID 토큰을 발급받고, 디코딩하여 유저 정보를 반환한다") {
@@ -68,6 +70,7 @@ class AuthOrchestratorTest : DescribeSpec({
                 result.provider shouldBe "google"
                 result.providerId shouldBe providerId
                 result.email shouldBe email
+                result.imageUrl shouldBe imageUrl
 
                 verify(exactly = 1) { authService.issueIdTokenForGoogle(authCode) }
                 verify(exactly = 1) { authService.decodeIdToken(idTokenString) }
@@ -81,6 +84,7 @@ class AuthOrchestratorTest : DescribeSpec({
             val provider = "google"
             val providerId = "1001"
             val email = "user@test.com"
+            val imageUrl = "https://test.url"
 
             // Mocking을 위한 가짜 UserInfo 객체 (반환 타입에 맞게 가정)
             // 실제 엔티티나 DTO 구조에 맞춰 수정 필요
@@ -93,6 +97,7 @@ class AuthOrchestratorTest : DescribeSpec({
 
                 beforeEach {
                     every { existingUserInfo.id } returns userId
+                    every { existingUserInfo.imageUrl } returns imageUrl
                     every { existingUserInfo.role } returns UserRole.USER
                     every { existingUserInfo.status } returns UserStatus.REGISTERED
 
@@ -102,7 +107,8 @@ class AuthOrchestratorTest : DescribeSpec({
 
                 it("새로 생성하지 않고 기존 유저 정보를 반환한다 (로그인)") {
                     // when
-                    val result = authOrchestrator.accessOAuthUser(provider, providerId, email)
+                    val result =
+                        authOrchestrator.accessOAuthUser(provider, providerId, email, imageUrl)
 
                     // then
                     result.userId shouldBe userId
@@ -111,16 +117,18 @@ class AuthOrchestratorTest : DescribeSpec({
 
                     // Verify: 생성 로직이 호출되지 않았음을 검증
                     verify(exactly = 0) { authService.createOAuthUser(any(), any(), any()) }
-                    verify(exactly = 0) { userInfoService.createUserInfo(any()) }
+                    verify(exactly = 0) { userInfoService.createUserInfo(any(), any()) }
                 }
             }
 
             context("가입되지 않은 유저라면 (UserInfo 없음)") {
                 val newOAuthUserId = UUID.randomUUID()
                 val newUserInfo = mockk<UserInfo>(relaxed = true)
+                val newImageUrl = "https://test.url"
 
                 beforeEach {
                     every { newUserInfo.id } returns userId
+                    every { newUserInfo.imageUrl } returns newImageUrl
                     every { newUserInfo.role } returns UserRole.USER
                     every { newUserInfo.status } returns UserStatus.REGISTERED
 
@@ -134,12 +142,18 @@ class AuthOrchestratorTest : DescribeSpec({
                             email
                         )
                     } returns newOAuthUserId
-                    every { userInfoService.createUserInfo(newOAuthUserId) } returns newUserInfo
+                    every {
+                        userInfoService.createUserInfo(
+                            newOAuthUserId,
+                            newImageUrl
+                        )
+                    } returns newUserInfo
                 }
 
                 it("OAuthUser와 UserInfo를 새로 생성하고 정보를 반환한다 (회원가입)") {
                     // when
-                    val result = authOrchestrator.accessOAuthUser(provider, providerId, email)
+                    val result =
+                        authOrchestrator.accessOAuthUser(provider, providerId, email, imageUrl)
 
                     // then
                     result.userId shouldBe userId
@@ -148,7 +162,7 @@ class AuthOrchestratorTest : DescribeSpec({
                     verifyOrder {
                         authService.checkExistByOAuthUser(providerId)
                         authService.createOAuthUser(provider, providerId, email)
-                        userInfoService.createUserInfo(newOAuthUserId)
+                        userInfoService.createUserInfo(newOAuthUserId, newImageUrl)
                     }
                 }
             }

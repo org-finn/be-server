@@ -19,11 +19,12 @@ class UserInfoService(
     private val nicknameValidator: NicknameValidator
 ) {
 
-    fun createUserInfo(oAuthUserId: UUID): UserInfo {
+    fun createUserInfo(oAuthUserId: UUID, imageUrl: String?): UserInfo {
         val nickname = nicknameProvider.createUniqueNickname()
         return userInfoRepository.save(
             oAuthUserId,
             nickname,
+            imageUrl,
             UserRole.USER.name,
             UserStatus.REGISTERED.name
         )

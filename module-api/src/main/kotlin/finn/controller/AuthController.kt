@@ -31,7 +31,8 @@ class AuthController(
         val userInfo = authOrchestrator.accessOAuthUser(
             oAuthUserInfo.provider,
             oAuthUserInfo.providerId,
-            oAuthUserInfo.email
+            oAuthUserInfo.email,
+            oAuthUserInfo.imageUrl
         )
         // 3. 액세스/리프레쉬 토큰 생성하여 리턴
         val response = authOrchestrator.issueToken(

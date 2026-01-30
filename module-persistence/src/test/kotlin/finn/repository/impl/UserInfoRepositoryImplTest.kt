@@ -73,6 +73,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "old_nick"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[createdAt] = LocalDateTime.now()
@@ -95,6 +96,7 @@ internal class UserInfoRepositoryImplTest(
                     val userIdA = UserInfoTable.insertAndGetId {
                         it[nickname] = "user_a"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[createdAt] = LocalDateTime.now()
@@ -104,6 +106,7 @@ internal class UserInfoRepositoryImplTest(
                     UserInfoTable.insertAndGetId {
                         it[nickname] = "user_b" // 이미 존재하는 닉네임
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[createdAt] = LocalDateTime.now()
@@ -177,6 +180,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "tester"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "MEMBER"
                         it[status] = "ACTIVE"
                         it[favoriteTickers] = "AAPL,TSLA"
@@ -200,6 +204,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "tester"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[favoriteTickers] = "" // or null logic check
@@ -227,6 +232,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "tester"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[favoriteTickers] = "AAPL"
@@ -250,6 +256,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "tester"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[favoriteTickers] = "AAPL"
@@ -272,6 +279,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "tester"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[favoriteTickers] = "AAPL,TSLA"
@@ -293,6 +301,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "tester"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[createdAt] = LocalDateTime.now()
@@ -316,6 +325,7 @@ internal class UserInfoRepositoryImplTest(
                     val userId = UserInfoTable.insertAndGetId {
                         it[nickname] = "tester"
                         it[oauthUserId] = UUID.randomUUID()
+                        it[imageUrl] = "https://test.com/test.png"
                         it[role] = "USER"
                         it[status] = "REGISTERED"
                         it[favoriteTickers] = "AAPL"

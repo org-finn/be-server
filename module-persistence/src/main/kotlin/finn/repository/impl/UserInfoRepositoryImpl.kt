@@ -20,10 +20,11 @@ class UserInfoRepositoryImpl(
     override fun save(
         oAuthUserId: UUID,
         nickname: String,
+        imageUrl: String?,
         role: String,
         status: String
     ): UserInfo {
-        return toDomain(userInfoExposedRepository.save(oAuthUserId, nickname, role, status))
+        return toDomain(userInfoExposedRepository.save(oAuthUserId, nickname, imageUrl, role, status))
     }
 
     override fun existNickname(nickname: String): Boolean {

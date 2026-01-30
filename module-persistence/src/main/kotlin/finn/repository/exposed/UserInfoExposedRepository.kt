@@ -24,10 +24,17 @@ class UserInfoExposedRepository(
         private val log = KotlinLogging.logger {}
     }
 
-    fun save(oAuthUserId: UUID, nickname: String, role: String, status: String): UserInfoExposed {
+    fun save(
+        oAuthUserId: UUID,
+        nickname: String,
+        imageUrl: String?,
+        role: String,
+        status: String
+    ): UserInfoExposed {
         return UserInfoExposed.new {
             this.oauthUserId = oAuthUserId
             this.nickname = nickname
+            this.imageUrl = imageUrl
             this.role = role
             this.status = status
             this.createdAt = LocalDateTime.now(clock)
