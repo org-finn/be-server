@@ -183,3 +183,17 @@ object UserTokenTable : UUIDTable("user_token") {
         )
     }
 }
+
+object UserArticleTable : UUIDTable("user_article") {
+    val articleId = uuid("article_id")
+    val userId = uuid("user_id")
+    val createdAt = datetime("created_at")
+
+    init {
+        Index(
+            listOf(userId),
+            false,
+            "idx_user_article_user_id"
+        )
+    }
+}
