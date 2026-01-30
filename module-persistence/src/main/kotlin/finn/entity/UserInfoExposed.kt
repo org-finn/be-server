@@ -11,6 +11,7 @@ class UserInfoExposed(id: EntityID<UUID>) : UUIDEntity(id) {
 
     var oauthUserId by UserInfoTable.oauthUserId
     var nickname by UserInfoTable.nickname
+    var imageUrl by UserInfoTable.imageUrl
     var role by UserInfoTable.role
     var status by UserInfoTable.status
     var favoriteTickers by UserInfoTable.favoriteTickers

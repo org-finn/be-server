@@ -159,6 +159,7 @@ object OAuthUserTable : UUIDTable("oauth_user") {
 object UserInfoTable : UUIDTable("user_info") {
     val oauthUserId = uuid("oauth_user_id")
     val nickname = varchar("nickname", 50)
+    val imageUrl = text("image_url").nullable()
     val role = varchar("role", 20)
     val status = varchar("status", 20)
     val favoriteTickers = text("favorite_tickers").nullable()
