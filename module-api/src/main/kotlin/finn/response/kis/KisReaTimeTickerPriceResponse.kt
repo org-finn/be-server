@@ -2,7 +2,7 @@ package finn.response.kis
 
 import java.math.BigDecimal
 
-data class RealiseTimeTickerPriceResponse(
+data class KisReaTimeTickerPriceResponse(
     val rsym: String,      // 0. RSYM: 실시간종목코드 (예: DNASAAPL)
     val symb: String,      // 1. SYMB: 종목코드 (예: AAPL)
     val zdiv: String,      // 2. ZDIV: 소수점자리수
