@@ -2,6 +2,7 @@ package finn.repository.impl
 
 import finn.entity.query.Ticker
 import finn.mapper.toDomain
+import finn.queryDto.TickerCodeQueryDto
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import finn.repository.exposed.TickerExposedRepository
@@ -17,6 +18,7 @@ class TickerRepositoryImpl(
 
     companion object {
         private const val TICKER_LIST_CACHE_KEY = "'tickers:all'"
+        private const val TICKER_CODE_LIST_CACHE_KEY = "'tickers:code:all'"
     }
 
     override fun getTickerByTickerCode(tickerCode: String): Ticker {
@@ -46,5 +48,10 @@ class TickerRepositoryImpl(
 
     override fun validTickersByTickerCode(tickerCodes: List<String>) {
         tickerExposedRepository.existTickersByTickerCode(tickerCodes)
+    }
+
+    @Cacheable("tickerCodeList", key = TICKER_CODE_LIST_CACHE_KEY)
+    override fun findAllCode(): TickerCodeQueryDto {
+        return tickerExposedRepository.findAllWithTickerCodeAndExchangeCode()
     }
 }
