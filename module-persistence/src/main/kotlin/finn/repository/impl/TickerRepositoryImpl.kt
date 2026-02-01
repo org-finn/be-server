@@ -18,6 +18,7 @@ class TickerRepositoryImpl(
 
     companion object {
         private const val TICKER_LIST_CACHE_KEY = "'tickers:all'"
+        private const val TICKER_CODE_LIST_CACHE_KEY = "'tickers:code:all'"
     }
 
     override fun getTickerByTickerCode(tickerCode: String): Ticker {
@@ -49,6 +50,7 @@ class TickerRepositoryImpl(
         tickerExposedRepository.existTickersByTickerCode(tickerCodes)
     }
 
+    @Cacheable("tickerCodeList", key = TICKER_CODE_LIST_CACHE_KEY)
     override fun findAllCode(): TickerCodeQueryDto {
         return tickerExposedRepository.findAllWithTickerCodeAndExchangeCode()
     }
