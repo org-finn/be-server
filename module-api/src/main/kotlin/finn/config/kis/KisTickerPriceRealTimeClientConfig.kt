@@ -18,8 +18,6 @@ class KisTickerPriceRealTimeClientConfig(
     private val tickerRepository: TickerRepository
 ) {
     private val log = KotlinLogging.logger {}
-
-
     private val KIS_WEBSOCKET_URL = kisProperties.wsBaseUrl + "/tryitout/HDFSCNT0"
 
     @Bean
@@ -44,10 +42,14 @@ class KisTickerPriceRealTimeClientConfig(
                 // 3. 연결 후 잠시 대기했다가 구독 요청 (비동기라 연결 맺을 시간 필요)
                 Thread.sleep(1000)
 
-                // [TODO]: 33개 종목 모두 구독 요창, db로부터 tickerCode, exchangeCode를 받아와 다음 계층에 전송
-//                // 미국 주식은 0분 지연(실시간) 제공됨
-//                kisExecutionWebSocketHandler.sendSubscription(approvalKey, "NAS", "AAPL")
-//                kisExecutionWebSocketHandler.sendSubscription(approvalKey, "NAS", "TSLA")
+                val tickerCodeQueryDto = tickerRepository.findAllCode()
+                tickerCodeQueryDto.tickerCodes.forEach {
+                    kisRealTimeTickerPriceExecutionWebSocketHandler.sendSubscription(
+                        approvalKey,
+                        it.exchangeCode,
+                        it.tickerCode
+                    )
+                }
 
             } catch (e: Exception) {
                 log.error { "Failed to connect KIS WebSocket" + e.message }

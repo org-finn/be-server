@@ -2,6 +2,7 @@ package finn.repository.impl
 
 import finn.entity.query.Ticker
 import finn.mapper.toDomain
+import finn.queryDto.TickerCodeQueryDto
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import finn.repository.exposed.TickerExposedRepository
@@ -46,5 +47,9 @@ class TickerRepositoryImpl(
 
     override fun validTickersByTickerCode(tickerCodes: List<String>) {
         tickerExposedRepository.existTickersByTickerCode(tickerCodes)
+    }
+
+    override fun findAllCode(): TickerCodeQueryDto {
+        return tickerExposedRepository.findAllWithTickerCodeAndExchangeCode()
     }
 }

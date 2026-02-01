@@ -3,6 +3,7 @@ package finn.repository.exposed
 import finn.entity.TickerExposed
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
+import finn.queryDto.TickerCodeQueryDto
 import finn.queryDto.TickerQueryDto
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
@@ -118,5 +119,17 @@ class TickerExposedRepository {
         if (distinctCount != tickerCodes.size) {
             throw DomainPolicyViolationException("중복 혹은 유효하지 않은 종목 값으로 인해 수정에 실패했습니다.")
         }
+    }
+
+    fun findAllWithTickerCodeAndExchangeCode(): TickerCodeQueryDto {
+        return TickerCodeQueryDto(
+            TickerTable.select(TickerTable.code, TickerTable.exchangeCode)
+                .map { row ->
+                    TickerCodeQueryDto.TickerCodes(
+                        tickerCode = row[TickerTable.code],
+                        exchangeCode = row[TickerTable.exchangeCode]
+                    )
+                }.toList()
+        )
     }
 }
