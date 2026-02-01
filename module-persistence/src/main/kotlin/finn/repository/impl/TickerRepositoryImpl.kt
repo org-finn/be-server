@@ -43,4 +43,8 @@ class TickerRepositoryImpl(
     override suspend fun getPreviousAtrsByIds(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
         return tickerExposedRepository.findAtrsByIds(tickerIds)
     }
+
+    override fun validTickersByTickerCode(tickerCodes: List<String>) {
+        tickerExposedRepository.existTickersByTickerCode(tickerCodes)
+    }
 }

@@ -1,6 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.TickerExposed
+import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
 import finn.queryDto.TickerQueryDto
 import finn.table.TickerPriceTable
@@ -105,6 +106,17 @@ class TickerExposedRepository {
             TickerPriceTable.update({ TickerPriceTable.id eq id }) {
                 it[atr] = newAtr
             }
+        }
+    }
+
+    fun existTickersByTickerCode(tickerCodes: List<String>) {
+        val distinctCount = TickerTable.select(TickerTable.code)
+            .where { TickerTable.code inList tickerCodes.distinct() }
+            .distinct()
+            .count()
+
+        if (distinctCount != tickerCodes.size) {
+            throw DomainPolicyViolationException("중복 혹은 유효하지 않은 종목 값으로 인해 수정에 실패했습니다.")
         }
     }
 }

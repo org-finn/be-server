@@ -49,8 +49,8 @@ class PredictionOrchestrator(
 
 
     @ExposedTransactional(readOnly = true)
-    fun getRecentPredictionList(pageRequest: PredictionPageRequest): PredictionListResponse {
-        val predictionList = predictionQueryService.getPredictionList(pageRequest)
+    fun getRecentPredictionList(pageRequest: PredictionPageRequest, userId: UUID?): PredictionListResponse {
+        val predictionList = predictionQueryService.getPredictionList(pageRequest, userId)
         return toDto(predictionList)
     }
 

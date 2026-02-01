@@ -39,16 +39,15 @@ class JwtProvider(
     fun createRefreshToken(): RefreshToken {
         val now = Date()
         val validity = Date(now.time + refreshTokenValidity)
-
+        val deviceId = UUID.randomUUID()
         val tokenValue = Jwts.builder()
+            .claim("deviceId", deviceId.toString())
             .issuedAt(now)
             .expiration(validity)
             .signWith(key)
             .compact()
-        return RefreshToken.create(tokenValue,  now, validity)
+        return RefreshToken.create(tokenValue, deviceId,now, validity)
     }
-
-
 
 
     // 토큰 만료 시간 가져오기 (쿠키 설정용)

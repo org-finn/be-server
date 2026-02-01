@@ -7,11 +7,8 @@ class UserToken private constructor(
     val userId: UUID,
     val deviceId: UUID,
     val deviceType: String,
-    val refreshToken: String,
-    val expiredAt: Date,
-    val issuedAt: Date,
+    val refreshToken: String?,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
 ) {
 
     companion object {
@@ -19,21 +16,15 @@ class UserToken private constructor(
             userId: UUID,
             deviceId: UUID,
             deviceType: String,
-            refreshToken: String,
-            expiredAt: Date,
-            issuedAt: Date,
+            refreshToken: String?,
             createdAt: LocalDateTime,
-            updatedAt: LocalDateTime,
         ): UserToken {
             return UserToken(
                 userId,
                 deviceId,
                 deviceType,
                 refreshToken,
-                expiredAt,
-                issuedAt,
-                createdAt,
-                updatedAt
+                createdAt
             )
         }
     }

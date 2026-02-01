@@ -32,6 +32,13 @@ jwt:
   access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY}
   refresh-token-validity: ${JWT_REFRESH_TOKEN_VALIDITY}
 
+oauth:
+  google:
+    client-id: ${OAUTH_GOOGLE_CLIENT_ID}
+    client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${OAUTH_GOOGLE_REDIRECT_URI}
+    token-uri: ${OAUTH_GOOGLE_TOKEN_URI}
+
 management:
   endpoints:
     web:
