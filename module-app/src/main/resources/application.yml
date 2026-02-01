@@ -75,6 +75,13 @@ sqs:
   queue:
     name: ${SQS_QUEUE_NAME}
 
+kis:
+  base-url:
+    rest: ${KIS_BASE_URL_REST}
+    web-socket: ${KIS_BASE_URL_WEB_SOCKET}
+  app-key: ${KIS_APP_KEY}
+  secret-key: ${KIS_SECRET_KEY}
+  approval-key: ${KIS_APPROVAL_KEY}
 ---
 # prod
 spring:
