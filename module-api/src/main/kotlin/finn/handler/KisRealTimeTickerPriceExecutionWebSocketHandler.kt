@@ -2,7 +2,9 @@ package finn.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import finn.converter.convertCode
+import finn.repository.TickerRepository
 import finn.response.kis.KisReaTimeTickerPriceResponse
+import finn.service.KisAuthService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
@@ -14,6 +16,8 @@ import java.math.BigDecimal
 class KisRealTimeTickerPriceExecutionWebSocketHandler(
     // [TODO] : private val sseService: StockSseService,
     // [TODO]: private val candleManager: StockCandleManager,
+    private val kisAuthService: KisAuthService,
+    private val tickerRepository: TickerRepository
 ) : TextWebSocketHandler() {
 
     private val log = KotlinLogging.logger {}
@@ -21,9 +25,24 @@ class KisRealTimeTickerPriceExecutionWebSocketHandler(
     private var session: WebSocketSession? = null
     private val TR_ID = "HDFSCNT0"
 
+
+    // 연결 성공 시 '자동으로' 구독 요청 수행
     override fun afterConnectionEstablished(session: WebSocketSession) {
+        log.info { "✅ KIS WebSocket Connected via Scheduler" }
         this.session = session
-        log.info { "KIS Execution WebSocket Connected: ${session.id}" }
+
+        // 키 발급 및 구독 요청 (별도 스레드나 안전하게 처리 권장)
+        try {
+            // 접속키는 유효기간이 있으므로 매번 새로 받거나 캐싱된 것 사용
+            val approvalKey = kisAuthService.getWebsocketApprovalKey()
+            val tickerCodeQueryDto = tickerRepository.findAllCode()
+            tickerCodeQueryDto.tickerCodes.forEach {
+                sendSubscription(approvalKey, it.exchangeCode, it.tickerCode)
+                Thread.sleep(100) // KIS 서버 부하 방지용 텀
+            }
+        } catch (e: Exception) {
+            log.error { "구독 요청 실패, ${e.message}" }
+        }
     }
 
     /**
