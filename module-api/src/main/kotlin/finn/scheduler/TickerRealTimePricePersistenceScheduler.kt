@@ -1,18 +1,24 @@
 package finn.scheduler
 
+import finn.entity.query.MarketStatus
 import finn.manager.TickerRealTimeCandleManager
 import finn.repository.GraphRepository
+import finn.repository.MarketStatusRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.Clock
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Component
 class TickerRealTimePricePersistenceScheduler(
     private val candleManager: TickerRealTimeCandleManager,
-    private val graphRepository: GraphRepository
+    private val graphRepository: GraphRepository,
+    private val marketStatusRepository: MarketStatusRepository,
+    private val clock: Clock,
 ) {
     private val log = KotlinLogging.logger {}
     private val TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
@@ -23,6 +29,13 @@ class TickerRealTimePricePersistenceScheduler(
     @Scheduled(cron = "0 * * * * *")
     @Async("dbExecutor") // 비동기 실행 (설정된 ThreadPool 사용)
     fun flushCandlesToDb() {
+        // 0. 장이 닫혀있을때는 스케줄러 조기 종료
+        val marketStatus =
+            marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
+        if (!MarketStatus.checkIsOpened(marketStatus, clock)) {
+            return
+        }
+
         // 1. 메모리에서 완성된 1분봉 데이터들을 모두 꺼냄 (Atomic Pop)
         val snapshot = candleManager.popAllCandles()
 
