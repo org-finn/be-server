@@ -90,11 +90,13 @@ class KisRealTimeTickerPriceExecutionWebSocketHandler(
                     val dto = parseExecutionData(parts[3])
                     if (dto != null) {
                         // 1. 실시간 차트용 SSE 전송
-                        sseService.broadcast(dto)
+                        val tickerCode = toDomainCode(dto.symb)
+                        val tickerId = tickerRepository.getTickerIdByTickerCode(tickerCode)
+                        sseService.broadcast(dto, tickerId)
 
                         // 2. 1분봉 저장용 메모리 버퍼 갱신
                         candleManager.updatePrice(
-                            stockCode = toDomainCode(dto.symb),
+                            tickerId = tickerId,
                             price = dto.last.toDouble(),
                             volume = dto.evol
                         )

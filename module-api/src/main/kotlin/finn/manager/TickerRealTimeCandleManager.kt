@@ -2,6 +2,7 @@ package finn.manager
 
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.math.min
@@ -16,8 +17,8 @@ class TickerRealTimeCandleManager {
      * 1. 실시간 가격 업데이트 (WebSocket Handler에서 호출)
      * - 현재가가 들어올 때마다 High, Low, Close, Volume 갱신
      */
-    fun updatePrice(stockCode: String, price: Double, volume: Long) {
-        currentCandles.compute(stockCode) { _, existingCandle ->
+    fun updatePrice(tickerId: UUID, price: Double, volume: Long) {
+        currentCandles.compute(tickerId.toString()) { _, existingCandle ->
             if (existingCandle == null) {
                 // 해당 분의 첫 데이터면 새로 생성 (Open = Close = High = Low = 현재가)
                 CandleData(

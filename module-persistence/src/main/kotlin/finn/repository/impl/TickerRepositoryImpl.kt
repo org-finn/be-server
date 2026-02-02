@@ -18,11 +18,17 @@ class TickerRepositoryImpl(
 
     companion object {
         private const val TICKER_LIST_CACHE_KEY = "'tickers:all'"
+        private const val TICKER_ID_LIST_CACHE_KEY = "'tickers:id:all'"
         private const val TICKER_CODE_LIST_CACHE_KEY = "'tickers:code:all'"
     }
 
     override fun getTickerByTickerCode(tickerCode: String): Ticker {
         return toDomain(tickerExposedRepository.findByTickerCode(tickerCode))
+    }
+
+    @Cacheable("tickerIdList", key = TICKER_ID_LIST_CACHE_KEY)
+    override fun getTickerIdByTickerCode(tickerCode: String): UUID {
+        return tickerExposedRepository.findTickerIdByTickerCode(tickerCode)
     }
 
     @Cacheable("tickerSearchList", key = TICKER_LIST_CACHE_KEY)

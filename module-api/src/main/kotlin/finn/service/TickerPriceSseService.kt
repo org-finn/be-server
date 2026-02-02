@@ -5,6 +5,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -22,29 +23,29 @@ class TickerPriceSseService {
     /**
      * 1. 클라이언트 구독 (Controller에서 호출)
      */
-    fun subscribe(stockCode: String): SseEmitter {
+    fun subscribe(tickerId: UUID): SseEmitter {
         val emitter = SseEmitter(TIMEOUT)
 
         // 해당 종목 리스트가 없으면 생성
-        emitterMap.computeIfAbsent(stockCode) { CopyOnWriteArrayList() }.add(emitter)
+        emitterMap.computeIfAbsent(tickerId.toString()) { CopyOnWriteArrayList() }.add(emitter)
 
         // 콜백 설정: 연결 종료/타임아웃 시 리스트에서 제거
-        emitter.onCompletion { removeEmitter(stockCode, emitter) }
-        emitter.onTimeout { removeEmitter(stockCode, emitter) }
-        emitter.onError { removeEmitter(stockCode, emitter) }
+        emitter.onCompletion { removeEmitter(tickerId, emitter) }
+        emitter.onTimeout { removeEmitter(tickerId, emitter) }
+        emitter.onError { removeEmitter(tickerId, emitter) }
 
         // 첫 연결 시 더미 데이터 전송 (503 에러 방지)
-        sendToClient(emitter, "connect", "connected to $stockCode")
+        sendToClient(emitter, "connect", "connected to $tickerId")
 
-        log.info { "Client subscribed to $stockCode. Total: ${emitterMap[stockCode]?.size}" }
+        log.info { "Client subscribed to $tickerId. Total: ${emitterMap[tickerId.toString()]?.size}" }
         return emitter
     }
 
     /**
      * 2. 실시간 데이터 브로드캐스팅 (WebSocket Handler에서 호출)
      */
-    fun broadcast(dto: KisReaTimeTickerPriceResponse) {
-        val emitters = emitterMap[dto.symb] // 종목코드로 구독자 찾기
+    fun broadcast(dto: KisReaTimeTickerPriceResponse, tickerId: UUID) {
+        val emitters = emitterMap[tickerId.toString()] //tickerId로 구독자 찾기
 
         emitters?.forEach { emitter ->
             try {
@@ -55,7 +56,7 @@ class TickerPriceSseService {
                 ) // DTO는 자동으로 JSON 변환됨
             } catch (e: IOException) {
                 // 전송 실패한 클라이언트(연결 끊김 등)는 제거
-                removeEmitter(dto.symb, emitter)
+                removeEmitter(tickerId, emitter)
             }
         }
     }
@@ -68,7 +69,7 @@ class TickerPriceSseService {
         }
     }
 
-    private fun removeEmitter(stockCode: String, emitter: SseEmitter) {
-        emitterMap[stockCode]?.remove(emitter)
+    private fun removeEmitter(tickerId: UUID, emitter: SseEmitter) {
+        emitterMap[tickerId.toString()]?.remove(emitter)
     }
 }

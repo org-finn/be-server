@@ -108,6 +108,9 @@ interface TickerPriceApiSpec {
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )]
     )
-    @GetMapping(value = ["/{tickerCode}/real-time/stream"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun streamTickerRealTimePrice(@PathVariable tickerCode: String): SseEmitter
+    @GetMapping(
+        value = ["/{tickerId}/real-time/stream"],
+        produces = [MediaType.TEXT_EVENT_STREAM_VALUE]
+    )
+    fun streamTickerRealTimePrice(@PathVariable tickerId: UUID): SseEmitter
 }

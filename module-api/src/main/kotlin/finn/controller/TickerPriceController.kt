@@ -39,8 +39,8 @@ class TickerPriceController(
         return SuccessResponse("200 OK", "실시간 종목 주가 데이터를 성공적으로 조회하였습니다.", response)
     }
 
-    override fun streamTickerRealTimePrice(tickerCode: String): SseEmitter {
-        return sseService.subscribe(tickerCode.uppercase())
+    override fun streamTickerRealTimePrice(tickerId: UUID): SseEmitter {
+        return sseService.subscribe(tickerId)
     }
 
 }
