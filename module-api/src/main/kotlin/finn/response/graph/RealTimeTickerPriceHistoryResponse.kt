@@ -3,7 +3,7 @@ package finn.response.graph
 import java.math.BigDecimal
 import java.util.*
 
-data class TickerRealTimeGraphListResponse(
+data class RealTimeTickerPriceHistoryResponse(
     val priceDate: String,
     val tickerId: UUID,
     val priceDataList: List<TickerRealTimeGraphResponse>,

@@ -1,10 +1,13 @@
 package finn.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import finn.converter.convertCode
+import finn.converter.toDomainCode
+import finn.converter.toKisCode
+import finn.manager.TickerRealTimeCandleManager
 import finn.repository.TickerRepository
 import finn.response.kis.KisReaTimeTickerPriceResponse
 import finn.service.KisAuthService
+import finn.service.TickerPriceSseService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
@@ -14,8 +17,8 @@ import java.math.BigDecimal
 
 @Component
 class KisRealTimeTickerPriceExecutionWebSocketHandler(
-    // [TODO] : private val sseService: StockSseService,
-    // [TODO]: private val candleManager: StockCandleManager,
+    private val sseService: TickerPriceSseService,
+    private val candleManager: TickerRealTimeCandleManager,
     private val kisAuthService: KisAuthService,
     private val tickerRepository: TickerRepository
 ) : TextWebSocketHandler() {
@@ -49,7 +52,7 @@ class KisRealTimeTickerPriceExecutionWebSocketHandler(
      * 구독 요청 실행, KIS 서버로 요청을 보냄
      */
     fun sendSubscription(approvalKey: String, marketCode: String, tickerCode: String) {
-        val trKey = convertCode(marketCode, tickerCode)
+        val trKey = toKisCode(marketCode, tickerCode)
 
         val requestMap = mapOf(
             "header" to mapOf(
@@ -87,14 +90,14 @@ class KisRealTimeTickerPriceExecutionWebSocketHandler(
                     val dto = parseExecutionData(parts[3])
                     if (dto != null) {
                         // 1. 실시간 차트용 SSE 전송
-                        //sseService.broadcast(dto)
+                        sseService.broadcast(dto)
 
                         // 2. 1분봉 저장용 메모리 버퍼 갱신
-//                        candleManager.updatePrice(
-//                            code = dto.symb,
-//                            price = dto.last.toDouble(),
-//                            volume = dto.evol
-//                        )
+                        candleManager.updatePrice(
+                            stockCode = toDomainCode(dto.symb),
+                            price = dto.last.toDouble(),
+                            volume = dto.evol
+                        )
                     }
                 } catch (e: Exception) {
                     log.error("Parsing Error: ${e.message}")

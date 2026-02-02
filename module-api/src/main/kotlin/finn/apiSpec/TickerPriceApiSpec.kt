@@ -2,8 +2,8 @@ package finn.apiSpec
 
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
+import finn.response.graph.RealTimeTickerPriceHistoryResponse
 import finn.response.graph.TickerGraphResponse
-import finn.response.graph.TickerRealTimeGraphListResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -12,7 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.util.*
 
 @Tag(name = "티커 가격 API", description = "티커 가격 관련 API")
@@ -59,20 +61,20 @@ interface TickerPriceApiSpec {
     @Operation(
         summary = "실시간 주가 그래프 데이터 조회",
         description =
-            "특정 종목의 실시간 종가 그래프 데이터를 조회합니다."
+            "특정 종목의 실시간 종가 그래프 히스토리 데이터를 조회합니다. (오늘의 그간 데이터)"
     )
     @ApiResponses(
         value = [ApiResponse(
             responseCode = "200",
-            description = "종목 그래프 데이터를 성공적으로 조회하였습니다."
+            description = "종목 히스토리 그래프 데이터를 성공적으로 조회하였습니다."
         ), ApiResponse(
             responseCode = "404",
             description = "존재하지 않는 종목 Id 값입니다.",
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )]
     )
-    @GetMapping("/{tickerId}/real-time")
-    fun getRealTimeGraphData(
+    @GetMapping("/{tickerId}/real-time/history")
+    fun getRealTimeGraphHistoryData(
         @Parameter(
             description = "종목 ID (UUID)",
             required = true,
@@ -89,5 +91,23 @@ interface TickerPriceApiSpec {
             example = "1,3"
         ) @RequestParam(required = false) missing: List<Int>?
 
-    ): SuccessResponse<TickerRealTimeGraphListResponse>
+    ): SuccessResponse<RealTimeTickerPriceHistoryResponse>
+
+    @Operation(
+        summary = "실시간 주가 그래프 데이터 조회",
+        description =
+            "특정 종목의 실시간 종가 그래프 데이터를 조회합니다."
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "종목 그래프 데이터를 성공적으로 조회하였습니다."
+        ), ApiResponse(
+            responseCode = "404",
+            description = "존재하지 않는 종목 Id 값입니다.",
+            content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+        )]
+    )
+    @GetMapping(value = ["/{tickerCode}/real-time/stream"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun streamTickerRealTimePrice(@PathVariable tickerCode: String): SseEmitter
 }
