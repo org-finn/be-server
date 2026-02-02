@@ -10,6 +10,8 @@ interface TickerRepository {
 
     fun getTickerByTickerCode(tickerCode: String): Ticker
 
+    fun getTickerIdByTickerCode(tickerCode: String): UUID
+
     fun findAll(): List<TickerQueryDto>
 
     suspend fun getPreviousAtrByTickerId(tickerId: UUID): BigDecimal

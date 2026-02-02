@@ -2,8 +2,8 @@ package finn.mapper
 
 import finn.queryDto.TickerGraphQueryDto
 import finn.queryDto.TickerRealTimeGraphQueryDto
+import finn.response.graph.RealTimeTickerPriceHistoryResponse
 import finn.response.graph.TickerGraphResponse
-import finn.response.graph.TickerRealTimeGraphListResponse
 
 
 fun toDto(period: String, graphDto: List<TickerGraphQueryDto>): TickerGraphResponse {
@@ -19,16 +19,16 @@ fun toDto(period: String, graphDto: List<TickerGraphQueryDto>): TickerGraphRespo
     return TickerGraphResponse(period, graphData)
 }
 
-fun toDto(dto: TickerRealTimeGraphQueryDto): TickerRealTimeGraphListResponse {
+fun toDto(dto: TickerRealTimeGraphQueryDto): RealTimeTickerPriceHistoryResponse {
     val priceDataList = dto.priceDataList.map {
-        TickerRealTimeGraphListResponse.TickerRealTimeGraphResponse(
+        RealTimeTickerPriceHistoryResponse.TickerRealTimeGraphResponse(
             it.price,
             it.hours,
             it.index
         )
     }.toList()
 
-    return TickerRealTimeGraphListResponse(
+    return RealTimeTickerPriceHistoryResponse(
         dto.priceDate, dto.tickerId,
         priceDataList, dto.maxLen
     )

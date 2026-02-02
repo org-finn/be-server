@@ -1,6 +1,7 @@
 package finn.repository.exposed
 
 import finn.entity.TickerExposed
+import finn.exception.CriticalDataOmittedException
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
 import finn.queryDto.TickerCodeQueryDto
@@ -8,7 +9,6 @@ import finn.queryDto.TickerQueryDto
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
@@ -18,27 +18,17 @@ import java.util.*
 @Repository
 class TickerExposedRepository {
 
-    fun findTickerListBySearchKeyword(keyword: String): List<TickerQueryDto> {
-        return TickerTable.select(
-            TickerTable.id,
-            TickerTable.code,
-            TickerTable.shortCompanyName,
-            TickerTable.fullCompanyName
-        ).where { TickerTable.shortCompanyName.lowerCase() like "${keyword.lowercase()}%" }
-            .map { row ->
-                TickerQueryDto(
-                    tickerId = row[TickerTable.id].value,
-                    tickerCode = row[TickerTable.code],
-                    shortCompanyName = row[TickerTable.shortCompanyName],
-                    shortCompanyNameKr = row[TickerTable.shortCompanyNameKr],
-                    fullCompanyName = row[TickerTable.fullCompanyName]
-                )
-            }
-    }
-
     fun findByTickerCode(tickerCode: String): TickerExposed {
         return TickerExposed.find { TickerTable.code eq tickerCode }
             .single()
+    }
+
+    fun findTickerIdByTickerCode(tickerCode: String): UUID {
+        return TickerTable.select(TickerTable.id)
+            .where { TickerTable.code eq tickerCode }
+            .map { row -> row[TickerTable.id].value }
+            .singleOrNull()
+            ?: throw CriticalDataOmittedException("${tickerCode}의 ticker를 찾을 수 없습니다.")
     }
 
     fun findTickerMapByTickerCodeList(tickerCodeList: List<String>): Map<String, UUID> {
