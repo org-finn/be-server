@@ -9,6 +9,7 @@ import finn.repository.dynamodb.TickerPriceRealTimeDynamoDbRepository
 import finn.repository.exposed.GraphExposedRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Repository
@@ -50,14 +51,12 @@ class GraphRepositoryImpl(
 
     override fun saveRealTimeTickerPrice(
         tickerId: UUID,
-        time: String,
-        open: Double,
-        high: Double,
-        low: Double,
+        startTime: LocalDateTime,
         close: Double,
-        volume: Long
+        index: Int,
+        maxLen: Int,
     ) {
-        val entity = TickerPriceRealTimeEntity(tickerId, time, open, high, low, close, volume)
-        tickerPriceRealTimeDynamoDbRepository.saveRealTimeDataMinuteUnit(entity)
+        val entity = TickerPriceRealTimeEntity(startTime, close)
+        tickerPriceRealTimeDynamoDbRepository.appendMinuteData(tickerId, entity, index, maxLen)
     }
 }

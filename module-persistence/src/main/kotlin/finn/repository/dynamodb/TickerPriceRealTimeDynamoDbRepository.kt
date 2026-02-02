@@ -10,8 +10,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Repository
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,6 +26,7 @@ class TickerPriceRealTimeDynamoDbRepository(
 ) {
     private val tableName = "ticker_price_real_time"
     private val log = KotlinLogging.logger { }
+    private val NY_ZONE = ZoneId.of("America/New_York")
 
     fun findLatestRealTimeData(
         tickerId: UUID,
@@ -93,17 +94,56 @@ class TickerPriceRealTimeDynamoDbRepository(
         predictionQueryDto.graphData = PredictionListGraphDataQueryDto(true, latest8PriceDataList)
     }
 
-    fun saveRealTimeDataMinuteUnit(entity: TickerPriceRealTimeEntity) {
+    fun appendMinuteData(tickerId: UUID, entity: TickerPriceRealTimeEntity, index: Int, maxLen: Int) {
         try {
-            val request = PutItemRequest.builder()
+            // 1. SK (날짜) 및 시간 포맷팅
+            val zonedTime = entity.startTime.atZone(NY_ZONE)
+            val dateKey = zonedTime.format(DateTimeFormatter.ISO_LOCAL_DATE) // 2026-01-30
+            val timeString = zonedTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")) // 14:30:00
+
+            // 2. 추가할 데이터 맵 생성 (스키마 준수)
+            // 구조 반영
+            val newMap = mapOf(
+                "hours" to AttributeValue.builder().s(timeString).build(),
+                "index" to AttributeValue.builder().n(index.toString()).build(),
+                "price" to AttributeValue.builder().n(entity.close.toString()).build()
+            )
+            val newItemList = listOf(AttributeValue.builder().m(newMap).build())
+
+            // 3. TTL 설정 (예: 7일 후 삭제)
+            val ttl = System.currentTimeMillis() / 1000L + (7 * 24 * 60 * 60)
+
+            // 4. UpdateItem 요청 (Upsert: 없으면 생성, 있으면 리스트 뒤에 붙임)
+            val request = UpdateItemRequest.builder()
                 .tableName(tableName)
-                .item(entity.toItemMap())
+                .key(
+                    mapOf(
+                        "tickerId" to AttributeValue.builder().s(tickerId.toString())
+                            .build(), // 파티션 키
+                        "priceDate" to AttributeValue.builder().s(dateKey).build()   // 정렬 키
+                    )
+                )
+                .updateExpression(
+                    """
+                    SET priceDataList = list_append(if_not_exists(priceDataList, :emptyList), :newItem), 
+                        maxLen = :maxLen, 
+                        ttl = :ttl
+                """.trimIndent()
+                )
+                .expressionAttributeValues(
+                    mapOf(
+                        ":emptyList" to AttributeValue.builder().l(emptyList()).build(),
+                        ":newItem" to AttributeValue.builder().l(newItemList).build(),
+                        ":maxLen" to AttributeValue.builder().n(maxLen.toString()).build(),
+                        ":ttl" to AttributeValue.builder().n(ttl.toString()).build()
+                    )
+                )
                 .build()
 
-            dynamoDbClient.putItem(request)
+            dynamoDbClient.updateItem(request)
+
         } catch (e: Exception) {
-            log.error { "DynamoDB Save Error: ${entity.tickerId} at ${entity.timeKey}" }
-            // [TODO]: 실패 시 재시도 로직이나 DLQ(Dead Letter Queue) 처리 권장
+            log.error { "Failed to append data for $tickerId" + e.message }
         }
     }
 

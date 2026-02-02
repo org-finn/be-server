@@ -8,8 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import java.time.Clock
-import java.time.LocalDate
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -20,46 +19,73 @@ class TickerRealTimePricePersistenceScheduler(
     private val marketStatusRepository: MarketStatusRepository,
     private val clock: Clock,
 ) {
+
     private val log = KotlinLogging.logger {}
-    private val TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
+    private val UTC_ZONE = ZoneId.of("UTC")
+    private val KST_ZONE = ZoneId.of("Asia/Seoul")
 
-    /**
-     * 매분 0초에 실행 (Cron: 초 분 시 일 월 요일)
-     */
     @Scheduled(cron = "0 * * * * *")
-    @Async("dbExecutor") // 비동기 실행 (설정된 ThreadPool 사용)
+    @Async("dbExecutor")
     fun flushCandlesToDb() {
-        // 0. 장이 닫혀있을때는 스케줄러 조기 종료
-        val marketStatus =
-            marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
-        if (!MarketStatus.checkIsOpened(marketStatus, clock)) {
+        // 1. 현재 시각 (UTC)
+        val nowUTC = ZonedDateTime.now(clock.withZone(UTC_ZONE))
+        val todayUTC = nowUTC.toLocalDate()
+        val todayKst = nowUTC.withZoneSameInstant(KST_ZONE).toLocalDate()
+
+        // 2. MarketStatus 조회 & 오픈 여부 체크
+        val marketStatus = marketStatusRepository.getOptionalMarketStatus(todayUTC)
+
+        if (!MarketStatus.checkIsOpened(marketStatus, clock) && candleManager.isEmpty()) {
             return
         }
 
-        // 1. 메모리에서 완성된 1분봉 데이터들을 모두 꺼냄 (Atomic Pop)
         val snapshot = candleManager.popAllCandles()
+        if (snapshot.isEmpty()) return
 
-        if (snapshot.isEmpty()) {
-            return
-        }
+        // 3. TradingHours 결정 & MaxLen 계산
+        val currentTradingHours = MarketStatus.resolveTradingHours(marketStatus)
+        val maxLen = MarketStatus.calculateMaxLen(currentTradingHours)
 
-        log.info { "Flushing ${snapshot.size} candles to DynamoDB..." }
+        // 4. 기준 시작 시간을 KST 문자열에서 파싱 -> UTC로 변환
+        // 예: "23:30" 파싱
+        val startTimeStr = currentTradingHours.split("~")[0]
+        val marketOpenLocalTime =
+            LocalTime.parse(startTimeStr, DateTimeFormatter.ofPattern("HH:mm"))
 
-        // 2. 엔티티 변환 및 저장
-        snapshot.forEach { (tickerId, candleData) ->
-            // CandleData의 시작 시간을 SK로 사용 (정확도 ↑)
-            val timeKey = candleData.startTime.format(TIME_FORMATTER)
+        // 4-1. KST 기준의 개장 시각 생성 (예: 2026-02-02 23:30:00+09:00)
+        // 주의: todayKst를 사용해야 함. (미국장은 한국시간 밤에 열리므로 날짜가 같음)
+        val marketOpenKST = ZonedDateTime.of(todayKst, marketOpenLocalTime, KST_ZONE)
 
+        // 4-2. 이를 UTC로 변환 (예: 2026-02-02 14:30:00Z) -> Index 0의 기준점
+        val marketOpenUTC = marketOpenKST.withZoneSameInstant(UTC_ZONE)
+
+        log.info("Persisting candles.. Time(KST): $marketOpenKST, Time(UTC): $marketOpenUTC, MaxLen: $maxLen")
+
+        snapshot.forEach { (tickerId, candle) ->
+            // 5. 캔들 시간 (UTC)
+            val candleTimeUTC = candle.startTime.atZone(UTC_ZONE)
+
+            // 6. 인덱스 계산 (UTC 끼리 비교)
+            var index = Duration.between(marketOpenUTC, candleTimeUTC).toMinutes().toInt()
+
+            // 날짜 경계 보정 (혹시 모를 음수 방지)
+            if (index < -720) index += 1440
+
+            // 7. 인덱스 유효성 검사
+            val safeIndex = when {
+                index < 0 -> 0
+                index >= maxLen -> maxLen - 1
+                else -> index
+            }
+
+            // DB 저장
             graphRepository.saveRealTimeTickerPrice(
-                UUID.fromString(tickerId), timeKey,
-                candleData.open,
-                candleData.high,
-                candleData.low,
-                candleData.close,
-                candleData.volume
+                tickerId = UUID.fromString(tickerId),
+                startTime = candle.startTime,
+                close = candle.close,
+                index = safeIndex,
+                maxLen = maxLen
             )
         }
-
-        log.info { "Flush completed." }
     }
 }
