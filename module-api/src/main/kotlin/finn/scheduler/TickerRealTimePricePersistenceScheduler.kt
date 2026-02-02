@@ -63,7 +63,7 @@ class TickerRealTimePricePersistenceScheduler(
 
         snapshot.forEach { (tickerId, candle) ->
             // 5. 캔들 시간 (UTC)
-            val candleTimeUTC = candle.startTime.atZone(UTC_ZONE)
+            val candleTimeUTC = candle.startTime.atZone(KST_ZONE).withZoneSameInstant(UTC_ZONE)
 
             // 6. 인덱스 계산 (UTC 끼리 비교)
             var index = Duration.between(marketOpenUTC, candleTimeUTC).toMinutes().toInt()
