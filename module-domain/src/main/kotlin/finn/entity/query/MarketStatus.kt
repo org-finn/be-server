@@ -34,24 +34,26 @@ class MarketStatus private constructor(
             return "휴장"
         }
 
+        /**
+         * MarketStatus(Nullable)를 기반으로 유효한 TradingHours 문자열을 반환하는 메서드
+         * - null이면 기본 정규장 시간 반환
+         * - 휴장이면 휴장 문자열 반환
+         * - 데이터가 있으면 해당 시간 반환
+         */
+        fun resolveTradingHours(marketStatus: MarketStatus?): String {
+            return marketStatus?.// DB에 설정된 값이 있으면 그 값을 사용 (휴장 or 조기마감 등)
+            tradingHours ?: // 데이터가 없으면 평범한 정규장으로 간주
+            getTradingHours()
+        }
 
         fun checkIsOpened(marketStatus: MarketStatus?, clock: Clock): Boolean {
-            // 0. 주말인지 선제 검토
-            val todayDate = LocalDate.now(clock).dayOfWeek
-            if (todayDate == DayOfWeek.SATURDAY || todayDate == DayOfWeek.SUNDAY) {
-                return false
-            }
+            // 0. 주말 선제 검토
+            if (isWeekend(LocalDate.now(clock))) return false
 
-            // 1. 개장 시간 문자열 결정 (KST 기준)
-            val targetTradingHoursKST: String = if (marketStatus == null) {
-                // marketStatus가 null인 경우: 풀 개장일로 간주
-                getTradingHours()
-            } else if (marketStatus.tradingHours == getClosedDayTradingHours()) { // 명시적으로 휴장일("휴장")인 경우 닫힘
-                return false
-            } else {
-                // DB에서 가져온 MarketStatus의 TradingHours 사용
-                marketStatus.tradingHours
-            }
+            // 1. 문자열 결정 (리팩토링된 메서드 사용)
+            val targetTradingHoursKST = resolveTradingHours(marketStatus)
+
+            if (targetTradingHoursKST == getClosedDayTradingHours()) return false
 
             // --- TradingHours 파싱 및 유효성 검증 ---
 
@@ -106,6 +108,42 @@ class MarketStatus private constructor(
                 // 자정을 넘어가는 경우 (예: 22:30 ~ 05:00) -> OR 조건
                 !curTime.isBefore(openTimeCurrentZone) || curTime.isBefore(closeTimeCurrentZone)
             }
+        }
+
+        fun calculateMaxLen(tradingHours: String): Int {
+            // 1. 휴장인 경우 길이는 0
+            if (tradingHours == getClosedDayTradingHours()) {
+                return 0
+            }
+
+            // 2. 파싱 (예: "22:30~05:00")
+            val parts = tradingHours.split("~")
+            if (parts.size != 2) {
+                throw DomainPolicyViolationException("유효하지 않은 TradingHours 형식입니다. (Value: $tradingHours)")
+            }
+
+            val formatter = DateTimeFormatter.ofPattern("HH:mm")
+            val startTime: LocalTime
+            val endTime: LocalTime
+
+            try {
+                startTime = LocalTime.parse(parts[0].trim(), formatter)
+                endTime = LocalTime.parse(parts[1].trim(), formatter)
+            } catch (e: Exception) {
+                throw DomainPolicyViolationException("TradingHours 시간 파싱 중 오류가 발생했습니다. (Value: $tradingHours)")
+            }
+
+            // 3. 시간 차이 계산
+            // Duration.between(start, end)는 start < end 이면 양수, start > end 이면 음수를 반환
+            var duration = Duration.between(startTime, endTime)
+
+            // 자정을 넘가는 경우 (예: 22:30 시작, 05:00 종료) duration은 음수가 됨 (예: -17시간 30분)
+            // 이 경우 하루(24시간)를 더해주면 실제 운영 시간이 됨
+            if (duration.isNegative) {
+                duration = duration.plusDays(1)
+            }
+
+            return duration.toMinutes().toInt()
         }
     }
 

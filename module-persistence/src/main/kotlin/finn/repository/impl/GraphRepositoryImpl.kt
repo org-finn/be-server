@@ -1,13 +1,15 @@
 package finn.repository.impl
 
+import finn.entity.dynamodb.TickerPriceRealTimeEntity
 import finn.exception.CriticalDataPollutedException
 import finn.queryDto.TickerGraphQueryDto
-import finn.queryDto.TickerRealTimeGraphQueryDto
+import finn.queryDto.TickerRealTimeHistoryGraphQueryDto
 import finn.repository.GraphRepository
 import finn.repository.dynamodb.TickerPriceRealTimeDynamoDbRepository
 import finn.repository.exposed.GraphExposedRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Repository
@@ -39,11 +41,22 @@ class GraphRepositoryImpl(
         }
     }
 
-    override fun getRealTimeTickerGraph(
+    override fun getRealTimeHistoryTickerGraph(
         tickerId: UUID,
         gte: Int?,
         missing: List<Int>?
-    ): TickerRealTimeGraphQueryDto {
+    ): TickerRealTimeHistoryGraphQueryDto {
         return tickerPriceRealTimeDynamoDbRepository.findLatestRealTimeData(tickerId, gte, missing)
+    }
+
+    override fun saveRealTimeTickerPrice(
+        tickerId: UUID,
+        startTime: LocalDateTime,
+        close: Double,
+        index: Int,
+        maxLen: Int,
+    ) {
+        val entity = TickerPriceRealTimeEntity(startTime, close)
+        tickerPriceRealTimeDynamoDbRepository.appendMinuteData(tickerId, entity, index, maxLen)
     }
 }

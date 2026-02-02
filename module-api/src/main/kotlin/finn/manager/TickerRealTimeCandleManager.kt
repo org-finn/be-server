@@ -61,17 +61,8 @@ class TickerRealTimeCandleManager {
         return snapshot
     }
 
-    /**
-     * 3. 현재 진행 중인 캔들 조회 (Controller에서 호출)
-     * - 맵에서 제거하지 않고 복사본만 리턴 (단순 조회용)
-     */
-    fun getSnapshot(stockCode: String): CandleData? {
-        val candle = currentCandles[stockCode] ?: return null
-
-        // 동시성 문제 방지를 위해 값을 복사해서 리턴
-        synchronized(candle) {
-            return candle.copy()
-        }
+    fun isEmpty(): Boolean {
+        return currentCandles.isEmpty()
     }
 }
 

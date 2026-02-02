@@ -1,14 +1,17 @@
 package finn.repository.dynamodb
 
+import finn.entity.dynamodb.TickerPriceRealTimeEntity
 import finn.exception.NotFoundDataException
 import finn.queryDto.PredictionListGraphDataQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.queryDto.TickerRealTimeGraphDataQueryDto
-import finn.queryDto.TickerRealTimeGraphQueryDto
+import finn.queryDto.TickerRealTimeHistoryGraphQueryDto
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Repository
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -22,12 +25,14 @@ class TickerPriceRealTimeDynamoDbRepository(
     private val dynamoDbClient: DynamoDbClient
 ) {
     private val tableName = "ticker_price_real_time"
+    private val log = KotlinLogging.logger { }
+    private val NY_ZONE = ZoneId.of("America/New_York")
 
     fun findLatestRealTimeData(
         tickerId: UUID,
         gte: Int?,
         missing: List<Int>?
-    ): TickerRealTimeGraphQueryDto {
+    ): TickerRealTimeHistoryGraphQueryDto {
         // DynamoDB Query 요청 생성 (가장 최신 데이터 1개만 조회)
         val item = getLatestTickerPriceDataFromDb(tickerId)
 
@@ -53,7 +58,7 @@ class TickerPriceRealTimeDynamoDbRepository(
             else -> fullPriceDataList
         }
 
-        return TickerRealTimeGraphQueryDto(
+        return TickerRealTimeHistoryGraphQueryDto(
             priceDate = priceDateStr,
             tickerId = tickerId,
             priceDataList = filteredPriceDataList,
@@ -87,6 +92,59 @@ class TickerPriceRealTimeDynamoDbRepository(
         }.toList()
 
         predictionQueryDto.graphData = PredictionListGraphDataQueryDto(true, latest8PriceDataList)
+    }
+
+    fun appendMinuteData(tickerId: UUID, entity: TickerPriceRealTimeEntity, index: Int, maxLen: Int) {
+        try {
+            // 1. SK (날짜) 및 시간 포맷팅
+            val zonedTime = entity.startTime.atZone(NY_ZONE)
+            val dateKey = zonedTime.format(DateTimeFormatter.ISO_LOCAL_DATE) // 2026-01-30
+            val timeString = zonedTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")) // 14:30:00
+
+            // 2. 추가할 데이터 맵 생성 (스키마 준수)
+            // 구조 반영
+            val newMap = mapOf(
+                "hours" to AttributeValue.builder().s(timeString).build(),
+                "index" to AttributeValue.builder().n(index.toString()).build(),
+                "price" to AttributeValue.builder().n(entity.close.toString()).build()
+            )
+            val newItemList = listOf(AttributeValue.builder().m(newMap).build())
+
+            // 3. TTL 설정 (예: 7일 후 삭제)
+            val ttl = System.currentTimeMillis() / 1000L + (7 * 24 * 60 * 60)
+
+            // 4. UpdateItem 요청 (Upsert: 없으면 생성, 있으면 리스트 뒤에 붙임)
+            val request = UpdateItemRequest.builder()
+                .tableName(tableName)
+                .key(
+                    mapOf(
+                        "tickerId" to AttributeValue.builder().s(tickerId.toString())
+                            .build(), // 파티션 키
+                        "priceDate" to AttributeValue.builder().s(dateKey).build()   // 정렬 키
+                    )
+                )
+                .updateExpression(
+                    """
+                    SET priceDataList = list_append(if_not_exists(priceDataList, :emptyList), :newItem), 
+                        maxLen = :maxLen, 
+                        ttl = :ttl
+                """.trimIndent()
+                )
+                .expressionAttributeValues(
+                    mapOf(
+                        ":emptyList" to AttributeValue.builder().l(emptyList()).build(),
+                        ":newItem" to AttributeValue.builder().l(newItemList).build(),
+                        ":maxLen" to AttributeValue.builder().n(maxLen.toString()).build(),
+                        ":ttl" to AttributeValue.builder().n(ttl.toString()).build()
+                    )
+                )
+                .build()
+
+            dynamoDbClient.updateItem(request)
+
+        } catch (e: Exception) {
+            log.error { "Failed to append data for $tickerId" + e.message }
+        }
     }
 
     private fun getLatestTickerPriceDataFromDb(tickerId: UUID): Map<String, AttributeValue> {
