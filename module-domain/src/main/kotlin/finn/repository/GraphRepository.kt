@@ -1,7 +1,7 @@
 package finn.repository
 
 import finn.queryDto.TickerGraphQueryDto
-import finn.queryDto.TickerRealTimeGraphQueryDto
+import finn.queryDto.TickerRealTimeHistoryGraphQueryDto
 import java.time.LocalDate
 import java.util.*
 
@@ -14,9 +14,19 @@ interface GraphRepository {
         interval: Int
     ): List<TickerGraphQueryDto>
 
-    fun getRealTimeTickerGraph(
+    fun getRealTimeHistoryTickerGraph(
         tickerId: UUID,
         gte: Int?,
         missing: List<Int>?
-    ) : TickerRealTimeGraphQueryDto
+    ): TickerRealTimeHistoryGraphQueryDto
+
+    fun saveRealTimeTickerPrice(
+        tickerId: UUID,
+        time: String,
+        open: Double,
+        high: Double,
+        low: Double,
+        close: Double,
+        volume: Long
+    )
 }

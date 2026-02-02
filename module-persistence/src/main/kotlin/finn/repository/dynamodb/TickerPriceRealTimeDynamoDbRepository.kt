@@ -1,13 +1,16 @@
 package finn.repository.dynamodb
 
+import finn.entity.dynamodb.TickerPriceRealTimeEntity
 import finn.exception.NotFoundDataException
 import finn.queryDto.PredictionListGraphDataQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.queryDto.TickerRealTimeGraphDataQueryDto
-import finn.queryDto.TickerRealTimeGraphQueryDto
+import finn.queryDto.TickerRealTimeHistoryGraphQueryDto
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Repository
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -22,12 +25,13 @@ class TickerPriceRealTimeDynamoDbRepository(
     private val dynamoDbClient: DynamoDbClient
 ) {
     private val tableName = "ticker_price_real_time"
+    private val log = KotlinLogging.logger { }
 
     fun findLatestRealTimeData(
         tickerId: UUID,
         gte: Int?,
         missing: List<Int>?
-    ): TickerRealTimeGraphQueryDto {
+    ): TickerRealTimeHistoryGraphQueryDto {
         // DynamoDB Query 요청 생성 (가장 최신 데이터 1개만 조회)
         val item = getLatestTickerPriceDataFromDb(tickerId)
 
@@ -53,7 +57,7 @@ class TickerPriceRealTimeDynamoDbRepository(
             else -> fullPriceDataList
         }
 
-        return TickerRealTimeGraphQueryDto(
+        return TickerRealTimeHistoryGraphQueryDto(
             priceDate = priceDateStr,
             tickerId = tickerId,
             priceDataList = filteredPriceDataList,
@@ -87,6 +91,20 @@ class TickerPriceRealTimeDynamoDbRepository(
         }.toList()
 
         predictionQueryDto.graphData = PredictionListGraphDataQueryDto(true, latest8PriceDataList)
+    }
+
+    fun saveRealTimeDataMinuteUnit(entity: TickerPriceRealTimeEntity) {
+        try {
+            val request = PutItemRequest.builder()
+                .tableName(tableName)
+                .item(entity.toItemMap())
+                .build()
+
+            dynamoDbClient.putItem(request)
+        } catch (e: Exception) {
+            log.error { "DynamoDB Save Error: ${entity.tickerId} at ${entity.timeKey}" }
+            // [TODO]: 실패 시 재시도 로직이나 DLQ(Dead Letter Queue) 처리 권장
+        }
     }
 
     private fun getLatestTickerPriceDataFromDb(tickerId: UUID): Map<String, AttributeValue> {
