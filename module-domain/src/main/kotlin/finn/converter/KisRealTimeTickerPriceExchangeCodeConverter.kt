@@ -4,8 +4,8 @@ import finn.exception.DomainPolicyViolationException
 
 fun toKisCode(exchangeCode: String, tickerCode: String): String {
     return when (exchangeCode) {
-        "NYSE" -> "DNYS$tickerCode"
-        "NASD" -> "DNAS$tickerCode"
+        "NYS" -> "DNYS$tickerCode"
+        "NAS" -> "DNAS$tickerCode"
         else -> throw DomainPolicyViolationException("Exchange code not supported: $exchangeCode")
     }
 }
