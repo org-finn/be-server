@@ -24,7 +24,7 @@ class JwtAuthenticationFilter(
         "/v3/api-docs/*",
         "/api/v1/prediction/*",
         "/api/v1/article-summary/*",
-        "/api/v1/price/*",
+        "/api/v1/price/ticker/*/graph",
         "/api/v1/article/*",
         "/api/v1/search-preview/*",
         "/api/v1/market-status/*",
