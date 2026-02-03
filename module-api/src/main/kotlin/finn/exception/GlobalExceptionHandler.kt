@@ -3,9 +3,11 @@ package finn.exception
 import finn.response.ErrorResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 
 @RestControllerAdvice
@@ -56,6 +58,12 @@ class GlobalExceptionHandler() {
         val errorResponse = ErrorResponse(responseCode.code, responseCode.defaultMessage)
 
         return errorResponse
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<Any> {
+        // ERROR 로그를 남기지 않고 404 응답만 반환 (경보 필터링 위함)
+        return ResponseEntity.notFound().build()
     }
 
     private fun printException(e: Exception) {
