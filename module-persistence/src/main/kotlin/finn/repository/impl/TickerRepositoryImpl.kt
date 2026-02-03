@@ -6,6 +6,7 @@ import finn.queryDto.TickerCodeQueryDto
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import finn.repository.exposed.TickerExposedRepository
+import finn.transaction.ExposedTransactional
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
@@ -27,6 +28,7 @@ class TickerRepositoryImpl(
     }
 
     @Cacheable("tickerIdList", key = TICKER_ID_LIST_CACHE_KEY)
+    @ExposedTransactional(readOnly = true)
     override fun getTickerIdByTickerCode(tickerCode: String): UUID {
         return tickerExposedRepository.findTickerIdByTickerCode(tickerCode)
     }
@@ -57,6 +59,7 @@ class TickerRepositoryImpl(
     }
 
     @Cacheable("tickerCodeList", key = TICKER_CODE_LIST_CACHE_KEY)
+    @ExposedTransactional(readOnly = true)
     override fun findAllCode(): TickerCodeQueryDto {
         return tickerExposedRepository.findAllWithTickerCodeAndExchangeCode()
     }

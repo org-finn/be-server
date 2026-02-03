@@ -8,7 +8,6 @@ import finn.repository.TickerRepository
 import finn.response.kis.KisReaTimeTickerPriceResponse
 import finn.service.KisAuthService
 import finn.service.TickerPriceSseService
-import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
@@ -31,7 +30,6 @@ class KisRealTimeTickerPriceExecutionWebSocketHandler(
 
 
     // 연결 성공 시 '자동으로' 구독 요청 수행
-    @ExposedTransactional(readOnly = true)
     override fun afterConnectionEstablished(session: WebSocketSession) {
         log.info { "✅ KIS WebSocket Connected via Scheduler" }
         this.session = session
@@ -79,7 +77,6 @@ class KisRealTimeTickerPriceExecutionWebSocketHandler(
     /**
      * 응답 받은 데이터 파싱 후 SSE, DB 데이터 전송
      */
-    @ExposedTransactional(readOnly = true)
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
         val payload = message.payload
 

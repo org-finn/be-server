@@ -27,7 +27,7 @@ class TickerRealTimePricePersistenceScheduler(
 
     @Scheduled(cron = "0 * * * * *")
     @Async("dbExecutor")
-    @ExposedTransactional(readOnly = true)
+    @ExposedTransactional
     fun flushCandlesToDb() {
         // 1. 현재 시각 (UTC)
         val nowUTC = ZonedDateTime.now(clock.withZone(UTC_ZONE))
