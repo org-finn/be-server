@@ -9,6 +9,7 @@ import finn.strategy.ArticleSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.ArticlePredictionTask
 import finn.task.PredictionTask
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Component
@@ -25,6 +26,7 @@ class ArticlePredictionHandler(
 
     companion object {
         const val ALPHA = 0.1
+        private val log = KotlinLogging.logger {}
     }
 
     override fun supports(type: String): Boolean = type == "article"
@@ -75,7 +77,8 @@ class ArticlePredictionHandler(
                     val newCalculatedScore = strategy.calculate(task) // 전략 실행
 
                     // 상태 누적
-                    currentScore = ((newCalculatedScore * ALPHA) + (currentScore * (1-ALPHA))).roundToInt()
+                    currentScore =
+                        ((newCalculatedScore * ALPHA) + (currentScore * (1 - ALPHA))).roundToInt()
                     posCount += payload.positiveArticleCount
                     negCount += payload.negativeArticleCount
                     neuCount += payload.neutralArticleCount
@@ -87,6 +90,7 @@ class ArticlePredictionHandler(
                     tickerId, posCount, negCount, neuCount, currentScore,
                     sentiment, strategy.strategy, predictionDate
                 )
+                log.debug { "Will update $tickerId prediction: pos_count: $posCount, neg_count: $negCount, neu_count: $neuCount" }
                 updates += updatedPrediction
             }
 
