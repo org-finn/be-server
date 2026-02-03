@@ -90,7 +90,7 @@ class ArticlePredictionHandler(
                     tickerId, posCount, negCount, neuCount, currentScore,
                     sentiment, strategy.strategy, predictionDate
                 )
-                log.debug { "Will update $tickerId prediction: pos_count: $posCount, neg_count: $negCount, neu_count: $neuCount" }
+                log.info { "Will update $tickerId prediction: pos_count: $posCount, neg_count: $negCount, neu_count: $neuCount" }
                 updates += updatedPrediction
             }
 
