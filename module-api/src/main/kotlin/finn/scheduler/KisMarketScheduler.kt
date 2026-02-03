@@ -1,4 +1,4 @@
-package com.example.stock.scheduler
+package finn.scheduler
 
 import finn.entity.query.MarketStatus
 import finn.repository.MarketStatusRepository
