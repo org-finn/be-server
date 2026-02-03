@@ -2,6 +2,7 @@ package com.example.stock.scheduler
 
 import finn.entity.query.MarketStatus
 import finn.repository.MarketStatusRepository
+import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -17,8 +18,9 @@ class KisMarketScheduler(
 ) {
     private val log = KotlinLogging.logger {}
 
-    // 30분마다 실행 (미국 장 시간 체크)
-    @Scheduled(cron = "30 * * * * *")
+    // 10분마다 실행 (미국 장 시간 체크)
+    @Scheduled(cron = "10 * * * * *")
+    @ExposedTransactional(readOnly = true)
     fun checkMarketHours() {
         val marketStatus =
             marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))

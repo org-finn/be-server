@@ -4,6 +4,7 @@ import finn.entity.query.MarketStatus
 import finn.manager.TickerRealTimeCandleManager
 import finn.repository.GraphRepository
 import finn.repository.MarketStatusRepository
+import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
@@ -26,6 +27,7 @@ class TickerRealTimePricePersistenceScheduler(
 
     @Scheduled(cron = "0 * * * * *")
     @Async("dbExecutor")
+    @ExposedTransactional(readOnly = true)
     fun flushCandlesToDb() {
         // 1. 현재 시각 (UTC)
         val nowUTC = ZonedDateTime.now(clock.withZone(UTC_ZONE))
