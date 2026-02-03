@@ -90,7 +90,7 @@ class JwtService(
 
 
     @Scheduled(fixedRate = 60000) // 1분마다 실행
-    private fun cleanupExpiredTokens() {
+    protected fun cleanupExpiredTokens() {
         val now = System.currentTimeMillis()
 
         // entrySet을 순회하며 만료된 요소 제거
