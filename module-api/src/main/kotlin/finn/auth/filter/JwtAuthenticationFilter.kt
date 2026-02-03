@@ -18,18 +18,18 @@ class JwtAuthenticationFilter(
 ) : Filter {
     // 인증 없이 통과시킬 URL 패턴 (whitelist)
     private val whiteList = arrayOf(
-        "/api/v1/login/*",
-        "/api/v1/reIssue",
-        "/swagger-ui/*",
-        "/v3/api-docs/*",
-        "/api/v1/prediction/*",
-        "/api/v1/article-summary/*",
-        "/api/v1/price/ticker/*/graph",
-        "/api/v1/article",
-        "/api/v1/article/*",
-        "/api/v1/search-preview/*",
-        "/api/v1/market-status/*",
-        "/api/v1/exchange-rate/*",
+//        "/api/v1/login/*",
+//        "/api/v1/reIssue",
+//        "/swagger-ui/*",
+//        "/v3/api-docs/*",
+//        "/api/v1/prediction/*",
+//        "/api/v1/article-summary/*",
+//        "/api/v1/price/*",
+//        "/api/v1/article/*",
+//        "/api/v1/search-preview/*",
+//        "/api/v1/market-status/*",
+//        "/api/v1/exchange-rate/*",
+        "/api/v1/*"
     )
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
