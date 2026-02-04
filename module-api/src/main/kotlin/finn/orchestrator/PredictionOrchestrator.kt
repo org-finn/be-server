@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
+@ExposedTransactional(readOnly = true)
 class PredictionOrchestrator(
     private val handlerFactory: PredictionHandlerFactory,
     private val predictionQueryService: PredictionQueryService,
@@ -47,14 +48,14 @@ class PredictionOrchestrator(
         }
     }
 
-
-    @ExposedTransactional(readOnly = true)
-    fun getRecentPredictionList(pageRequest: PredictionPageRequest, userId: UUID?): PredictionListResponse {
+    fun getRecentPredictionList(
+        pageRequest: PredictionPageRequest,
+        userId: UUID?
+    ): PredictionListResponse {
         val predictionList = predictionQueryService.getPredictionList(pageRequest, userId)
         return toDto(predictionList)
     }
 
-    @ExposedTransactional(readOnly = true)
     fun getPredictionDetail(tickerId: UUID): PredictionDetailResponse {
         val predictionDetail = predictionQueryService.getPredictionDetail(tickerId)
         val articleList = articleQueryService.getArticleDataForPredictionDetail(tickerId)
