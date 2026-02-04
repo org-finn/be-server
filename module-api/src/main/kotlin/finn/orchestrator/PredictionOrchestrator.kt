@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
+@ExposedTransactional(readOnly = true)
 class PredictionOrchestrator(
     private val handlerFactory: PredictionHandlerFactory,
     private val predictionQueryService: PredictionQueryService,
@@ -24,6 +25,7 @@ class PredictionOrchestrator(
         private val wildcard: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
     }
 
+    @ExposedTransactional
     suspend fun processBatch(tasks: List<PredictionTask>) {
         // 1. 와일드카드(전체 계산) 작업 분리
         val wildcardTasks = tasks.filter { it.tickerId == wildcard }
@@ -47,14 +49,14 @@ class PredictionOrchestrator(
         }
     }
 
-
-    @ExposedTransactional(readOnly = true)
-    fun getRecentPredictionList(pageRequest: PredictionPageRequest, userId: UUID?): PredictionListResponse {
+    fun getRecentPredictionList(
+        pageRequest: PredictionPageRequest,
+        userId: UUID?
+    ): PredictionListResponse {
         val predictionList = predictionQueryService.getPredictionList(pageRequest, userId)
         return toDto(predictionList)
     }
 
-    @ExposedTransactional(readOnly = true)
     fun getPredictionDetail(tickerId: UUID): PredictionDetailResponse {
         val predictionDetail = predictionQueryService.getPredictionDetail(tickerId)
         val articleList = articleQueryService.getArticleDataForPredictionDetail(tickerId)
