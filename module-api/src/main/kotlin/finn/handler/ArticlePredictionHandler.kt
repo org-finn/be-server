@@ -60,9 +60,9 @@ class ArticlePredictionHandler(
 
                 // 누적 변수 초기화 (현재 DB 값에서 시작)
                 var currentScore = prediction.sentimentScore
-                var posCount = prediction.positiveArticleCount
-                var negCount = prediction.negativeArticleCount
-                var neuCount = prediction.neutralArticleCount
+                var posCount = 0L
+                var negCount = 0L
+                var neuCount = 0L
                 val predictionDate = prediction.predictionDate
 
                 // 여러 개의 Task 순차 적용
@@ -99,5 +99,6 @@ class ArticlePredictionHandler(
                 predictionCommandService.updatePredictions(updates, ALPHA)
             }
         }
+
     }
 }
