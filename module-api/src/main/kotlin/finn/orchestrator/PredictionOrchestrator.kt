@@ -25,7 +25,6 @@ class PredictionOrchestrator(
         private val wildcard: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
     }
 
-    @ExposedTransactional
     suspend fun processBatch(tasks: List<PredictionTask>) {
         // 1. 와일드카드(전체 계산) 작업 분리
         val wildcardTasks = tasks.filter { it.tickerId == wildcard }
