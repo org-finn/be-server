@@ -1,7 +1,6 @@
 package finn.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import finn.converter.toDomainCode
 import finn.converter.toKisCode
 import finn.manager.TickerRealTimeCandleManager
 import finn.repository.TickerRepository
@@ -90,7 +89,7 @@ class KisRealTimeTickerPriceExecutionWebSocketHandler(
                     val dto = parseExecutionData(parts[3])
                     if (dto != null) {
                         // 1. 실시간 차트용 SSE 전송
-                        val tickerCode = toDomainCode(dto.symb)
+                        val tickerCode = dto.symb
                         val tickerId = tickerRepository.getTickerIdByTickerCode(tickerCode)
                         sseService.broadcast(dto, tickerId)
 

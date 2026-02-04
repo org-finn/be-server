@@ -9,7 +9,3 @@ fun toKisCode(exchangeCode: String, tickerCode: String): String {
         else -> throw DomainPolicyViolationException("Exchange code not supported: $exchangeCode")
     }
 }
-
-fun toDomainCode(kisCode: String): String {
-    return kisCode.substring(4) // D + {NYS, NAS} 총 4문자를 절삭
-}
