@@ -94,7 +94,12 @@ class TickerPriceRealTimeDynamoDbRepository(
         predictionQueryDto.graphData = PredictionListGraphDataQueryDto(true, latest8PriceDataList)
     }
 
-    fun appendMinuteData(tickerId: UUID, entity: TickerPriceRealTimeEntity, index: Int, maxLen: Int) {
+    fun appendMinuteData(
+        tickerId: UUID,
+        entity: TickerPriceRealTimeEntity,
+        index: Int,
+        maxLen: Int
+    ) {
         try {
             // 1. SK (날짜) 및 시간 포맷팅
             val zonedTime = entity.startTime.atZone(NY_ZONE)
@@ -118,17 +123,24 @@ class TickerPriceRealTimeDynamoDbRepository(
                 .tableName(tableName)
                 .key(
                     mapOf(
-                        "tickerId" to AttributeValue.builder().s(tickerId.toString())
-                            .build(), // 파티션 키
-                        "priceDate" to AttributeValue.builder().s(dateKey).build()   // 정렬 키
+                        "tickerId" to AttributeValue.builder().s(tickerId.toString()).build(),
+                        "priceDate" to AttributeValue.builder().s(dateKey).build()
                     )
                 )
+                // 실제 컬럼명 대신 별칭(#maxLen, #ttl) 사용
                 .updateExpression(
                     """
-                    SET priceDataList = list_append(if_not_exists(priceDataList, :emptyList), :newItem), 
-                        maxLen = :maxLen, 
-                        ttl = :ttl
+                SET priceDataList = list_append(if_not_exists(priceDataList, :emptyList), :newItem), 
+                    #maxLen = :maxLen, 
+                    #ttl = :ttl
                 """.trimIndent()
+                )
+                // 별칭이 실제 어떤 컬럼인지 매핑
+                .expressionAttributeNames(
+                    mapOf(
+                        "#maxLen" to "maxLen",
+                        "#ttl" to "ttl" // ttl도 예약어 충돌 가능성이 있으므로 함께 처리
+                    )
                 )
                 .expressionAttributeValues(
                     mapOf(
