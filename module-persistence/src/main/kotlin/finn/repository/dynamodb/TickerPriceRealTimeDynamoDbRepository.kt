@@ -7,6 +7,7 @@ import finn.queryDto.PredictionQueryDto
 import finn.queryDto.TickerRealTimeGraphDataQueryDto
 import finn.queryDto.TickerRealTimeHistoryGraphQueryDto
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
@@ -22,9 +23,9 @@ import java.util.*
 
 @Repository
 class TickerPriceRealTimeDynamoDbRepository(
-    private val dynamoDbClient: DynamoDbClient
+    private val dynamoDbClient: DynamoDbClient,
+    @Value("\${dynamodb.table.ticker-price-real-time}") private val tableName: String
 ) {
-    private val tableName = "ticker_price_real_time"
     private val log = KotlinLogging.logger { }
     private val NY_ZONE = ZoneId.of("America/New_York")
 

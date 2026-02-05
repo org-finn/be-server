@@ -48,6 +48,10 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+
+dynamodb:
+  table:
+    ticker-price-real-time: ${TICKER_PRICE_REAL_TIME_TABLE_NAME}
 ---
 # dev, local
 spring:

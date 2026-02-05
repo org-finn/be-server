@@ -104,6 +104,7 @@ jobs:
             KIS_BASE_URL_WEB_SOCKET = ${{ secrets.KIS_BASE_URL_WEB_SOCKET }}
             KIS_APP_KEY= ${{ secrets.KIS_APP_KEY }}
             KIS_SECRET_KEY = ${{ secrets.KIS_SECRET_KEY }}
+            TICKER_PRICE_REAL_TIME_TABLE_NAME = ${{secrets.TICKER_PRICE_REAL_TIME_TABLE_NAME }}
             EOF
             
             # ⭐️ 3. Docker Hub에서 최신 이미지 가져오기
