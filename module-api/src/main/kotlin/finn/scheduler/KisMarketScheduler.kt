@@ -20,7 +20,7 @@ class KisMarketScheduler(
     private val log = KotlinLogging.logger {}
 
     // 10분마다 실행 (미국 장 시간 체크)
-    @Scheduled(cron = "0 0/10 * * * *")
+    @Scheduled(cron = "0 0/30 * * * *", zone = "UTC")
     @ExposedTransactional(readOnly = true)
     fun checkMarketHours() {
 

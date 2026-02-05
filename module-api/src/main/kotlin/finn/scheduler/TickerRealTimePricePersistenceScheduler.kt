@@ -37,10 +37,6 @@ class TickerRealTimePricePersistenceScheduler(
         // 2. MarketStatus 조회 & 오픈 여부 체크
         val marketStatus = marketStatusRepository.getOptionalMarketStatus(todayUTC)
 
-        if (!MarketStatus.checkIsOpened(marketStatus, clock) && candleManager.isEmpty()) {
-            return
-        }
-
         val snapshot = candleManager.popAllCandles()
         if (snapshot.isEmpty()) return
 
@@ -61,7 +57,7 @@ class TickerRealTimePricePersistenceScheduler(
         // 4-2. 이를 UTC로 변환 (예: 2026-02-02 14:30:00Z) -> Index 0의 기준점
         val marketOpenUTC = marketOpenKST.withZoneSameInstant(UTC_ZONE)
 
-        log.info("Persisting candles.. Time(KST): $marketOpenKST, Time(UTC): $marketOpenUTC, MaxLen: $maxLen")
+        log.info { "Persisting candles.. Time(KST): $marketOpenKST, Time(UTC): $marketOpenUTC, MaxLen: $maxLen" }
 
         snapshot.forEach { (tickerId, candle) ->
             // 5. 캔들 시간 (UTC)
