@@ -24,7 +24,7 @@ class KisMarketScheduler(
     @ExposedTransactional(readOnly = true)
     fun checkMarketHours() {
 
-        log.info { "⏰ 스케줄러 실행 중... (Time: ${LocalDateTime.now(clock)})" }
+        log.info { "⏰ 스케줄러 실행 시도... (Time: ${LocalDateTime.now(clock)})" }
 
         val marketStatus =
             marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
@@ -38,7 +38,7 @@ class KisMarketScheduler(
                 connectionManager.start()
             } else {
                 // 이미 연결되어 있어서 아무것도 안 함
-                log.debug { "이미 연결되어 있음 (Market Open)" }
+                log.info { "이미 연결되어 있음 (Market Open)" }
             }
         } else {
             if (connectionManager.isRunning) {
@@ -46,7 +46,7 @@ class KisMarketScheduler(
                 connectionManager.stop()
             } else {
                 // 이미 종료되어 있어서 아무것도 안 함
-                log.debug { "이미 종료되어 있음 (Market Closed)" }
+                log.info { "이미 종료되어 있음 (Market Closed)" }
             }
         }
     }

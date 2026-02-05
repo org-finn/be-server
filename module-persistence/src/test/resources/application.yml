@@ -23,3 +23,8 @@ jwt:
   secret: avsdgsdgsdfewfaewfewfqwfwefwqfewfewasdwqdwq= # 더미 값
   access-token-validity: 1800000 # 30분
   refresh-token-validity: 86600000 # 1일
+
+
+dynamodb:
+  table:
+    ticker-price-real-time: test-table
