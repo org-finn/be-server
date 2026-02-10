@@ -40,11 +40,9 @@ class UserTokenExposedRepository(
                 .limit(1)
                 .map { it[UserTokenTable.id].value }
                 .singleOrNull()
-            if (oldestTokenId == null) {
-                log.error { "${userId}의 user_token이 ${curCount}개 존재하지만 다시 조회 시 오류가 발생했습니다." }
-                throw AuthenticationCriticalProblemException("auth 관련 로직 중 문제가 발생하였습니다.")
+            if (oldestTokenId != null) {
+                deleteById(oldestTokenId)
             }
-            deleteById(oldestTokenId)
         }
 
         UserTokenExposed.new {
