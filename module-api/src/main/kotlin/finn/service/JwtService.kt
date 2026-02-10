@@ -31,12 +31,11 @@ class JwtService(
 
     fun issue(userId: UUID, role: String, status: String, deviceType: String): TokenResponse {
         val accessToken = jwtProvider.createAccessToken(userId, role, status)
-        val newDeviceId = UUID.randomUUID()
         val refreshToken = jwtProvider.createRefreshToken()
         userTokenRepository.save(
-            userId, newDeviceId, deviceType, refreshToken.tokenValue
+            userId, refreshToken.deviceId, deviceType, refreshToken.tokenValue
         )
-        return TokenResponse(accessToken, refreshToken.tokenValue, newDeviceId)
+        return TokenResponse(accessToken, refreshToken.tokenValue)
     }
 
     fun reIssue(
@@ -72,7 +71,7 @@ class JwtService(
             newRefreshToken.deviceId,
             deviceType
         )
-        return TokenResponse(newAccessToken, newRefreshToken.tokenValue, newRefreshToken.deviceId)
+        return TokenResponse(newAccessToken, newRefreshToken.tokenValue)
     }
 
     fun releaseRefreshToken(deviceId: UUID) {

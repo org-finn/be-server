@@ -14,7 +14,6 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -80,6 +79,7 @@ class JwtServiceTest : DescribeSpec({
                 } returns mockAccessToken
 
                 every { mockRefreshTokenObj.tokenValue } returns mockRefreshTokenString
+                every { mockRefreshTokenObj.deviceId } returns UUID.randomUUID()
                 every { jwtProvider.createRefreshToken() } returns mockRefreshTokenObj
             }
 
@@ -90,7 +90,6 @@ class JwtServiceTest : DescribeSpec({
                 // then
                 response.accessToken shouldBe mockAccessToken
                 response.refreshToken shouldBe mockRefreshTokenString
-                response.deviceId shouldNotBe null // 내부에서 랜덤 UUID 생성됨
 
                 // Verify: DB 저장 호출 검증
                 verify(exactly = 1) {
@@ -171,7 +170,6 @@ class JwtServiceTest : DescribeSpec({
                     // then
                     response.accessToken shouldBe newAccessToken
                     response.refreshToken shouldBe newRefreshTokenString
-                    response.deviceId shouldBe newDeviceId
 
                     // Verify: 업데이트 로직 호출 확인
                     verify(exactly = 1) {

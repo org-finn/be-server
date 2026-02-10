@@ -46,7 +46,7 @@ class JwtProvider(
             .expiration(validity)
             .signWith(key)
             .compact()
-        return RefreshToken.create(tokenValue, deviceId,now, validity)
+        return RefreshToken.create(tokenValue, deviceId, now, validity)
     }
 
 
