@@ -73,60 +73,6 @@ class PredictionRepositoryImpl(
         )
     }
 
-    override fun getPredictionListWithKeyword(
-        page: Int,
-        size: Int,
-        sort: String,
-        userId: UUID?
-    ): PageResponse<PredictionQueryDto> {
-        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
-        predictionExposedRepository.setPredictionDataForParam(
-            "keyword",
-            predictionExposedList.content
-        )
-        if (userId != null) {
-            setFavoriteTicker(
-                userId,
-                predictionExposedList.content.map { it.tickerCode }.toList(),
-                predictionExposedList.content
-            )
-        }
-
-        return PageResponse(
-            predictionExposedList.content,
-            page,
-            size,
-            predictionExposedList.hasNext
-        )
-    }
-
-    override fun getPredictionListWithArticle(
-        page: Int,
-        size: Int,
-        sort: String,
-        userId: UUID?
-    ): PageResponse<PredictionQueryDto> {
-        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
-        predictionExposedRepository.setPredictionDataForParam(
-            "article",
-            predictionExposedList.content
-        )
-        if (userId != null) {
-            setFavoriteTicker(
-                userId,
-                predictionExposedList.content.map { it.tickerCode }.toList(),
-                predictionExposedList.content
-            )
-        }
-
-        return PageResponse(
-            predictionExposedList.content,
-            page,
-            size,
-            predictionExposedList.hasNext
-        )
-    }
-
     override fun getPredictionListWithGraph(
         page: Int,
         size: Int,
