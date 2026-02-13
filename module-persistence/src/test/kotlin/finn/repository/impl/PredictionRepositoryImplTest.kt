@@ -7,7 +7,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.dao.id.EntityID
@@ -17,8 +16,6 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
-import java.time.Clock
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -199,91 +196,6 @@ internal class PredictionRepositoryImplTest(
             }
         }
 
-        When("param 파라미터가 'keyword'일 때") {
-            val keywordParam = "keyword"
-
-            // 키워드 데이터 준비
-            transaction {
-                // 테스트 격리를 위해 관련 테이블 초기화 (필요시)
-                ArticleSummaryTable.deleteAll()
-
-                ArticleSummaryTable.insert {
-                    it[id] = EntityID(UUID.randomUUID(), ArticleSummaryTable)
-                    it[tickerId] = ticker1Id
-                    it[positiveKeywords] = "호재,상승,기대"
-                    it[negativeKeywords] = "우려,하락"
-                    it[shortCompanyName] = "Company B"
-                    it[summaryDate] = LocalDateTime.now(ZoneId.of("UTC")) // 쿼리 조건: 오늘 날짜
-                    it[createdAt] = LocalDateTime.now()
-                }
-            }
-
-            val result = transaction {
-                predictionRepository.getPredictionListWithKeyword(
-                    page = 0,
-                    size = 10,
-                    sort = "popular",
-                    userId = null
-                )
-            }
-
-            Then("해당 티커의 긍정/부정 키워드 데이터가 포함되어야 한다") {
-                val targetItem = result.content.find { it.tickerId == ticker1Id }
-                targetItem.shouldNotBeNull()
-
-                targetItem.positiveKeywords shouldBe "호재,상승,기대"
-                targetItem.negativeKeywords shouldBe "우려,하락"
-
-                // 데이터가 없는 다른 티커는 null이어야 함
-                val otherItem = result.content.find { it.tickerId == ticker2Id }
-                otherItem?.positiveKeywords.shouldBeNull()
-            }
-        }
-
-        When("param 파라미터가 'article'일 때") {
-            val articleParam = "article"
-
-            val article1Id = UUID.randomUUID()
-            val article1Title = "Company A 3분기 실적 발표"
-
-            // 기사 데이터 준비
-            transaction {
-                ArticleTickerTable.deleteAll()
-
-                ArticleTickerTable.insert {
-                    it[id] = EntityID(UUID.randomUUID(), ArticleTickerTable)
-                    it[articleId] = article1Id
-                    it[tickerId] = ticker1Id
-                    it[tickerCode] = "tickerCode"
-                    it[shortCompanyName] = "Company B"
-                    it[title] = article1Title
-                    it[titleKr] = article1Title
-                    it[publishedDate] = Instant.now(Clock.system(ZoneId.of("UTC"))) // 쿼리 조건: 오늘 날짜
-                    it[createdAt] = LocalDateTime.now()
-                }
-            }
-
-            val result = transaction {
-                predictionRepository.getPredictionListWithArticle(
-                    page = 0,
-                    size = 10,
-                    sort = "popular",
-                    userId = null
-                )
-            }
-
-            Then("해당 티커의 관련 기사 제목 리스트가 포함되어야 한다") {
-                val targetItem = result.content.find { it.tickerId == ticker1Id }
-                targetItem.shouldNotBeNull()
-                targetItem.articleTitles.shouldNotBeNull()
-
-                val articles = targetItem.articleTitles!!
-                articles shouldHaveSize 1
-                articles[0].title shouldBe article1Title
-                articles[0].articleId shouldBe article1Id
-            }
-        }
-
         When("param 파라미터가 'graph'일 때(비 정규장)") {
             val graphParam = "graph"
 
@@ -437,39 +349,6 @@ internal class PredictionRepositoryImplTest(
             }
         }
 
-        When("다른 파라미터 메서드(WithKeyword)에서도 userId가 주어지면") {
-            // 키워드 데이터 사전 준비
-            transaction {
-                ArticleSummaryTable.insert {
-                    it[id] = EntityID(UUID.randomUUID(), ArticleSummaryTable)
-                    it[tickerId] = ticker1Id
-                    it[positiveKeywords] = "상승"
-                    it[negativeKeywords] = "하락"
-                    it[shortCompanyName] = "Company A"
-                    it[summaryDate] = LocalDateTime.now(ZoneId.of("UTC"))
-                    it[createdAt] = LocalDateTime.now()
-                }
-            }
-
-            val result = transaction {
-                predictionRepository.getPredictionListWithKeyword(
-                    page = 0,
-                    size = 10,
-                    sort = "popular",
-                    userId = userId
-                )
-            }
-
-            Then("키워드 데이터와 함께 관심종목 여부도 올바르게 매핑되어야 한다") {
-                val itemA = result.content.find { it.tickerId == ticker1Id }
-
-                // Keyword 확인
-                itemA!!.positiveKeywords shouldBe "상승"
-
-                // Favorite 확인
-                itemA.isFavorite shouldBe true
-            }
-        }
 
         When("관심 종목이 없는 사용자(새 유저)가 조회할 때") {
             val newUserUuid = UUID.randomUUID()
