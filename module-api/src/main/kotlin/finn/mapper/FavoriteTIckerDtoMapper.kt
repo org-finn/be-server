@@ -8,7 +8,11 @@ class FavoriteTIckerDtoMapper {
 
         fun toDto(tickers: List<FavoriteTickerQueryDto>): FavoriteTickerResponse {
             return FavoriteTickerResponse(tickers.map {
-                FavoriteTickerResponse.FavoriteTicker(it.tickerId, it.tickerCode)
+                FavoriteTickerResponse.FavoriteTicker(
+                    it.tickerId,
+                    it.tickerCode,
+                    it.shortCompanyName
+                )
             }.toList())
         }
     }
