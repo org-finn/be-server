@@ -89,7 +89,11 @@ class UserInfoExposedRepository(
 
         val tickerCodes = tickers.split(",")
 
-        return TickerTable.select(TickerTable.id, TickerTable.code)
+        return TickerTable.select(
+            TickerTable.id,
+            TickerTable.code,
+            TickerTable.shortCompanyName
+        )
             .where { TickerTable.code inList tickerCodes }
             .map { row ->
                 FavoriteTickerQueryDto(
