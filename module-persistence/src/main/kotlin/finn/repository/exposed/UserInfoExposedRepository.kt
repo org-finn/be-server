@@ -94,7 +94,8 @@ class UserInfoExposedRepository(
             .map { row ->
                 FavoriteTickerQueryDto(
                     tickerId = row[TickerTable.id].value,
-                    tickerCode = row[TickerTable.code]
+                    tickerCode = row[TickerTable.code],
+                    shortCompanyName = row[TickerTable.shortCompanyName]
                 )
             }
     }

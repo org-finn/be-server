@@ -7,6 +7,7 @@ data class FavoriteTickerResponse(
 ) {
     data class FavoriteTicker(
         val tickerId: UUID,
-        val tickerCode: String
+        val tickerCode: String,
+        val shortCompanyName: String
     )
 }
