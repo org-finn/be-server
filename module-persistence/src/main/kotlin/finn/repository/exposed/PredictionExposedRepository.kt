@@ -7,7 +7,6 @@ import finn.exception.CriticalDataPollutedException
 import finn.exception.NotFoundDataException
 import finn.paging.PageResponse
 import finn.queryDto.*
-import finn.table.ArticleTickerTable
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
@@ -599,73 +598,17 @@ class PredictionExposedRepository(
         results: List<PredictionQueryDto>
     ) {
         param.let {
-            when (param) {
-                "keyword" -> {
-                    val data = findArticleSummaryKeywordsForPrediction()
-                    results.forEach { dtoImpl ->
-                        val tickerId = dtoImpl.tickerId
-                        data[tickerId]?.let {
-                            dtoImpl.positiveKeywords = it[0]
-                            dtoImpl.negativeKeywords = it[1]
-                        }
-                    }
+            val data = findGraphDataForPredictionWhenClosed()
+            results.forEach { dtoImpl ->
+                val tickerId = dtoImpl.tickerId
+                data[tickerId]?.let {
+                    val graphData = PredictionListGraphDataQueryDto(false, it)
+                    dtoImpl.graphData = graphData
                 }
-
-                "article" -> {
-                    val data = findArticleTitlesForPrediction()
-                    results.forEach { dtoImpl ->
-                        val tickerId = dtoImpl.tickerId
-                        data[tickerId]?.let { it ->
-                            val articleList = it.map {
-                                ArticleTitleQueryDto(it.first, it.second)
-                            }.toList()
-                            dtoImpl.articleTitles = articleList
-                        }
-                    }
-                }
-
-                "graph" -> {
-                    val data = findGraphDataForPredictionWhenClosed()
-                    results.forEach { dtoImpl ->
-                        val tickerId = dtoImpl.tickerId
-                        data[tickerId]?.let {
-                            val graphData = PredictionListGraphDataQueryDto(false, it)
-                            dtoImpl.graphData = graphData
-                        }
-                    }
-                }
-
-                else -> throw CriticalDataPollutedException("지원하지 않는 파라미터 타입입니다.")
             }
         }
     }
 
-    /**
-     * key: tickerId, value: List<Pair<title, articleId>>
-     */
-    private fun findArticleTitlesForPrediction(): Map<UUID, List<Pair<UUID, String>>> {
-        val targetDate = Instant.now(clock).minus(1, ChronoUnit.DAYS)
-
-        val result = ArticleTickerTable.select(
-            ArticleTickerTable.title,
-            ArticleTickerTable.titleKr,
-            ArticleTickerTable.tickerId,
-            ArticleTickerTable.articleId
-        ).where {
-            ArticleTickerTable.publishedDate greaterEq targetDate
-        }
-
-        return result.groupBy(
-            keySelector = { row ->
-                row[ArticleTickerTable.tickerId]
-            },
-            // Value: Pair(ArticleId, Title) 리스트
-            valueTransform = { row ->
-                row[ArticleTickerTable.articleId] to (row[ArticleTickerTable.titleKr]
-                    ?: row[ArticleTickerTable.title]) // 안전 장치로 원문 타이틀 도입
-            }
-        )
-    }
 
     /**
      * key: tickerId, value: List<BigDecimal>
@@ -705,4 +648,5 @@ class PredictionExposedRepository(
                 row[PredictionTable.tickerId] to row[PredictionTable.volatility]
             }
     }
+
 }
