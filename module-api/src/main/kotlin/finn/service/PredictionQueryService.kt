@@ -2,7 +2,6 @@ package finn.service
 
 import finn.entity.query.MarketStatus
 import finn.entity.query.PredictionQ
-import finn.exception.DomainPolicyViolationException
 import finn.paging.PageResponse
 import finn.paging.PredictionPageRequest
 import finn.queryDto.PredictionDetailQueryDto
@@ -22,46 +21,22 @@ class PredictionQueryService(
     private val clock: Clock
 ) {
 
-    fun getPredictionList(pageRequest: PredictionPageRequest, userId: UUID?): PageResponse<PredictionQueryDto> {
-        return when (pageRequest.param) {
-            "keyword" -> predictionRepository.getPredictionListWithKeyword(
-                pageRequest.page,
-                pageRequest.size,
-                pageRequest.sort,
-                userId
-            )
+    fun getPredictionList(
+        pageRequest: PredictionPageRequest,
+        userId: UUID?
+    ): PageResponse<PredictionQueryDto> {
+        val marketStatus =
+            marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
+        val isOpened =
+            MarketStatus.checkIsOpened(marketStatus, clock)
 
-            "article" -> predictionRepository.getPredictionListWithArticle(
-                pageRequest.page,
-                pageRequest.size,
-                pageRequest.sort,
-                userId
-            )
-
-            "graph" -> {
-                val marketStatus =
-                    marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
-                val isOpened =
-                    MarketStatus.checkIsOpened(marketStatus, clock)
-
-                predictionRepository.getPredictionListWithGraph(
-                    pageRequest.page,
-                    pageRequest.size,
-                    pageRequest.sort,
-                    isOpened,
-                    userId
-                )
-            }
-
-            null -> predictionRepository.getPredictionListDefault(
-                pageRequest.page,
-                pageRequest.size,
-                pageRequest.sort,
-                userId
-            )
-
-            else -> throw DomainPolicyViolationException("지원하지 않는 param 옵셥입니다.")
-        }
+        return predictionRepository.getPredictionListWithGraph(
+            pageRequest.page,
+            pageRequest.size,
+            pageRequest.sort,
+            isOpened,
+            userId
+        )
     }
 
     fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {

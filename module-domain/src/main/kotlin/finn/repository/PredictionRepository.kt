@@ -34,20 +34,6 @@ interface PredictionRepository {
         userId: UUID?
     ): PageResponse<PredictionQueryDto>
 
-    fun getPredictionListWithKeyword(
-        page: Int,
-        size: Int,
-        sort: String,
-        userId: UUID?
-    ): PageResponse<PredictionQueryDto>
-
-    fun getPredictionListWithArticle(
-        page: Int,
-        size: Int,
-        sort: String,
-        userId: UUID?
-    ): PageResponse<PredictionQueryDto>
-
     fun getPredictionListWithGraph(
         page: Int,
         size: Int,
