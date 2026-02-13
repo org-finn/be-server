@@ -30,5 +30,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Fix Docker Unix Socket Permission
+        run: sudo chmod 666 /var/run/docker.sock
+
       - name: build code and test
         run: ./gradlew clean build
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
