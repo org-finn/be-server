@@ -13,6 +13,7 @@ import finn.strategy.PredictionInitSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.InitPredictionTask
 import finn.task.PredictionTask
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Component
@@ -28,6 +29,8 @@ class InitPredictionHandler(
     private val predictionQueryService: PredictionQueryService,
     private val strategyFactory: StrategyFactory
 ) : PredictionHandler {
+
+    private val log = KotlinLogging.logger {}
 
     override fun supports(type: String): Boolean = type == "init"
 
@@ -62,7 +65,6 @@ class InitPredictionHandler(
                 val score = sentimentStrategy.calculate(task)
 
                 var volatility: BigDecimal
-                var todayAtr: BigDecimal?
 
                 if (isPreviousDayHoliday()) {
                     // 휴일: 이전 Volatility 유지, ATR 업데이트 없음
@@ -78,7 +80,7 @@ class InitPredictionHandler(
 
                     val calculated = technicalStrategy.calculate(task)
                     volatility = calculated.first.toBigDecimal()
-                    todayAtr = calculated.second.toBigDecimal()
+                    val todayAtr = calculated.second.toBigDecimal()
 
                     // Ticker 업데이트 대기열에 추가
                     tickerAtrUpdates[tickerId] = todayAtr
