@@ -103,7 +103,7 @@ class TickerExposedRepository {
 
     fun batchUpdateAtr(updates: Map<UUID, BigDecimal>) {
         updates.forEach { (id, newAtr) ->
-            TickerPriceTable.update({ TickerPriceTable.id eq id }) {
+            TickerPriceTable.update({ TickerPriceTable.tickerId eq id }) {
                 it[atr] = newAtr
             }
         }
