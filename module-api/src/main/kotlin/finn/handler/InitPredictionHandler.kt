@@ -83,7 +83,6 @@ class InitPredictionHandler(
                     val todayAtr = calculated.second.toBigDecimal()
 
                     // Ticker 업데이트 대기열에 추가
-                    log.info { "add todayAtr $tickerId in tickerAtrUpdates" }
                     tickerAtrUpdates[tickerId] = todayAtr
                 }
 
@@ -110,7 +109,6 @@ class InitPredictionHandler(
             }
 
             if (tickerAtrUpdates.isNotEmpty()) {
-                log.info { "request update atr" }
                 tickerCommandService.updateAtrs(tickerAtrUpdates)
             }
         }
