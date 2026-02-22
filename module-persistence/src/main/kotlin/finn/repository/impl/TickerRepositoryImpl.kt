@@ -2,7 +2,9 @@ package finn.repository.impl
 
 import finn.entity.query.Ticker
 import finn.mapper.toDomain
+import finn.paging.PageResponse
 import finn.queryDto.TickerCodeQueryDto
+import finn.queryDto.TickerJoinQueryDto
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import finn.repository.exposed.TickerExposedRepository
@@ -36,6 +38,10 @@ class TickerRepositoryImpl(
     @Cacheable("tickerSearchList", key = TICKER_LIST_CACHE_KEY)
     override fun findAll(): List<TickerQueryDto> {
         return tickerExposedRepository.findAll()
+    }
+
+    override fun findAllByPage(page: Int): PageResponse<TickerJoinQueryDto> {
+        return tickerExposedRepository.findAllByPage(page)
     }
 
     override suspend fun getPreviousAtrByTickerId(tickerId: UUID): BigDecimal {
