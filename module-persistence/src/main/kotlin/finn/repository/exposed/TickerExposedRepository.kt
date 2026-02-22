@@ -4,13 +4,15 @@ import finn.entity.TickerExposed
 import finn.exception.CriticalDataOmittedException
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
+import finn.paging.PageResponse
 import finn.queryDto.TickerCodeQueryDto
+import finn.queryDto.TickerJoinQueryDto
 import finn.queryDto.TickerQueryDto
+import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.util.*
@@ -31,13 +33,6 @@ class TickerExposedRepository {
             ?: throw CriticalDataOmittedException("${tickerCode}의 ticker를 찾을 수 없습니다.")
     }
 
-    fun findTickerMapByTickerCodeList(tickerCodeList: List<String>): Map<String, UUID> {
-        return TickerTable.select(
-            TickerTable.id, TickerTable.code
-        ).where { TickerTable.code inList tickerCodeList }
-            .associate { it[TickerTable.code] to it[TickerTable.id].value }
-    }
-
     fun findAll(): List<TickerQueryDto> {
         return TickerTable.selectAll()
             .orderBy(TickerTable.shortCompanyName, SortOrder.ASC)
@@ -50,6 +45,56 @@ class TickerExposedRepository {
                     fullCompanyName = row[TickerTable.fullCompanyName]
                 )
             }
+    }
+
+    fun findAllByPage(page: Int, size: Int = 5): PageResponse<TickerJoinQueryDto> {
+        val limit = size
+        val offset = (page * limit).toLong()
+        val itemsToFetch = limit + 1
+
+        val maxDateExpression = PredictionTable.predictionDate.max()
+        val latestDate = PredictionTable
+            .select(maxDateExpression)
+            .firstOrNull()
+            ?.get(maxDateExpression)
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+
+        val query = TickerTable
+            .join(
+                PredictionTable, JoinType.INNER,
+                TickerTable.id,
+                PredictionTable.tickerId
+            )
+            .select(
+                TickerTable.code,
+                TickerTable.shortCompanyName,
+                PredictionTable.strategy
+            )
+            .where(PredictionTable.predictionDate eq latestDate)
+            .orderBy(
+                TickerTable.marketCap to SortOrder.DESC,
+                PredictionTable.tickerCode to SortOrder.ASC
+            )
+            .limit(n = itemsToFetch, offset = offset)
+
+
+        val results = query.map { row ->
+            TickerJoinQueryDto(
+                tickerCode = row[TickerTable.code],
+                shortCompanyName = row[TickerTable.shortCompanyName],
+                predictionStrategy = row[PredictionTable.strategy]
+            )
+        }
+
+        val hasNext = results.size > limit
+        val content = if (hasNext) results.dropLast(1) else results
+
+        return PageResponse(
+            content = content,
+            page = page,
+            size = content.size,
+            hasNext = hasNext
+        )
     }
 
     suspend fun findPreviousAtrByTickerId(tickerId: UUID): BigDecimal {

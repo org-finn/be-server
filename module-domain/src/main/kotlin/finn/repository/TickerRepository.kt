@@ -1,7 +1,9 @@
 package finn.repository
 
 import finn.entity.query.Ticker
+import finn.paging.PageResponse
 import finn.queryDto.TickerCodeQueryDto
+import finn.queryDto.TickerJoinQueryDto
 import finn.queryDto.TickerQueryDto
 import java.math.BigDecimal
 import java.util.*
@@ -14,13 +16,15 @@ interface TickerRepository {
 
     fun findAll(): List<TickerQueryDto>
 
+    fun findAllByPage(page: Int): PageResponse<TickerJoinQueryDto>
+
     suspend fun getPreviousAtrByTickerId(tickerId: UUID): BigDecimal
 
     suspend fun updateTodayAtr(tickerId: UUID, todayAtr: BigDecimal)
 
     suspend fun updateAtrs(updates: Map<UUID, BigDecimal>)
 
-    suspend fun getPreviousAtrsByIds(tickerIds: List<UUID>) : Map<UUID, BigDecimal>
+    suspend fun getPreviousAtrsByIds(tickerIds: List<UUID>): Map<UUID, BigDecimal>
 
     fun validTickersByTickerCode(tickerCodes: List<String>)
 
