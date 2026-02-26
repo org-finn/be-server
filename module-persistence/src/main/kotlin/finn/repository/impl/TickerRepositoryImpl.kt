@@ -3,10 +3,12 @@ package finn.repository.impl
 import finn.entity.query.Ticker
 import finn.mapper.toDomain
 import finn.paging.PageResponse
+import finn.queryDto.GraphDataQueryDto
 import finn.queryDto.TickerCodeQueryDto
 import finn.queryDto.TickerJoinQueryDto
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
+import finn.repository.exposed.GraphExposedRepository
 import finn.repository.exposed.TickerExposedRepository
 import finn.transaction.ExposedTransactional
 import org.springframework.cache.annotation.Cacheable
@@ -17,6 +19,7 @@ import java.util.*
 @Repository
 class TickerRepositoryImpl(
     private val tickerExposedRepository: TickerExposedRepository,
+    private val graphExposedRepository: GraphExposedRepository,
 ) : TickerRepository {
 
     companion object {
@@ -41,7 +44,20 @@ class TickerRepositoryImpl(
     }
 
     override fun findAllByPage(page: Int): PageResponse<TickerJoinQueryDto> {
-        return tickerExposedRepository.findAllByPage(page)
+        val results = tickerExposedRepository.findAllByPage(page)
+        setGraphData(results)
+        return results
+    }
+
+    private fun setGraphData(results: PageResponse<TickerJoinQueryDto>) {
+        val data = graphExposedRepository.findGraphDataForPredictionWhenClosed()
+        results.content.forEach { dtoImpl ->
+            val tickerId = dtoImpl.tickerId
+            data[tickerId]?.let {
+                val graphData = GraphDataQueryDto(false, it)
+                dtoImpl.graphData = graphData
+            }
+        }
     }
 
     override suspend fun getPreviousAtrByTickerId(tickerId: UUID): BigDecimal {

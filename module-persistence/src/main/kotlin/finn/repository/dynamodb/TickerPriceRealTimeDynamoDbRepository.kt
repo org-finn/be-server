@@ -2,7 +2,7 @@ package finn.repository.dynamodb
 
 import finn.entity.dynamodb.TickerPriceRealTimeEntity
 import finn.exception.NotFoundDataException
-import finn.queryDto.PredictionListGraphDataQueryDto
+import finn.queryDto.GraphDataQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.queryDto.TickerRealTimeGraphDataQueryDto
 import finn.queryDto.TickerRealTimeHistoryGraphQueryDto
@@ -92,7 +92,7 @@ class TickerPriceRealTimeDynamoDbRepository(
             it.price
         }.toList()
 
-        predictionQueryDto.graphData = PredictionListGraphDataQueryDto(true, latest8PriceDataList)
+        predictionQueryDto.graphData = GraphDataQueryDto(true, latest8PriceDataList)
     }
 
     fun appendMinuteData(

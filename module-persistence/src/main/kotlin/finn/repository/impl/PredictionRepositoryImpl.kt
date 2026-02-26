@@ -5,12 +5,10 @@ import finn.entity.query.PredictionQ
 import finn.entity.query.PredictionStrategy
 import finn.mapper.toDomain
 import finn.paging.PageResponse
-import finn.queryDto.PredictionCreateDto
-import finn.queryDto.PredictionDetailQueryDto
-import finn.queryDto.PredictionQueryDto
-import finn.queryDto.PredictionUpdateDto
+import finn.queryDto.*
 import finn.repository.PredictionRepository
 import finn.repository.dynamodb.TickerPriceRealTimeDynamoDbRepository
+import finn.repository.exposed.GraphExposedRepository
 import finn.repository.exposed.PredictionExposedRepository
 import finn.repository.exposed.UserInfoExposedRepository
 import org.springframework.stereotype.Repository
@@ -22,6 +20,7 @@ import java.util.*
 class PredictionRepositoryImpl(
     private val userInfoExposedRepository: UserInfoExposedRepository,
     private val predictionExposedRepository: PredictionExposedRepository,
+    private val graphExposedRepository: GraphExposedRepository,
     private val tickerPriceRealTimeDynamoDbRepository: TickerPriceRealTimeDynamoDbRepository
 ) : PredictionRepository {
 
@@ -83,8 +82,7 @@ class PredictionRepositoryImpl(
         val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
 
         if (!isOpened) {
-            predictionExposedRepository.setPredictionDataForParam(
-                "graph",
+            setPredictionDataForParam(
                 predictionExposedList.content
             )
         } else {
@@ -107,6 +105,19 @@ class PredictionRepositoryImpl(
             size,
             predictionExposedList.hasNext
         )
+    }
+
+    private fun setPredictionDataForParam(
+        results: List<PredictionQueryDto>
+    ) {
+        val data = graphExposedRepository.findGraphDataForPredictionWhenClosed()
+        results.forEach { dtoImpl ->
+            val tickerId = dtoImpl.tickerId
+            data[tickerId]?.let {
+                val graphData = GraphDataQueryDto(false, it)
+                dtoImpl.graphData = graphData
+            }
+        }
     }
 
     private fun setFavoriteTicker(

@@ -5,10 +5,7 @@ import finn.entity.UserInfoExposed
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
 import finn.repository.UserInfoRepository
-import finn.table.ArticleTable
-import finn.table.TickerTable
-import finn.table.UserArticleTable
-import finn.table.UserInfoTable
+import finn.table.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -17,7 +14,9 @@ import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.boot.test.context.SpringBootTest
+import java.math.BigDecimal
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -200,6 +199,36 @@ internal class UserInfoRepositoryImplTest(
                         it[createdAt] = LocalDateTime.now()
                         it[updatedAt] = LocalDateTime.now()
                     }.value
+
+                    PredictionTable.insert {
+                        it[predictionDate] = LocalDate.now().atStartOfDay()
+                        it[positiveArticleCount] = 0
+                        it[negativeArticleCount] = 0
+                        it[neutralArticleCount] = 0
+                        it[sentiment] = 0
+                        it[strategy] = "관망 신호"
+                        it[score] = 50
+                        it[volatility] = BigDecimal.ZERO
+                        it[tickerCode] = "AAPL"
+                        it[shortCompanyName] = "Apple"
+                        it[tickerId] = aaplId
+                        it[createdAt] = LocalDateTime.now()
+                    }
+
+                    PredictionTable.insert {
+                        it[predictionDate] = LocalDate.now().atStartOfDay()
+                        it[positiveArticleCount] = 0
+                        it[negativeArticleCount] = 0
+                        it[neutralArticleCount] = 0
+                        it[sentiment] = 0
+                        it[strategy] = "관망 신호"
+                        it[score] = 50
+                        it[volatility] = BigDecimal.ZERO
+                        it[tickerCode] = "TSLA"
+                        it[shortCompanyName] = "Tesla"
+                        it[tickerId] = tslaId
+                        it[createdAt] = LocalDateTime.now()
+                    }
 
                     // when
                     val result = repository.findFavoriteTickers(userId)

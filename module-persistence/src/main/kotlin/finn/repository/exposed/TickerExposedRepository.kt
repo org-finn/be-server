@@ -47,7 +47,7 @@ class TickerExposedRepository {
             }
     }
 
-    fun findAllByPage(page: Int, size: Int = 5): PageResponse<TickerJoinQueryDto> {
+    fun findAllByPage(page: Int, size: Int = 9): PageResponse<TickerJoinQueryDto> {
         val limit = size
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
@@ -66,9 +66,11 @@ class TickerExposedRepository {
                 PredictionTable.tickerId
             )
             .select(
+                TickerTable.id,
                 TickerTable.code,
                 TickerTable.shortCompanyName,
-                PredictionTable.strategy
+                PredictionTable.strategy,
+                PredictionTable.sentiment
             )
             .where(PredictionTable.predictionDate eq latestDate)
             .orderBy(
@@ -80,9 +82,12 @@ class TickerExposedRepository {
 
         val results = query.map { row ->
             TickerJoinQueryDto(
+                tickerId = row[TickerTable.id].value,
                 tickerCode = row[TickerTable.code],
                 shortCompanyName = row[TickerTable.shortCompanyName],
-                predictionStrategy = row[PredictionTable.strategy]
+                predictionStrategy = row[PredictionTable.strategy],
+                sentiment = row[PredictionTable.sentiment],
+                graphData = null
             )
         }
 
