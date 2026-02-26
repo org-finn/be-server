@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.time.Clock
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Repository
@@ -22,13 +23,26 @@ class UserArticleExposedRepository(
             UserArticleTable.articleId,
             ArticleTable.id
         ).select(
-            ArticleTable.id, ArticleTable.title, ArticleTable.thumbnailUrl
-        ).where { UserArticleTable.userId eq userId }
+            ArticleTable.id,
+            ArticleTable.title,
+            ArticleTable.thumbnailUrl,
+            ArticleTable.description,
+            ArticleTable.tickers,
+            ArticleTable.articleUrl,
+            ArticleTable.publishedDate,
+            ArticleTable.author,
+
+            ).where { UserArticleTable.userId eq userId }
             .map { row ->
                 FavoriteArticleQueryDto(
                     articleId = row[ArticleTable.id].value,
                     title = row[ArticleTable.title],
-                    thumbnailUrl = row[ArticleTable.thumbnailUrl]
+                    thumbnailUrl = row[ArticleTable.thumbnailUrl],
+                    description = row[ArticleTable.description],
+                    shortCompanyNames = row[ArticleTable.tickers]?.split(","),
+                    contentUrl = row[ArticleTable.articleUrl],
+                    publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")), // KST 기준 적용
+                    source = row[ArticleTable.author]
                 )
             }.toList()
     }

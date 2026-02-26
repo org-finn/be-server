@@ -1,15 +1,19 @@
 package finn.repository.exposed
 
 import finn.entity.UserInfoExposed
+import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
 import finn.queryDto.FavoriteTickerQueryDto
 import finn.table.OAuthUserTable
+import finn.table.PredictionTable
 import finn.table.TickerTable
 import finn.table.UserInfoTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.max
 import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
 import java.time.Clock
@@ -89,17 +93,34 @@ class UserInfoExposedRepository(
 
         val tickerCodes = tickers.split(",")
 
-        return TickerTable.select(
-            TickerTable.id,
-            TickerTable.code,
-            TickerTable.shortCompanyName
-        )
-            .where { TickerTable.code inList tickerCodes }
+        val maxDateExpression = PredictionTable.predictionDate.max()
+        val latestDate = PredictionTable
+            .select(maxDateExpression)
+            .firstOrNull()
+            ?.get(maxDateExpression)
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+
+        return TickerTable
+            .join(
+                PredictionTable, JoinType.INNER,
+                TickerTable.id,
+                PredictionTable.tickerId
+            ).select(
+                TickerTable.id,
+                TickerTable.code,
+                TickerTable.shortCompanyName,
+                PredictionTable.strategy,
+                PredictionTable.sentiment
+            )
+            .where { (PredictionTable.predictionDate eq latestDate) and (TickerTable.code inList tickerCodes) }
             .map { row ->
                 FavoriteTickerQueryDto(
                     tickerId = row[TickerTable.id].value,
                     tickerCode = row[TickerTable.code],
-                    shortCompanyName = row[TickerTable.shortCompanyName]
+                    shortCompanyName = row[TickerTable.shortCompanyName],
+                    predictionStrategy = row[PredictionTable.strategy],
+                    sentiment = row[PredictionTable.sentiment],
+                    graphData = null
                 )
             }
     }

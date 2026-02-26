@@ -1,8 +1,8 @@
 package finn.mapper
 
 import finn.queryDto.FavoriteArticleQueryDto
+import finn.response.article.ArticleListResponse.ArticleDataResponse
 import finn.response.userinfo.FavoriteArticleResponse
-import finn.response.userinfo.FavoriteArticleResponse.FavoriteArticle
 import org.springframework.stereotype.Component
 
 @Component
@@ -12,10 +12,15 @@ class FavoriteArticleDtoMapper {
         fun toDto(queryDtoList: List<FavoriteArticleQueryDto>): FavoriteArticleResponse {
             return FavoriteArticleResponse(
                 queryDtoList.map {
-                    FavoriteArticle(
+                    ArticleDataResponse(
                         it.articleId,
                         it.title,
-                        it.thumbnailUrl
+                        it.description,
+                        it.shortCompanyNames,
+                        it.thumbnailUrl,
+                        it.contentUrl,
+                        it.publishedDate.toString(),
+                        it.source
                     )
                 }.toList()
             )

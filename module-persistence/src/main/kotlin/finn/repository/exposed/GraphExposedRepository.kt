@@ -177,6 +177,27 @@ class GraphExposedRepository {
         return graphData.sortedBy { it.date }
     }
 
+    /**
+     * key: tickerId, value: List<BigDecimal>
+     */
+    fun findGraphDataForPredictionWhenClosed(): Map<UUID, List<BigDecimal>> {
+        val startDate = LocalDate.now().minusDays(15)
+
+        val result = TickerPriceTable.select(
+            TickerPriceTable.tickerId,
+            TickerPriceTable.close
+        ).where { TickerPriceTable.priceDate.date() greaterEq startDate }
+            .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
+
+        return result.groupBy(
+            keySelector = { row ->
+                row[TickerPriceTable.tickerId]
+            },
+            valueTransform = { row ->
+                row[TickerPriceTable.close]
+            }
+        )
+    }
 
     private fun getRatio(count: Long, total: Long): Double {
         if (total == 0L) return 0.0

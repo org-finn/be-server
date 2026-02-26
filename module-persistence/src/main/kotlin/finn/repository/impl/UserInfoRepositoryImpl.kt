@@ -5,7 +5,9 @@ import finn.exception.DomainPolicyViolationException
 import finn.mapper.toDomain
 import finn.queryDto.FavoriteArticleQueryDto
 import finn.queryDto.FavoriteTickerQueryDto
+import finn.queryDto.GraphDataQueryDto
 import finn.repository.UserInfoRepository
+import finn.repository.exposed.GraphExposedRepository
 import finn.repository.exposed.UserArticleExposedRepository
 import finn.repository.exposed.UserInfoExposedRepository
 import org.springframework.stereotype.Repository
@@ -15,6 +17,7 @@ import java.util.*
 class UserInfoRepositoryImpl(
     private val userInfoExposedRepository: UserInfoExposedRepository,
     private val userArticleExposedRepository: UserArticleExposedRepository,
+    private val graphExposedRepository: GraphExposedRepository
 ) : UserInfoRepository {
     override fun findById(userInfoId: UUID): UserInfo {
         return toDomain(userInfoExposedRepository.findById(userInfoId))
@@ -27,7 +30,15 @@ class UserInfoRepositoryImpl(
         role: String,
         status: String
     ): UserInfo {
-        return toDomain(userInfoExposedRepository.save(oAuthUserId, nickname, imageUrl, role, status))
+        return toDomain(
+            userInfoExposedRepository.save(
+                oAuthUserId,
+                nickname,
+                imageUrl,
+                role,
+                status
+            )
+        )
     }
 
     override fun existNickname(nickname: String): Boolean {
@@ -39,7 +50,9 @@ class UserInfoRepositoryImpl(
     }
 
     override fun findFavoriteTickers(userId: UUID): List<FavoriteTickerQueryDto> {
-        return userInfoExposedRepository.findFavoriteTickersByUserId(userId)
+        val queryDto = userInfoExposedRepository.findFavoriteTickersByUserId(userId)
+        setGraphData(queryDto)
+        return queryDto
     }
 
     override fun updateFavoriteTickers(
@@ -78,6 +91,17 @@ class UserInfoRepositoryImpl(
             "on" -> userArticleExposedRepository.addFavoriteArticle(userId, articleId)
             "off" -> userArticleExposedRepository.removeFavoriteArticle(userId, articleId)
             else -> throw DomainPolicyViolationException("유효하지 않은 변경 상태 모드 값입니다.")
+        }
+    }
+
+    private fun setGraphData(results: List<FavoriteTickerQueryDto>) {
+        val data = graphExposedRepository.findGraphDataForPredictionWhenClosed()
+        results.forEach { dtoImpl ->
+            val tickerId = dtoImpl.tickerId
+            data[tickerId]?.let {
+                val graphData = GraphDataQueryDto(false, it)
+                dtoImpl.graphData = graphData
+            }
         }
     }
 }
