@@ -38,7 +38,10 @@ interface JoinApiSpec {
         ]
     )
     @GetMapping("/tickers")
-    fun getTickerList(@RequestParam page: Int): SuccessResponse<JoinTickerResponse>
+    fun getTickerList(
+        @RequestParam page: Int,
+        @RequestParam(required = false) keyword: String?
+    ): SuccessResponse<JoinTickerResponse>
 
 
 }

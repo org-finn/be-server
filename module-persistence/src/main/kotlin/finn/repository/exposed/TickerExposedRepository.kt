@@ -47,7 +47,11 @@ class TickerExposedRepository {
             }
     }
 
-    fun findAllByPage(page: Int, size: Int = 9): PageResponse<TickerJoinQueryDto> {
+    fun findAllByPageAndKeyword(
+        page: Int,
+        keyword: String?,
+        size: Int = 9
+    ): PageResponse<TickerJoinQueryDto> {
         val limit = size
         val offset = (page * limit).toLong()
         val itemsToFetch = limit + 1
@@ -72,7 +76,18 @@ class TickerExposedRepository {
                 PredictionTable.strategy,
                 PredictionTable.sentiment
             )
-            .where(PredictionTable.predictionDate eq latestDate)
+            .where(
+                PredictionTable.predictionDate eq latestDate
+            )
+            .apply {
+                // keyword가 null이 아니고 비어있지도 않을 때만 where 조건 추가
+                if (!keyword.isNullOrBlank()) {
+                    andWhere {
+                        (TickerTable.shortCompanyName.lowerCase() like "%${keyword.lowercase()}%") or // 소문자로 변환시켜 비교
+                                (TickerTable.shortCompanyNameKr like "%$keyword%")
+                    }
+                }
+            }
             .orderBy(
                 TickerTable.marketCap to SortOrder.DESC,
                 PredictionTable.tickerCode to SortOrder.ASC
