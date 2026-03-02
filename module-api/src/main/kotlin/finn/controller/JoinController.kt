@@ -11,8 +11,8 @@ class JoinController(
     private val joinOrchestrator: JoinOrchestrator
 ) : JoinApiSpec {
 
-    override fun getTickerList(page: Int): SuccessResponse<JoinTickerResponse> {
-        val response = joinOrchestrator.getTickerList(page)
+    override fun getTickerList(page: Int, keyword: String?): SuccessResponse<JoinTickerResponse> {
+        val response = joinOrchestrator.getTickerList(page, keyword)
         return SuccessResponse("200 Ok", "종목 리스트 조회 성공", response)
     }
 }

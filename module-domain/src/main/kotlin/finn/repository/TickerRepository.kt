@@ -16,7 +16,7 @@ interface TickerRepository {
 
     fun findAll(): List<TickerQueryDto>
 
-    fun findAllByPage(page: Int): PageResponse<TickerJoinQueryDto>
+    fun findAllByPageAndKeyword(page: Int, keyword: String?): PageResponse<TickerJoinQueryDto>
 
     suspend fun getPreviousAtrByTickerId(tickerId: UUID): BigDecimal
 

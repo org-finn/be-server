@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 class JoinOrchestrator(
     private val tickerQueryService: TickerQueryService
 ) {
-    fun getTickerList(page: Int): JoinTickerResponse {
-        return toDto(tickerQueryService.getTickerListForJoin(page))
+    fun getTickerList(page: Int, keyword: String?): JoinTickerResponse {
+        return toDto(tickerQueryService.getTickerListForJoin(page, keyword))
     }
 }

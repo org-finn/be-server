@@ -43,8 +43,11 @@ class TickerRepositoryImpl(
         return tickerExposedRepository.findAll()
     }
 
-    override fun findAllByPage(page: Int): PageResponse<TickerJoinQueryDto> {
-        val results = tickerExposedRepository.findAllByPage(page)
+    override fun findAllByPageAndKeyword(
+        page: Int,
+        keyword: String?
+    ): PageResponse<TickerJoinQueryDto> {
+        val results = tickerExposedRepository.findAllByPageAndKeyword(page, keyword)
         setGraphData(results)
         return results
     }

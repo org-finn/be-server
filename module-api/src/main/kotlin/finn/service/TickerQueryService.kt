@@ -24,8 +24,8 @@ class TickerQueryService(
         return tickerRepository.findAll()
     }
 
-    fun getTickerListForJoin(page: Int): PageResponse<TickerJoinQueryDto> {
-        return tickerRepository.findAllByPage(page)
+    fun getTickerListForJoin(page: Int, keyword: String?): PageResponse<TickerJoinQueryDto> {
+        return tickerRepository.findAllByPageAndKeyword(page, keyword)
     }
 
     suspend fun findYesterdayAtrMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
