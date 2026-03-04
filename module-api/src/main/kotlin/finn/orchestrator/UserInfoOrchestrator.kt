@@ -23,6 +23,7 @@ class UserInfoOrchestrator(
         return NicknameValidationResponse(userInfoService.checkNicknameValidation(nickname))
     }
 
+    @ExposedTransactional
     fun updateNickname(nickname: String, userId: UUID) {
         userInfoService.updateNickname(nickname, userId)
     }
@@ -31,14 +32,17 @@ class UserInfoOrchestrator(
         return toDto(userInfoService.getFavoriteTickers(userId))
     }
 
+    @ExposedTransactional
     fun updateFavoriteTickers(userId: UUID, newTickerRequest: FavoriteTickerRequest) {
         userInfoService.updateFavoriteTickers(userId, newTickerRequest.tickers)
     }
 
+    @ExposedTransactional
     fun updateFavoriteTickerSingle(userId: UUID, tickerCode: String, mode: String) {
         userInfoService.updateFavoriteTickerSingle(userId, tickerCode, mode)
     }
 
+    @ExposedTransactional
     fun withdrawn(userId: UUID) {
         userInfoService.withdrawn(userId)
     }
@@ -51,6 +55,7 @@ class UserInfoOrchestrator(
         return FavoriteArticleDtoMapper.toDto(userInfoService.getFavoriteArticles(userId))
     }
 
+    @ExposedTransactional
     fun updateFavoriteArticle(userId: UUID, articleId: UUID, mode: String) {
         userInfoService.updateFavoriteArticle(userId, articleId, mode)
     }
