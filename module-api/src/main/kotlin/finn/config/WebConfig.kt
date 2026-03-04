@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CorsFilter
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
-import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
@@ -24,13 +26,22 @@ class WebConfig(
     private val objectMapper: ObjectMapper
 ) : WebMvcConfigurer {
 
-    override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/api/**") // /api/ 경로 하위의 모든 엔드포인트에 적용
-            .allowedOriginPatterns(*allowedOrigins.split(",").toTypedArray()) // 허용할 도메인
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
-            .allowedHeaders("*") // 허용할 헤더
-            .allowCredentials(true) // 쿠키 등 자격 증명 허용
-            .maxAge(3600) // pre-flight 요청의 캐시 시간(초)
+    @Bean
+    fun corsFilter(): FilterRegistrationBean<CorsFilter> {
+        val source = UrlBasedCorsConfigurationSource()
+        val config = CorsConfiguration()
+
+        config.allowCredentials = true
+        allowedOrigins.split(",").forEach { config.addAllowedOriginPattern(it) }
+        config.addAllowedHeader("*")
+        config.addAllowedMethod("*")
+        config.maxAge = 3600L
+
+        source.registerCorsConfiguration("/api/**", config)
+
+        val registrationBean = FilterRegistrationBean(CorsFilter(source))
+        registrationBean.order = 0 // 최상위 우선순위
+        return registrationBean
     }
 
     @Bean

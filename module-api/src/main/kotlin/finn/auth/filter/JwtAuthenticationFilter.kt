@@ -41,7 +41,7 @@ class JwtAuthenticationFilter(
             chain.doFilter(request, response)
             return
         }
-        
+
         // 1. 토큰 추출 시도 (가장 먼저 수행)
         val token = resolveToken(httpRequest)
 
