@@ -93,7 +93,13 @@ class AuthController(
         httpServletRequest: HttpServletRequest
     ): ResponseEntity<SuccessResponse<Nothing>> {
         val accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION)
-        authOrchestrator.logout(accessToken, logoutRequest.refreshToken)
+        val refreshToken =
+            if (tokenCookieService.checkDeviceType(logoutRequest.deviceType)) {
+                tokenCookieService.getRefreshTokenInCookie(httpServletRequest)
+            } else {
+                logoutRequest.refreshToken ?: throw InvalidTokenException("리프레쉬 토큰이 누락되었습니다.")
+            }
+        authOrchestrator.logout(accessToken, refreshToken)
 
         return ResponseEntity.ok().body(SuccessResponse("200 Ok", "로그아웃 성공"))
     }
