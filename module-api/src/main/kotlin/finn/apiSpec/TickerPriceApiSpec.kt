@@ -101,7 +101,7 @@ interface TickerPriceApiSpec {
     @ApiResponses(
         value = [ApiResponse(
             responseCode = "200",
-            description = "종목 그래프 데이터를 성공적으로 조회하였습니다."
+            description = "실시간 종목 그래프 스트림 데이터를 성공적으로 조회하였습니다."
         ), ApiResponse(
             responseCode = "404",
             description = "존재하지 않는 종목 Id 값입니다.",

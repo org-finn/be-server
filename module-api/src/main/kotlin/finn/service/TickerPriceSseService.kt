@@ -47,12 +47,13 @@ class TickerPriceSseService {
     fun broadcast(dto: KisReaTimeTickerPriceResponse, tickerId: UUID) {
         val emitters = emitterMap[tickerId.toString()] //tickerId로 구독자 찾기
 
+        val streamResponse = dto.toStreamResponse() // dto 변환
         emitters?.forEach { emitter ->
             try {
                 emitter.send(
                     SseEmitter.event()
                         .name("ticker-price")
-                        .data(dto)
+                        .data(streamResponse) // API 명세된 Response 형식대로 저장 -> Emitter에서 그대로 fetch
                 ) // DTO는 자동으로 JSON 변환됨
             } catch (e: IOException) {
                 // 전송 실패한 클라이언트(연결 끊김 등)는 제거
