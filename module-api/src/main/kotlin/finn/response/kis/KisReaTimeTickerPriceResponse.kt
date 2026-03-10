@@ -3,6 +3,8 @@ package finn.response.kis
 import finn.response.graph.TickerRealTimeStreamResponse
 import java.math.BigDecimal
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 data class KisReaTimeTickerPriceResponse(
@@ -30,13 +32,27 @@ data class KisReaTimeTickerPriceResponse(
     val tamt: BigDecimal,  // 21. TAMT: 거래대금
     val mtyp: String       // 24. MTYP: 시장구분 (중간 건너뜀 주의)
 ) {
-    // KST 기준 시간으로 들어온다고 가정하고 파싱
+    // EST -> KST 시간 파싱 필요
     fun toStreamResponse(): TickerRealTimeStreamResponse {
+        val NY_ZONE = ZoneId.of("America/New_York")
+        val KST_ZONE = ZoneId.of("Asia/Seoul")
+
         val formattedTime = try {
-            val parsedTime = LocalTime.parse(this.xhms, DateTimeFormatter.ofPattern("HHmmss"))
-            parsedTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+            // 1. 현지 시간(미국 동부) 파싱 (예: "093000" -> 09:30:00)
+            val localTime = LocalTime.parse(this.xhms, DateTimeFormatter.ofPattern("HHmmss"))
+
+            // 2. 미국 동부 기준의 '오늘 날짜' 획득 (서머타임 계산을 위해 날짜가 반드시 필요함)
+            val todayNY = ZonedDateTime.now(NY_ZONE).toLocalDate()
+
+            // 3. 날짜 + 시간 + 타임존을 결합하여 미국 동부 ZonedDateTime 객체 생성
+            val zonedDateTimeNY = ZonedDateTime.of(todayNY, localTime, NY_ZONE)
+
+            // 4. KST 타임존으로 변환 후 "HH:mm:ss" 형태로 포맷팅
+            zonedDateTimeNY.withZoneSameInstant(KST_ZONE)
+                .format(DateTimeFormatter.ofPattern("HH:mm:ss"))
         } catch (e: Exception) {
-            this.xhms // 파싱 실패 시 원본 문자열 반환
+            // 파싱 실패 시 원본 데이터(xhms)를 그대로 반환하여 에러 방지
+            this.xhms
         }
 
         return TickerRealTimeStreamResponse(
