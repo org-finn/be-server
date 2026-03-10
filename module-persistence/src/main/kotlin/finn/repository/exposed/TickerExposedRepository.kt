@@ -1,15 +1,18 @@
 package finn.repository.exposed
 
 import finn.entity.TickerExposed
+import finn.exception.CriticalDataOmittedException
 import finn.exception.DomainPolicyViolationException
 import finn.exception.NotFoundDataException
+import finn.paging.PageResponse
+import finn.queryDto.TickerCodeQueryDto
+import finn.queryDto.TickerJoinQueryDto
 import finn.queryDto.TickerQueryDto
+import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.lowerCase
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.util.*
@@ -17,34 +20,17 @@ import java.util.*
 @Repository
 class TickerExposedRepository {
 
-    fun findTickerListBySearchKeyword(keyword: String): List<TickerQueryDto> {
-        return TickerTable.select(
-            TickerTable.id,
-            TickerTable.code,
-            TickerTable.shortCompanyName,
-            TickerTable.fullCompanyName
-        ).where { TickerTable.shortCompanyName.lowerCase() like "${keyword.lowercase()}%" }
-            .map { row ->
-                TickerQueryDto(
-                    tickerId = row[TickerTable.id].value,
-                    tickerCode = row[TickerTable.code],
-                    shortCompanyName = row[TickerTable.shortCompanyName],
-                    shortCompanyNameKr = row[TickerTable.shortCompanyNameKr],
-                    fullCompanyName = row[TickerTable.fullCompanyName]
-                )
-            }
-    }
-
     fun findByTickerCode(tickerCode: String): TickerExposed {
         return TickerExposed.find { TickerTable.code eq tickerCode }
             .single()
     }
 
-    fun findTickerMapByTickerCodeList(tickerCodeList: List<String>): Map<String, UUID> {
-        return TickerTable.select(
-            TickerTable.id, TickerTable.code
-        ).where { TickerTable.code inList tickerCodeList }
-            .associate { it[TickerTable.code] to it[TickerTable.id].value }
+    fun findTickerIdByTickerCode(tickerCode: String): UUID {
+        return TickerTable.select(TickerTable.id)
+            .where { TickerTable.code eq tickerCode }
+            .map { row -> row[TickerTable.id].value }
+            .singleOrNull()
+            ?: throw CriticalDataOmittedException("${tickerCode}의 ticker를 찾을 수 없습니다.")
     }
 
     fun findAll(): List<TickerQueryDto> {
@@ -59,6 +45,76 @@ class TickerExposedRepository {
                     fullCompanyName = row[TickerTable.fullCompanyName]
                 )
             }
+    }
+
+    fun findAllByPageAndKeyword(
+        page: Int,
+        keyword: String?,
+        size: Int = 9
+    ): PageResponse<TickerJoinQueryDto> {
+        val limit = size
+        val offset = (page * limit).toLong()
+        val itemsToFetch = limit + 1
+
+        val maxDateExpression = PredictionTable.predictionDate.max()
+        val latestDate = PredictionTable
+            .select(maxDateExpression)
+            .firstOrNull()
+            ?.get(maxDateExpression)
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+
+        val query = TickerTable
+            .join(
+                PredictionTable, JoinType.INNER,
+                TickerTable.id,
+                PredictionTable.tickerId
+            )
+            .select(
+                TickerTable.id,
+                TickerTable.code,
+                TickerTable.shortCompanyName,
+                PredictionTable.strategy,
+                PredictionTable.sentiment
+            )
+            .where(
+                PredictionTable.predictionDate eq latestDate
+            )
+            .apply {
+                // keyword가 null이 아니고 비어있지도 않을 때만 where 조건 추가
+                if (!keyword.isNullOrBlank()) {
+                    andWhere {
+                        (TickerTable.shortCompanyName.lowerCase() like "%${keyword.lowercase()}%") or // 소문자로 변환시켜 비교
+                                (TickerTable.shortCompanyNameKr like "%$keyword%")
+                    }
+                }
+            }
+            .orderBy(
+                TickerTable.marketCap to SortOrder.DESC,
+                PredictionTable.tickerCode to SortOrder.ASC
+            )
+            .limit(n = itemsToFetch, offset = offset)
+
+
+        val results = query.map { row ->
+            TickerJoinQueryDto(
+                tickerId = row[TickerTable.id].value,
+                tickerCode = row[TickerTable.code],
+                shortCompanyName = row[TickerTable.shortCompanyName],
+                predictionStrategy = row[PredictionTable.strategy],
+                sentiment = row[PredictionTable.sentiment],
+                graphData = null
+            )
+        }
+
+        val hasNext = results.size > limit
+        val content = if (hasNext) results.dropLast(1) else results
+
+        return PageResponse(
+            content = content,
+            page = page,
+            size = content.size,
+            hasNext = hasNext
+        )
     }
 
     suspend fun findPreviousAtrByTickerId(tickerId: UUID): BigDecimal {
@@ -118,5 +174,17 @@ class TickerExposedRepository {
         if (distinctCount != tickerCodes.size) {
             throw DomainPolicyViolationException("중복 혹은 유효하지 않은 종목 값으로 인해 수정에 실패했습니다.")
         }
+    }
+
+    fun findAllWithTickerCodeAndExchangeCode(): TickerCodeQueryDto {
+        return TickerCodeQueryDto(
+            TickerTable.select(TickerTable.code, TickerTable.exchangeCode)
+                .map { row ->
+                    TickerCodeQueryDto.TickerCodes(
+                        tickerCode = row[TickerTable.code],
+                        exchangeCode = row[TickerTable.exchangeCode]
+                    )
+                }.toList()
+        )
     }
 }

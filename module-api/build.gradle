@@ -30,6 +30,9 @@ dependencies {
     implementation project(':module-domain')
     implementation project(':module-external')
 
+    // Web-Socket
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
+
     // Exposed Spring Boot Starter(Suspend Tx)
     implementation("org.jetbrains.exposed:exposed-spring-boot-starter:0.52.0")
 

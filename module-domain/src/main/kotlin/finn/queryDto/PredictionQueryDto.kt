@@ -15,5 +15,5 @@ data class PredictionQueryDto(
     var negativeKeywords: String?,
     var isFavorite: Boolean?,
     var articleTitles: List<ArticleTitleQueryDto>?,
-    var graphData: PredictionListGraphDataQueryDto?
+    var graphData: GraphDataQueryDto?
 )

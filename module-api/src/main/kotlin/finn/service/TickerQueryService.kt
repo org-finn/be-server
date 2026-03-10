@@ -1,6 +1,8 @@
 package finn.service
 
 import finn.filter.TickerSearchFilter
+import finn.paging.PageResponse
+import finn.queryDto.TickerJoinQueryDto
 import finn.queryDto.TickerQueryDto
 import finn.repository.TickerRepository
 import org.springframework.stereotype.Service
@@ -18,8 +20,12 @@ class TickerQueryService(
         return tickerSearchFilter.filterByKeyword(tickerList, keyword)
     }
 
-    fun getAllTickerList() : List<TickerQueryDto> {
+    fun getAllTickerList(): List<TickerQueryDto> {
         return tickerRepository.findAll()
+    }
+
+    fun getTickerListForJoin(page: Int, keyword: String?): PageResponse<TickerJoinQueryDto> {
+        return tickerRepository.findAllByPageAndKeyword(page, keyword)
     }
 
     suspend fun findYesterdayAtrMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {

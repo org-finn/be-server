@@ -180,7 +180,7 @@ class AuthOrchestratorTest : DescribeSpec({
             val deviceType = "APP"
 
             val mockTokenResponse =
-                TokenResponse("access_token", "refresh_token", UUID.randomUUID())
+                TokenResponse("access_token", "refresh_token")
 
             it("JwtService를 호출하여 토큰을 발급하고 반환한다") {
                 // given

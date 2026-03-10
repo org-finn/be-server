@@ -3,7 +3,7 @@ package finn.service
 import finn.converter.getInterval
 import finn.converter.getStartDate
 import finn.queryDto.TickerGraphQueryDto
-import finn.queryDto.TickerRealTimeGraphQueryDto
+import finn.queryDto.TickerRealTimeHistoryGraphQueryDto
 import finn.repository.GraphRepository
 import org.springframework.stereotype.Service
 import java.time.Clock
@@ -20,7 +20,7 @@ class GraphQueryService(private val graphRepository: GraphRepository, private va
         return graphRepository.getTickerGraph(tickerId, startDate, endDate, interval)
     }
 
-    fun getTickerRealTimeGraphData(tickerId: UUID, gte: Int?, missing: List<Int>?) : TickerRealTimeGraphQueryDto {
-        return graphRepository.getRealTimeTickerGraph(tickerId, gte, missing)
+    fun getTickerRealTimeGraphData(tickerId: UUID, gte: Int?, missing: List<Int>?) : TickerRealTimeHistoryGraphQueryDto {
+        return graphRepository.getRealTimeHistoryTickerGraph(tickerId, gte, missing)
     }
 }

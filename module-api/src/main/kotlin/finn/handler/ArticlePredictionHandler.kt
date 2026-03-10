@@ -9,6 +9,7 @@ import finn.strategy.ArticleSentimentScoreStrategy
 import finn.strategy.StrategyFactory
 import finn.task.ArticlePredictionTask
 import finn.task.PredictionTask
+import finn.transaction.ExposedTransactional
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -31,6 +32,7 @@ class ArticlePredictionHandler(
 
     override fun supports(type: String): Boolean = type == "article"
 
+    @ExposedTransactional
     override suspend fun handle(tasks: List<PredictionTask>) {
         // 타입 캐스팅 검증
         val articleTasks = tasks.filterIsInstance<ArticlePredictionTask>()

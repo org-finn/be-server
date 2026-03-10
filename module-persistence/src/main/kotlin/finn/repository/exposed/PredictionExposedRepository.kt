@@ -6,7 +6,10 @@ import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
 import finn.exception.NotFoundDataException
 import finn.paging.PageResponse
-import finn.queryDto.*
+import finn.queryDto.PredictionCreateDto
+import finn.queryDto.PredictionDetailQueryDto
+import finn.queryDto.PredictionQueryDto
+import finn.queryDto.PredictionUpdateDto
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
@@ -20,10 +23,10 @@ import org.springframework.stereotype.Repository
 import java.math.BigDecimal
 import java.sql.Date
 import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.time.*
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
+import java.time.Clock
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Repository
@@ -553,84 +556,6 @@ class PredictionExposedRepository(
             ?: throw NotFoundDataException("${tickerId}의 전일 변동성 지표 값이 존재하지 않습니다.")
     }
 
-    /**
-     * key: tickerId, value: positiveKeywords, negativeKeywords
-     * keywords의 기근 문제를 해결하기 위해, 키워드 별로 3일 이내 중 가장 최신 데이터를 가져온다.
-     */
-    private fun findArticleSummaryKeywordsForPrediction(): Map<UUID, List<String?>> {
-        val sevenDaysAgo = ZonedDateTime.now(ZoneId.of("UTC"))
-            .minusDays(2)
-            .truncatedTo(ChronoUnit.DAYS) // 시/분/초를 0으로 절삭
-            .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME) // DB가 인식 가능한 포맷 문자열로 변환
-
-        val query = """
-            SELECT
-                ticker_id,
-                (ARRAY_AGG(positive_keywords ORDER BY summary_date DESC) 
-                 FILTER (WHERE positive_keywords IS NOT NULL))[1] AS latest_pos,
-                (ARRAY_AGG(negative_keywords ORDER BY summary_date DESC) 
-                 FILTER (WHERE negative_keywords IS NOT NULL))[1] AS latest_neg
-            FROM article_summary
-            WHERE summary_date >= '$sevenDaysAgo'::timestamptz
-            GROUP BY ticker_id;
-        """
-
-        val resultMap = mutableMapOf<UUID, List<String?>>()
-
-        // Exposed 트랜잭션 내에서 Raw SQL 실행
-        TransactionManager.current().exec(query) { rs: ResultSet ->
-            while (rs.next()) {
-                val tickerIdStr = rs.getString("ticker_id")
-                val tickerId = UUID.fromString(tickerIdStr)
-
-                val positiveKeywords = rs.getString("latest_pos")
-                val negativeKeywords = rs.getString("latest_neg")
-
-                resultMap[tickerId] = listOf(positiveKeywords, negativeKeywords)
-            }
-        }
-
-        return resultMap
-    }
-
-    fun setPredictionDataForParam(
-        param: String,
-        results: List<PredictionQueryDto>
-    ) {
-        param.let {
-            val data = findGraphDataForPredictionWhenClosed()
-            results.forEach { dtoImpl ->
-                val tickerId = dtoImpl.tickerId
-                data[tickerId]?.let {
-                    val graphData = PredictionListGraphDataQueryDto(false, it)
-                    dtoImpl.graphData = graphData
-                }
-            }
-        }
-    }
-
-
-    /**
-     * key: tickerId, value: List<BigDecimal>
-     */
-    private fun findGraphDataForPredictionWhenClosed(): Map<UUID, List<BigDecimal>> {
-        val startDate = LocalDate.now().minusDays(15)
-
-        val result = TickerPriceTable.select(
-            TickerPriceTable.tickerId,
-            TickerPriceTable.close
-        ).where { TickerPriceTable.priceDate.date() greaterEq startDate }
-            .orderBy(TickerPriceTable.priceDate, SortOrder.ASC)
-
-        return result.groupBy(
-            keySelector = { row ->
-                row[TickerPriceTable.tickerId]
-            },
-            valueTransform = { row ->
-                row[TickerPriceTable.close]
-            }
-        )
-    }
 
     fun findYesterdayVolatilities(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
         if (tickerIds.isEmpty()) return emptyMap()

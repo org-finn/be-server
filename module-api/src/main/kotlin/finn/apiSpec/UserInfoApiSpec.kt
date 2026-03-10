@@ -37,7 +37,7 @@ interface UserInfoApiSpec {
             ),
         ]
     )
-    @PostMapping("/nickname/validation")
+    @GetMapping("/nickname/validation")
     fun checkNicknameValidation(
         @RequestParam("nickname", required = true) nickname: String
     ): SuccessResponse<NicknameValidationResponse>

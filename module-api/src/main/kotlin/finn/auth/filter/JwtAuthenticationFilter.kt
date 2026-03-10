@@ -18,23 +18,29 @@ class JwtAuthenticationFilter(
 ) : Filter {
     // 인증 없이 통과시킬 URL 패턴 (whitelist)
     private val whiteList = arrayOf(
-//        "/api/v1/login/*",
-//        "/api/v1/reIssue",
-//        "/swagger-ui/*",
-//        "/v3/api-docs/*",
-//        "/api/v1/prediction/*",
-//        "/api/v1/article-summary/*",
-//        "/api/v1/price/*",
-//        "/api/v1/article/*",
-//        "/api/v1/search-preview/*",
-//        "/api/v1/market-status/*",
-//        "/api/v1/exchange-rate/*",
-        "/api/v1/*"
+        "/api/v1/login/**",              // 소셜 로그인 관련
+        "/api/v1/reIssue",               // 토큰 재발급
+        "/swagger-ui/**",                // API 문서
+        "/v3/api-docs/**",               // API 문서
+        "/api/v1/prediction/**",         // 종목 예측 관련 (전체 허용)
+        "/api/v1/article-summary/**",    // 뉴스 요약 관련 (전체 허용)
+        "/api/v1/article",
+        "/api/v1/article/**",            // 아티클 조회 및 티커 리스트 (전체 허용)
+        "/api/v1/search-preview/**",      // 종목 검색 자동완성
+        "/api/v1/market-status/**",       // 금일 장 정보
+        "/api/v1/exchange-rate/**",       // 실시간 환율
+        "/api/v1/join/**",                // 회원 가입 시 필요한 종목 리스트 (추가됨)
+        "/api/v1/price/ticker/*/graph"   // 과거 주가 그래프만 허용 (real-time 경로는 제외 처리)
     )
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val httpRequest = request as HttpServletRequest
         val requestUri = httpRequest.requestURI
+
+        if ("OPTIONS" == httpRequest.method) {
+            chain.doFilter(request, response)
+            return
+        }
 
         // 1. 토큰 추출 시도 (가장 먼저 수행)
         val token = resolveToken(httpRequest)
