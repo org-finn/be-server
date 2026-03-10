@@ -1,6 +1,6 @@
 package finn.orchestrator
 
-import finn.mapper.toDto
+import finn.mapper.GraphDtoMapper.Companion.toDto
 import finn.response.graph.RealTimeTickerPriceHistoryResponse
 import finn.response.graph.TickerGraphResponse
 import finn.service.GraphQueryService

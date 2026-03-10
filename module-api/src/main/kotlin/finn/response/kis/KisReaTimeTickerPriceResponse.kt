@@ -1,6 +1,9 @@
 package finn.response.kis
 
+import finn.response.graph.TickerRealTimeStreamResponse
 import java.math.BigDecimal
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 data class KisReaTimeTickerPriceResponse(
     val rsym: String,      // 0. RSYM: 실시간종목코드 (예: DNASAAPL)
@@ -26,4 +29,23 @@ data class KisReaTimeTickerPriceResponse(
     val tvol: Long,        // 20. TVOL: 거래량 (누적)
     val tamt: BigDecimal,  // 21. TAMT: 거래대금
     val mtyp: String       // 24. MTYP: 시장구분 (중간 건너뜀 주의)
-)
+) {
+    // KST 기준 시간으로 들어온다고 가정하고 파싱
+    fun toStreamResponse(): TickerRealTimeStreamResponse {
+        val formattedTime = try {
+            val parsedTime = LocalTime.parse(this.xhms, DateTimeFormatter.ofPattern("HHmmss"))
+            parsedTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+        } catch (e: Exception) {
+            this.xhms // 파싱 실패 시 원본 문자열 반환
+        }
+
+        return TickerRealTimeStreamResponse(
+            time = formattedTime,
+            open = this.open,
+            high = this.high,
+            low = this.low,
+            close = this.last,
+            volume = this.evol
+        )
+    }
+}
