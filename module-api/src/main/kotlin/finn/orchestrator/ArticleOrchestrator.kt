@@ -1,12 +1,8 @@
 package finn.orchestrator
 
-import finn.entity.command.ArticleC
-import finn.entity.command.ArticleInsight
 import finn.mapper.ArticleDtoMapper.Companion.toDto
 import finn.mapper.TickerDtoMapper.Companion.toDto
 import finn.paging.ArticlePageRequest
-import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle
-import finn.request.lambda.LambdaArticleRealTimeRequest.LambdaArticle.ArticleRealTimeInsightRequest
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
@@ -23,8 +19,8 @@ class ArticleOrchestrator(
     private val tickerQueryService: TickerQueryService
 ) {
 
-    fun getRecentArticleList(pageRequest: ArticlePageRequest): ArticleListResponse {
-        val articleList = articleQueryService.getArticleDataList(pageRequest)
+    fun getRecentArticleList(userId: UUID?, pageRequest: ArticlePageRequest): ArticleListResponse {
+        val articleList = articleQueryService.getArticleDataList(userId, pageRequest)
         return toDto(articleList)
     }
 
@@ -33,31 +29,8 @@ class ArticleOrchestrator(
         return toDto(tickerList)
     }
 
-    fun getArticle(articleId: UUID): ArticleDetailResponse {
-        val article = articleQueryService.getArticle(articleId)
+    fun getArticle(userId: UUID?, articleId: UUID): ArticleDetailResponse {
+        val article = articleQueryService.getArticle(userId, articleId)
         return toDto(article)
-    }
-
-    private fun createArticle(article: LambdaArticle): ArticleC {
-        return ArticleC.create(
-            article.title,
-            article.description,
-            article.thumbnailUrl,
-            article.articleUrl,
-            article.publishedDate.toLocalDateTime(),
-            article.author,
-            article.distinctId,
-            article.tickers,
-        )
-    }
-
-    private fun createArticleInsights(insights: List<ArticleRealTimeInsightRequest>): List<ArticleInsight> {
-        return insights.map {
-            ArticleInsight(
-                it.tickerCode,
-                it.sentiment,
-                it.reasoning
-            )
-        }.toList()
     }
 }

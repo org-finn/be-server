@@ -1,10 +1,10 @@
 package finn.policy
 
-import finn.entity.query.ArticleQ
 import finn.paging.PageResponse
+import finn.queryDto.ArticleDataQueryDto
 
 
-fun applyPageLimitPolicyForArticle(pageResponse: PageResponse<ArticleQ>): PageResponse<ArticleQ> {
+fun applyPageLimitPolicyForArticle(pageResponse: PageResponse<ArticleDataQueryDto>): PageResponse<ArticleDataQueryDto> {
     val finalHasNext = if (pageResponse.page < 9) {
         pageResponse.hasNext
     } else {

@@ -16,5 +16,6 @@ data class ArticleListResponse(
         val contentUrl: String,
         val publishedDate: String,
         val source: String,
+        val isFavorite: Boolean?,
     )
 }

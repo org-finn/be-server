@@ -1,5 +1,6 @@
 package finn.apiSpec
 
+import finn.auth.OptionalAuth
 import finn.auth.UserId
 import finn.paging.PredictionPageRequest
 import finn.response.ErrorResponse
@@ -54,7 +55,9 @@ interface PredictionApiSpec {
         )]
     )
     @GetMapping("/ticker/{tickerId}")
+    @OptionalAuth
     fun getTickerPredictionDetail(
+        @UserId userId: UUID?,
         @Parameter(
             description = "종목 ID (UUID)",
             required = true,

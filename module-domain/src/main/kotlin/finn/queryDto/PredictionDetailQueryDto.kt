@@ -19,5 +19,6 @@ data class PredictionDetailQueryDto(
     val close: BigDecimal,
     val high: BigDecimal,
     val low: BigDecimal,
-    val volume: Long
+    val volume: Long,
+    val isFavorite: Boolean?,
 )

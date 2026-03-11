@@ -137,8 +137,8 @@ class PredictionRepositoryImpl(
         return userInfoExposedRepository.existFavorite(userId, tickerCodes)
     }
 
-    override fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
-        return predictionExposedRepository.findPredictionWithPriceInfoById(tickerId)
+    override fun getPredictionDetail(userId: UUID?, tickerId: UUID): PredictionDetailQueryDto {
+        return predictionExposedRepository.findPredictionWithPriceInfoById(userId, tickerId)
     }
 
     override suspend fun getRecentSentimentScoreList(tickerId: UUID): List<Int> {

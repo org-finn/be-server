@@ -56,8 +56,8 @@ class PredictionOrchestrator(
         return toDto(predictionList)
     }
 
-    fun getPredictionDetail(tickerId: UUID): PredictionDetailResponse {
-        val predictionDetail = predictionQueryService.getPredictionDetail(tickerId)
+    fun getPredictionDetail(userId: UUID?, tickerId: UUID): PredictionDetailResponse {
+        val predictionDetail = predictionQueryService.getPredictionDetail(userId, tickerId)
         val articleList = articleQueryService.getArticleDataForPredictionDetail(tickerId)
         return toDto(predictionDetail, articleList)
     }
