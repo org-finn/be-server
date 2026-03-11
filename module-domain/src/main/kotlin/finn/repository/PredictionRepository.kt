@@ -42,7 +42,7 @@ interface PredictionRepository {
         userId: UUID?
     ): PageResponse<PredictionQueryDto>
 
-    fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto
+    fun getPredictionDetail(userId: UUID?, tickerId: UUID): PredictionDetailQueryDto
 
     suspend fun getRecentSentimentScoreList(tickerId: UUID): List<Int>
 

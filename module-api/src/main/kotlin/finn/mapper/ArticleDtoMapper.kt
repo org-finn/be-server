@@ -1,8 +1,8 @@
 package finn.mapper
 
 import finn.converter.getAbstractDateBefore
-import finn.entity.query.ArticleQ
 import finn.paging.PageResponse
+import finn.queryDto.ArticleDataQueryDto
 import finn.queryDto.ArticleDetailQueryDto
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
@@ -10,12 +10,12 @@ import java.time.format.DateTimeFormatter
 
 class ArticleDtoMapper {
     companion object {
-        fun toDto(articleData: PageResponse<ArticleQ>): ArticleListResponse {
+        fun toDto(articleData: PageResponse<ArticleDataQueryDto>): ArticleListResponse {
             val ArticleList = articleData.content.map {
                 ArticleListResponse.ArticleDataResponse(
                     it.id, it.title, it.description,
                     it.tickers, it.thumbnailUrl, it.contentUrl,
-                    getAbstractDateBefore(it.publishedDate), it.source
+                    getAbstractDateBefore(it.publishedDate), it.source, it.isFavorite
                 )
             }.toList()
             return ArticleListResponse(ArticleList, articleData.page, articleData.hasNext)
@@ -38,7 +38,8 @@ class ArticleDtoMapper {
                 articleDetailData.publishedDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                     .replace('T', ' '),
                 articleDetailData.source,
-                tickers
+                tickers,
+                articleDetailData.isFavorite
             )
         }
     }

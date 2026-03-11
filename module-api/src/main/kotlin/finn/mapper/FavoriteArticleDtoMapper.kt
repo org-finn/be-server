@@ -20,7 +20,8 @@ class FavoriteArticleDtoMapper {
                         it.thumbnailUrl,
                         it.contentUrl,
                         it.publishedDate.toString(),
-                        it.source
+                        it.source,
+                        true
                     )
                 }.toList()
             )

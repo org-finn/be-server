@@ -10,7 +10,8 @@ data class ArticleDetailResponse(
     val contentUrl: String,
     val publishedDate: String,
     val source: String,
-    val tickers: List<ArticleDetailTickerResponse>?
+    val tickers: List<ArticleDetailTickerResponse>?,
+    val isFavorite: Boolean?,
 ) {
     data class ArticleDetailTickerResponse(
         val shortCompanyName: String,

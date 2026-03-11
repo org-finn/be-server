@@ -39,8 +39,8 @@ class PredictionQueryService(
         )
     }
 
-    fun getPredictionDetail(tickerId: UUID): PredictionDetailQueryDto {
-        return predictionRepository.getPredictionDetail(tickerId)
+    fun getPredictionDetail(userId: UUID?, tickerId: UUID): PredictionDetailQueryDto {
+        return predictionRepository.getPredictionDetail(userId, tickerId)
     }
 
     suspend fun getRecentSentimentScores(tickerId: UUID): List<Int> {

@@ -12,7 +12,8 @@ data class PredictionDetailResponse(
     val sentiment: Int,
     val articleCount: Long,
     val sentimentScore: Int,
-    val detailData: PredictionDetailDataResponse
+    val detailData: PredictionDetailDataResponse,
+    val isFavorite: Boolean?,
 ) {
     data class PredictionDetailDataResponse(
         val priceDate: String,
@@ -21,9 +22,9 @@ data class PredictionDetailResponse(
         val high: BigDecimal,
         val low: BigDecimal,
         val volume: Long,
-        val article: List<ArticleDataResponse>
+        val article: List<PredictionArticleDataResponse>
     ) {
-        data class ArticleDataResponse(
+        data class PredictionArticleDataResponse(
             val articleId: UUID,
             val headline: String,
             val sentiment: String? = null,

@@ -11,5 +11,6 @@ data class ArticleDetailQueryDto(
     val contentUrl: String,
     val publishedDate: ZonedDateTime,
     val source: String,
-    val tickers: List<ArticleDetailTickerQueryDto>?
+    val tickers: List<ArticleDetailTickerQueryDto>?,
+    val isFavorite: Boolean?,
 )

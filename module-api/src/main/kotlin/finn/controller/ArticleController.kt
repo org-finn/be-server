@@ -16,9 +16,10 @@ class ArticleController(
 ) : ArticleApiSpec {
 
     override fun getArticleList(
+        userId: UUID?,
         pageRequest: ArticlePageRequest
     ): SuccessResponse<ArticleListResponse> {
-        val response = articleOrchestrator.getRecentArticleList(pageRequest)
+        val response = articleOrchestrator.getRecentArticleList(userId, pageRequest)
         return SuccessResponse("200 OK", "뉴스 목록을 성공적으로 조회하였습니다.", response)
     }
 
@@ -27,8 +28,11 @@ class ArticleController(
         return SuccessResponse("200 OK", "티커 목록을 성공적으로 조회하였습니다.", response)
     }
 
-    override fun getArticle(articleId: UUID): SuccessResponse<ArticleDetailResponse> {
-        val response = articleOrchestrator.getArticle(articleId)
+    override fun getArticle(
+        userId: UUID?,
+        articleId: UUID
+    ): SuccessResponse<ArticleDetailResponse> {
+        val response = articleOrchestrator.getArticle(userId, articleId)
         return SuccessResponse("200 OK", "아티클 상세 정보를 성공적으로 조회하였습니다.", response)
     }
 }
