@@ -1,18 +1,17 @@
 package finn.repository.exposed
 
-import finn.entity.ArticleExposed
 import finn.exception.NotFoundDataException
 import finn.paging.PageResponse
 import finn.queryDto.ArticleDataQueryDto
 import finn.queryDto.ArticleDetailQueryDto
 import finn.queryDto.ArticleDetailTickerQueryDto
+import finn.queryDto.PredictionArticleDataQueryDto
 import finn.table.ArticleTable
 import finn.table.ArticleTickerTable
+import finn.table.UserArticleTable
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
 import java.time.ZoneId
 import java.util.*
@@ -23,7 +22,7 @@ class ArticleExposedRepository {
         private val log = KotlinLogging.logger {}
     }
 
-    fun findArticleListByTickerId(tickerId: UUID): List<ArticleDataQueryDto> {
+    fun findArticleListByTickerId(tickerId: UUID): List<PredictionArticleDataQueryDto> {
         return ArticleTickerTable.select(
             ArticleTickerTable.articleId,
             ArticleTickerTable.tickerId,
@@ -36,7 +35,7 @@ class ArticleExposedRepository {
             .orderBy(ArticleTickerTable.publishedDate, SortOrder.DESC)
             .limit(3)
             .map { row ->
-                ArticleDataQueryDto(
+                PredictionArticleDataQueryDto(
                     articleId = row[ArticleTickerTable.articleId],
                     tickerId = row[ArticleTickerTable.tickerId],
                     headline = row[ArticleTickerTable.titleKr] ?: row[ArticleTickerTable.title],
@@ -48,57 +47,85 @@ class ArticleExposedRepository {
     }
 
     fun findAllArticleList(
+        userId: UUID?,
         tickerCodes: List<String>?,
         sentiment: String?,
         page: Int,
         size: Int
-    ): PageResponse<ArticleExposed> {
-        // 1. 서브쿼리 정의: ArticleTickerTable에서 'articleId' 컬럼만 선택
-        // 조건이 없다면 null 처리하여 쿼리를 아예 실행하지 않도록 함
-        val subQuery = if (tickerCodes != null || sentiment != null) {
-            var query = ArticleTickerTable.select(ArticleTickerTable.articleId)
+    ): PageResponse<ArticleDataQueryDto> {
 
-            if (tickerCodes != null) {
-                query = query.andWhere { ArticleTickerTable.tickerCode inList tickerCodes }
+        // 1. Join 테이블 구성: userId가 있으면 북마크 여부 조회를 위해 UserArticleTable과 Left Join
+        val targetTable = if (userId != null) {
+            Join(
+                table = ArticleTable,
+                otherTable = UserArticleTable,
+                joinType = JoinType.LEFT,
+                onColumn = ArticleTable.id,
+                otherColumn = UserArticleTable.articleId,
+                additionalConstraint = { UserArticleTable.userId eq userId }
+            )
+        } else {
+            ArticleTable
+        }
+
+        val query = targetTable.selectAll()
+
+        // 2. 필터 조건 적용: EXISTS 서브쿼리 활용 (애플리케이션 메모리에 UUID를 올리지 않고 DB 단에서 처리)
+        if (!tickerCodes.isNullOrEmpty() || sentiment != null) {
+            val subQuery =
+                ArticleTickerTable.selectAll()
+                    .where { ArticleTickerTable.articleId eq ArticleTable.id }
+
+            if (!tickerCodes.isNullOrEmpty()) {
+                subQuery.andWhere { ArticleTickerTable.tickerCode inList tickerCodes }
             }
 
             if (sentiment != null) {
-                query = query.andWhere { ArticleTickerTable.sentiment eq sentiment }
+                subQuery.andWhere { ArticleTickerTable.sentiment eq sentiment }
             }
 
-            query.map { row -> row[ArticleTickerTable.articleId] }
-                .toList()
-        } else {
-            null
+            query.andWhere { exists(subQuery) }
         }
 
-        val mainQuery = ArticleTable.selectAll()
-
-        if (subQuery != null) {
-            mainQuery.andWhere { ArticleTable.id inList subQuery }
-        }
-
+        // 3. 페이징 설정
         val limit = size
         val offset = (page * limit).toLong()
-        val itemsToFetch = limit + 1
+        val itemsToFetch = limit + 1 // 다음 페이지 존재 여부 파악을 위해 1개 더 조회
 
-        val results = mainQuery
+        // 4. 쿼리 실행 및 DTO 직접 매핑 (DAO 래핑 생략으로 성능 최적화)
+        val results = query
             .orderBy(
                 ArticleTable.publishedDate to SortOrder.DESC,
                 ArticleTable.distinctId to SortOrder.ASC
             )
             .limit(itemsToFetch, offset)
-            .map { ArticleExposed.wrapRow(it) }
+            .map { row ->
+                // userId가 넘겨졌고, Left Join 결과 UserArticleTable의 id가 null이 아니라면 북마크 한 것으로 간주
+                val isFavorite = userId?.let { row.getOrNull(UserArticleTable.id) != null }
 
+                ArticleDataQueryDto.create(
+                    id = row[ArticleTable.id].value,
+                    title = row[ArticleTable.title],
+                    description = row[ArticleTable.description],
+                    thumbnailUrl = row[ArticleTable.thumbnailUrl],
+                    contentUrl = row[ArticleTable.articleUrl],
+                    // Exposed의 timestamp는 Instant를 반환하므로 시스템 요구사항(KST)에 맞춰 ZonedDateTime으로 변환
+                    publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")),
+                    source = row[ArticleTable.author],
+                    tickers = row[ArticleTable.tickers],
+                    isFavorite = isFavorite
+                )
+            }
+
+        // 5. PageResponse 구성
         val hasNext = results.size > limit
         val content = if (hasNext) results.dropLast(1) else results
 
-        // PageResponse 반환
         return PageResponse(content, page, size, hasNext)
     }
 
 
-    fun findArticleDetailById(articleId: UUID): ArticleDetailQueryDto {
+    fun findArticleDetailById(userId: UUID?, articleId: UUID): ArticleDetailQueryDto {
         val article = ArticleTable.selectAll()
             .where { ArticleTable.id eq articleId }
             .firstOrNull()
@@ -119,6 +146,14 @@ class ArticleExposedRepository {
                 )
             }.toList()
 
+        var isFavorite = false
+        if (userId != null) {
+            isFavorite = !UserArticleTable.select(UserArticleTable.userId)
+                .where { (UserArticleTable.userId eq userId) and (UserArticleTable.articleId eq articleId) }
+                .limit(1).empty()
+
+        }
+
         return article?.let { row ->
             ArticleDetailQueryDto(
                 articleId = row[ArticleTable.id].value,
@@ -128,7 +163,8 @@ class ArticleExposedRepository {
                 contentUrl = row[ArticleTable.articleUrl],
                 publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")), // KST 기준 적용
                 source = row[ArticleTable.author],
-                tickers = tickers
+                tickers = tickers,
+                isFavorite = isFavorite
             )
         } ?: throw NotFoundDataException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
     }

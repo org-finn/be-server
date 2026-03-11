@@ -1,5 +1,7 @@
 package finn.apiSpec
 
+import finn.auth.OptionalAuth
+import finn.auth.UserId
 import finn.paging.ArticlePageRequest
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
@@ -36,7 +38,9 @@ interface ArticleApiSpec {
         )]
     )
     @GetMapping
+    @OptionalAuth
     fun getArticleList(
+        @UserId userId: UUID?,
         @ParameterObject pageRequest: ArticlePageRequest
     ): SuccessResponse<ArticleListResponse>
 
@@ -67,7 +71,9 @@ interface ArticleApiSpec {
         )]
     )
     @GetMapping("/{articleId}")
+    @OptionalAuth
     fun getArticle(
+        @UserId userId: UUID?,
         @Parameter(
             description = "아티클 ID (UUID)",
             required = true,

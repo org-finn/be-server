@@ -1,7 +1,7 @@
 package finn.mapper
 
 import finn.paging.PageResponse
-import finn.queryDto.ArticleDataQueryDto
+import finn.queryDto.PredictionArticleDataQueryDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.response.prediciton.PredictionDetailResponse
@@ -46,10 +46,10 @@ fun toDto(predictionList: PageResponse<PredictionQueryDto>): PredictionListRespo
 
 fun toDto(
     predictionDetail: PredictionDetailQueryDto,
-    ArticleDataList: List<ArticleDataQueryDto>
+    ArticleDataList: List<PredictionArticleDataQueryDto>
 ): PredictionDetailResponse {
     val Article = ArticleDataList.map { it ->
-        PredictionDetailResponse.PredictionDetailDataResponse.ArticleDataResponse(
+        PredictionDetailResponse.PredictionDetailDataResponse.PredictionArticleDataResponse(
             it.articleId,
             it.headline,
             it.sentiment,
@@ -75,6 +75,7 @@ fun toDto(
         sentiment = predictionDetail.sentiment,
         articleCount = predictionDetail.articleCount,
         sentimentScore = predictionDetail.sentimentScore,
-        detailData = predictionDetailData
+        detailData = predictionDetailData,
+        isFavorite = predictionDetail.isFavorite,
     )
 }

@@ -1,11 +1,11 @@
 package finn.service
 
-import finn.entity.query.ArticleQ
 import finn.paging.ArticlePageRequest
 import finn.paging.PageResponse
 import finn.policy.applyPageLimitPolicyForArticle
 import finn.queryDto.ArticleDataQueryDto
 import finn.queryDto.ArticleDetailQueryDto
+import finn.queryDto.PredictionArticleDataQueryDto
 import finn.repository.ArticleRepository
 import org.springframework.stereotype.Service
 import java.util.*
@@ -13,12 +13,16 @@ import java.util.*
 @Service
 class ArticleQueryService(private val articleRepository: ArticleRepository) {
 
-    fun getArticleDataForPredictionDetail(tickerId: UUID): List<ArticleDataQueryDto> {
+    fun getArticleDataForPredictionDetail(tickerId: UUID): List<PredictionArticleDataQueryDto> {
         return articleRepository.getArticleDataForPredictionDetail(tickerId)
     }
 
-    fun getArticleDataList(pageRequest: ArticlePageRequest): PageResponse<ArticleQ> {
+    fun getArticleDataList(
+        userId: UUID?,
+        pageRequest: ArticlePageRequest
+    ): PageResponse<ArticleDataQueryDto> {
         val pageResponse = articleRepository.getArticleList(
+            userId,
             pageRequest.page,
             pageRequest.size,
             pageRequest.tickerCode,
@@ -29,7 +33,7 @@ class ArticleQueryService(private val articleRepository: ArticleRepository) {
         return applyPageLimitPolicyForArticle(pageResponse)
     }
 
-    fun getArticle(articleId: UUID): ArticleDetailQueryDto {
-        return articleRepository.getArticle(articleId)
+    fun getArticle(userId: UUID?, articleId: UUID): ArticleDetailQueryDto {
+        return articleRepository.getArticle(userId, articleId)
     }
 }

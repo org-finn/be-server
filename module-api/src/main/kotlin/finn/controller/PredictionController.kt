@@ -24,8 +24,11 @@ class PredictionController(
         return SuccessResponse("200 OK", "종목 예측 목록을 성공적으로 조회하였습니다.", response)
     }
 
-    override fun getTickerPredictionDetail(tickerId: UUID): SuccessResponse<PredictionDetailResponse> {
-        val response = predictionOrchestrator.getPredictionDetail(tickerId)
+    override fun getTickerPredictionDetail(
+        userId: UUID?,
+        tickerId: UUID
+    ): SuccessResponse<PredictionDetailResponse> {
+        val response = predictionOrchestrator.getPredictionDetail(userId, tickerId)
         return SuccessResponse("200 OK", "종목 예측 상세 정보를 성공적으로 조회하였습니다.", response)
     }
 }

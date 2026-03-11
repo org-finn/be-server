@@ -225,6 +225,7 @@ internal class ArticleRepositoryImplTest(
         When("filter가 'all'이고 size가 3일 때") {
             val result = transaction {
                 articleRepository.getArticleList(
+                    userId = null,
                     page = 0,
                     size = 3,
                     tickerCodes = null,
@@ -242,6 +243,7 @@ internal class ArticleRepositoryImplTest(
         When("tickerCodes로 필터링하면") {
             val result = transaction {
                 articleRepository.getArticleList(
+                    userId = null,
                     page = 0,
                     size = 10,
                     tickerCodes = listOf(ticker.code),
@@ -258,6 +260,7 @@ internal class ArticleRepositoryImplTest(
         When("sentiment가 'positive'로 필터링하면") {
             val result = transaction {
                 articleRepository.getArticleList(
+                    userId = null,
                     page = 0,
                     size = 10,
                     tickerCodes = null,
@@ -275,6 +278,7 @@ internal class ArticleRepositoryImplTest(
         When("tickerCodes와 sentiment 모두로 필터링하면") {
             val result = transaction {
                 articleRepository.getArticleList(
+                    userId = null,
                     page = 0,
                     size = 10,
                     tickerCodes = listOf(ticker.code),
@@ -293,6 +297,7 @@ internal class ArticleRepositoryImplTest(
         When("존재하지 않는 tickerCode로 필터링하면") {
             val result = transaction {
                 articleRepository.getArticleList(
+                    userId = null,
                     page = 0,
                     size = 10,
                     tickerCodes = listOf("NOT_EXISTED_CODE"),
@@ -308,6 +313,7 @@ internal class ArticleRepositoryImplTest(
         When("article:article_ticker를 1:2로 innerJoin할때") {
             val result = transaction {
                 articleRepository.getArticleList(
+                    userId = null,
                     page = 0,
                     size = 10,
                     tickerCodes = listOf(ticker2.code, ticker3.code),

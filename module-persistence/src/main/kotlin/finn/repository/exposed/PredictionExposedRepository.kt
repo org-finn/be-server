@@ -13,6 +13,7 @@ import finn.queryDto.PredictionUpdateDto
 import finn.table.PredictionTable
 import finn.table.TickerPriceTable
 import finn.table.TickerTable
+import finn.table.UserInfoTable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -300,7 +301,7 @@ class PredictionExposedRepository(
         )
     }
 
-    fun findPredictionWithPriceInfoById(tickerId: UUID): PredictionDetailQueryDto {
+    fun findPredictionWithPriceInfoById(userId: UUID?, tickerId: UUID): PredictionDetailQueryDto {
         val latestPredictionDate = PredictionTable
             .select(PredictionTable.predictionDate.max())
             .where(PredictionTable.tickerId eq tickerId)
@@ -313,6 +314,26 @@ class PredictionExposedRepository(
             .firstOrNull()
             ?.get(TickerPriceTable.priceDate.max())?.toLocalDate()
             ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+
+        var isFavorite = false
+        if (userId != null) {
+            val tickerCodes = UserInfoTable.select(UserInfoTable.favoriteTickers)
+                .where { UserInfoTable.id eq userId }
+                .map { it[UserInfoTable.favoriteTickers] }
+                .singleOrNull()?.split(",")
+
+            if (tickerCodes != null) {
+                val tickerIds = TickerTable.select(TickerTable.id)
+                    .where { TickerTable.code inList tickerCodes }
+                    .map { it[TickerTable.id].value }
+                    .toList()
+
+                if (tickerIds.contains(tickerId)) {
+                    isFavorite = true
+                }
+            }
+
+        }
 
         return PredictionTable
             .join(
@@ -365,7 +386,8 @@ class PredictionExposedRepository(
                     close = row[TickerPriceTable.close],
                     high = row[TickerPriceTable.high],
                     low = row[TickerPriceTable.low],
-                    volume = row[TickerPriceTable.volume]
+                    volume = row[TickerPriceTable.volume],
+                    isFavorite = isFavorite,
                 )
             }.firstOrNull()
             ?: throw NotFoundDataException("치명적 오류: ${tickerId}에 대한 예측 상세 정보가 존재하지 않습니다.")
