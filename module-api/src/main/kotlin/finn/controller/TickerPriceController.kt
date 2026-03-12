@@ -2,12 +2,12 @@ package finn.controller
 
 import finn.apiSpec.TickerPriceApiSpec
 import finn.exception.InvalidParameterException
-import finn.manager.TickerRealTimeCandleManager
 import finn.orchestrator.TickerPriceOrchestrator
 import finn.response.SuccessResponse
 import finn.response.graph.RealTimeTickerPriceHistoryResponse
 import finn.response.graph.TickerGraphResponse
 import finn.service.TickerPriceSseService
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.util.*
@@ -16,7 +16,6 @@ import java.util.*
 class TickerPriceController(
     private val tickerPriceOrchestrator: TickerPriceOrchestrator,
     private val sseService: TickerPriceSseService,
-    private val candleManager: TickerRealTimeCandleManager
 ) : TickerPriceApiSpec {
 
     override fun getGraphData(
@@ -39,7 +38,13 @@ class TickerPriceController(
         return SuccessResponse("200 OK", "실시간 종목 주가 데이터를 성공적으로 조회하였습니다.", response)
     }
 
-    override fun streamTickerRealTimePrice(tickerId: UUID): SseEmitter {
+    override fun streamTickerRealTimePrice(
+        tickerId: UUID,
+        response: HttpServletResponse
+    ): SseEmitter {
+        response.setHeader("X-Accel-Buffering", "no")
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
+        response.setHeader("Connection", "keep-alive")
         return sseService.subscribe(tickerId)
     }
 

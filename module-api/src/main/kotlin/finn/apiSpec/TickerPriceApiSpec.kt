@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -112,5 +113,8 @@ interface TickerPriceApiSpec {
         value = ["/{tickerId}/real-time/stream"],
         produces = [MediaType.TEXT_EVENT_STREAM_VALUE]
     )
-    fun streamTickerRealTimePrice(@PathVariable tickerId: UUID): SseEmitter
+    fun streamTickerRealTimePrice(
+        @PathVariable tickerId: UUID,
+        response: HttpServletResponse
+    ): SseEmitter
 }
