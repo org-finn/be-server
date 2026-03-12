@@ -20,6 +20,11 @@ class TickerPriceSseService {
 
     private val TIMEOUT = 30 * 60 * 1000L // 30분
 
+    private val lastSentTimeMap = ConcurrentHashMap<UUID, Long>()
+
+    // 프론트엔드로 쏴줄 최소 간격
+    private val THROTTLE_MS = 2 * 1000L // 2초
+
     /**
      * 1. 클라이언트 구독 (Controller에서 호출)
      */
@@ -46,6 +51,18 @@ class TickerPriceSseService {
      */
     fun broadcast(dto: KisReaTimeTickerPriceResponse, tickerId: UUID) {
         val emitters = emitterMap[tickerId.toString()] //tickerId로 구독자 찾기
+
+        // 쓰로틀링 검사: 마지막 전송 이후 지정된 시간이 지났는지 확인
+        val now = System.currentTimeMillis()
+        val lastSent = lastSentTimeMap[tickerId] ?: 0L
+
+        if (now - lastSent < THROTTLE_MS) {
+            // 쓰로틀링 주기가 안 지났다면 emit 하지 않음
+            return
+        }
+
+        // 최근 broadcast 시간 갱신
+        lastSentTimeMap[tickerId] = now
 
         val streamResponse = dto.toStreamResponse() // dto 변환
         emitters?.forEach { emitter ->
