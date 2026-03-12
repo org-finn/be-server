@@ -30,7 +30,8 @@ class JwtAuthenticationFilter(
         "/api/v1/market-status/**",       // 금일 장 정보
         "/api/v1/exchange-rate/**",       // 실시간 환율
         "/api/v1/join/**",                // 회원 가입 시 필요한 종목 리스트 (추가됨)
-        "/api/v1/price/ticker/*/graph"   // 과거 주가 그래프만 허용 (real-time 경로는 제외 처리)
+        "/api/v1/price/ticker/*/graph",   // 과거 주가 그래프만 허용 (real-time 경로는 제외 처리)
+        "/api/admin/**"                   // 관리자 API(별도 키로 인증)
     )
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
