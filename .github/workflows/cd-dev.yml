@@ -106,6 +106,7 @@ jobs:
             KIS_APP_KEY= ${{ secrets.DEV_KIS_APP_KEY }}
             KIS_SECRET_KEY = ${{ secrets.DEV_KIS_SECRET_KEY }}
             TICKER_PRICE_REAL_TIME_TABLE_NAME = ${{secrets.DEV_TICKER_PRICE_REAL_TIME_TABLE_NAME }}
+            ADMIN_SECRET_KEY = ${{ secrets.ADMIN_SECRET_KEY }}
             EOF
             
             # ⭐️ 3. Docker Hub에서 최신 이미지 가져오기

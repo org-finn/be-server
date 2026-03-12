@@ -52,6 +52,10 @@ server:
 dynamodb:
   table:
     ticker-price-real-time: ${TICKER_PRICE_REAL_TIME_TABLE_NAME}
+
+admin:
+    secret-key: ${ADMIN_SECRET_KEY}
+
 ---
 # dev, local
 spring:
