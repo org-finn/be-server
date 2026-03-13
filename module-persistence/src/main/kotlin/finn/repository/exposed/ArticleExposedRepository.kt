@@ -169,5 +169,51 @@ class ArticleExposedRepository {
         } ?: throw NotFoundDataException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
     }
 
+    fun findArticleListByKeyword(keyword: String): List<ArticleDataQueryDto> {
+        val searchResults = mutableListOf<ArticleDataQueryDto>()
+
+        // title에서 찾기
+        searchResults.addAll(
+            ArticleTable.selectAll()
+                .where { (ArticleTable.title like "%$keyword%") or (ArticleTable.titleKr like "%$keyword%") }
+                .limit(30)
+                .map { row ->
+                    ArticleDataQueryDto.create(
+                        id = row[ArticleTable.id].value,
+                        title = row[ArticleTable.titleKr] ?: row[ArticleTable.title],
+                        description = row[ArticleTable.description],
+                        thumbnailUrl = row[ArticleTable.thumbnailUrl],
+                        contentUrl = row[ArticleTable.articleUrl],
+                        publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")),
+                        source = row[ArticleTable.author],
+                        tickers = row[ArticleTable.tickers],
+                        isFavorite = false
+                    )
+                }.toList()
+        )
+
+        // description에서 찾기
+        searchResults.addAll(
+            ArticleTable.selectAll()
+                .where { (ArticleTable.description like "%$keyword%") or (ArticleTable.descriptionKr like "%$keyword%") }
+                .limit(30)
+                .map { row ->
+                    ArticleDataQueryDto.create(
+                        id = row[ArticleTable.id].value,
+                        title = row[ArticleTable.titleKr] ?: row[ArticleTable.title],
+                        description = row[ArticleTable.description],
+                        thumbnailUrl = row[ArticleTable.thumbnailUrl],
+                        contentUrl = row[ArticleTable.articleUrl],
+                        publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")),
+                        source = row[ArticleTable.author],
+                        tickers = row[ArticleTable.tickers],
+                        isFavorite = false
+                    )
+                }.toList()
+        )
+
+        return searchResults
+    }
+
 
 }

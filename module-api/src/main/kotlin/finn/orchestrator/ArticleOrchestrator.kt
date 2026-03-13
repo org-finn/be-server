@@ -5,6 +5,7 @@ import finn.mapper.TickerDtoMapper.Companion.toDto
 import finn.paging.ArticlePageRequest
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
+import finn.response.article.ArticleSearchListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
 import finn.service.ArticleQueryService
 import finn.service.TickerQueryService
@@ -32,5 +33,10 @@ class ArticleOrchestrator(
     fun getArticle(userId: UUID?, articleId: UUID): ArticleDetailResponse {
         val article = articleQueryService.getArticle(userId, articleId)
         return toDto(article)
+    }
+
+    fun searchArticles(keyword: String) : ArticleSearchListResponse {
+        val articleList = articleQueryService.searchArticles(keyword)
+        return toDto(articleList)
     }
 }
