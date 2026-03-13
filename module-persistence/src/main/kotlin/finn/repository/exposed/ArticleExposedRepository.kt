@@ -105,7 +105,7 @@ class ArticleExposedRepository {
 
                 ArticleDataQueryDto.create(
                     id = row[ArticleTable.id].value,
-                    title = row[ArticleTable.title],
+                    title = row[ArticleTable.titleKr] ?: row[ArticleTable.title],
                     description = row[ArticleTable.description],
                     thumbnailUrl = row[ArticleTable.thumbnailUrl],
                     contentUrl = row[ArticleTable.articleUrl],
