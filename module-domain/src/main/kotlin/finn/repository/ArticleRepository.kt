@@ -21,4 +21,6 @@ interface ArticleRepository {
 
     fun getArticle(userId: UUID?, articleId: UUID): ArticleDetailQueryDto
 
+    fun findArticleListByKeyword(keyword: String): List<ArticleDataQueryDto>
+
 }
