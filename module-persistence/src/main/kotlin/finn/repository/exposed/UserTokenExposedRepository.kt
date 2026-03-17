@@ -33,7 +33,7 @@ class UserTokenExposedRepository(
             .count()
 
         // 기존 제한 개수를 초과하는 경우 제일 오래된 만료 시간의 토큰을 제거함
-        if (curCount > REFRESH_TOKEN_MAX_COUNT) {
+        if (curCount >= REFRESH_TOKEN_MAX_COUNT) {
             val oldestTokenId = UserTokenTable.select(UserTokenTable.id)
                 .where { UserTokenTable.userInfoId eq userId }
                 .orderBy(UserTokenTable.createdAt, SortOrder.ASC)
