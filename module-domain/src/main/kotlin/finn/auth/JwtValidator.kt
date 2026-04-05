@@ -39,7 +39,7 @@ class JwtValidator(
                 expiresAt = claims.expiration
             )
         } catch (e: Exception) {
-            log.error { "jwt validation error: ${e.message}" }
+            log.error { "jwt access-token validation error: ${e.message}" }
             throw InvalidTokenException("만료되었거나 유효하지 않은 토큰입니다.")
         }
     }
@@ -54,7 +54,7 @@ class JwtValidator(
                 expiredAt = claims.expiration
             )
         } catch (e: Exception) {
-            log.error { "jwt validation error: ${e.message}" }
+            log.error { "jwt refresh-token validation error: ${e.message}" }
             throw InvalidTokenException("만료되었거나 유효하지 않은 토큰입니다.")
         }
     }
