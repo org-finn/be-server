@@ -28,6 +28,17 @@ class GlobalExceptionHandler() {
         return errorResponse
     }
 
+    @ExceptionHandler(UnAuthorizedException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handle401Ex(e: CommonException): ErrorResponse {
+        printException(e)
+        val responseCode = e.code
+        val message = e.message ?: responseCode.defaultMessage
+        val errorResponse = ErrorResponse(responseCode.code, message)
+
+        return errorResponse
+    }
+
     @ExceptionHandler(NotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handle404Ex(e: CommonException): ErrorResponse {
