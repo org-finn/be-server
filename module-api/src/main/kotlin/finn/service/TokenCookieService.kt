@@ -33,4 +33,15 @@ class TokenCookieService(
             ?.value
             ?: throw InvalidTokenException("리프레쉬 토큰이 누락되었습니다.")
     }
+
+    fun deleteRefreshTokenInCookie(): ResponseCookie {
+        // Max-Age=0의 빈 값을 설정하여 브라우저가 기존 쿠키를 덮어씌우도록 유도
+        return ResponseCookie.from(REFRESH_TOKEN_NAME, "")
+            .httpOnly(true)    // JS에서 접근 불가능 (XSS 방지)
+            .secure(true)      // HTTPS에서만 전송 (운영 환경 필수)
+            .path("/")         // 모든 경로에서 쿠키 전송
+            .maxAge(refreshTokenValidity / 1000) // 초 단위
+            .sameSite("Strict") // CSRF 방지 (상황에 따라 'Lax' or 'None')
+            .build()
+    }
 }
