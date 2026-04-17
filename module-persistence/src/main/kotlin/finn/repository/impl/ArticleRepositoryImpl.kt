@@ -36,4 +36,7 @@ class ArticleRepositoryImpl(
         return articleExposedRepository.findArticleDetailById(userId, articleId)
     }
 
+    override fun findArticleListByKeyword(keyword: String): List<ArticleDataQueryDto> {
+        return articleExposedRepository.findArticleListByKeyword(keyword)
+    }
 }
