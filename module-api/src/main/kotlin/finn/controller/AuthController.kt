@@ -100,7 +100,10 @@ class AuthController(
                 logoutRequest.refreshToken ?: throw InvalidTokenException("리프레쉬 토큰이 누락되었습니다.")
             }
         authOrchestrator.logout(accessToken, refreshToken)
+        val deletedCookie = tokenCookieService.deleteRefreshTokenInCookie()
 
-        return ResponseEntity.ok().body(SuccessResponse("200 Ok", "로그아웃 성공"))
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, deletedCookie.toString())
+            .body(SuccessResponse("200 Ok", "로그아웃 성공"))
     }
 }
