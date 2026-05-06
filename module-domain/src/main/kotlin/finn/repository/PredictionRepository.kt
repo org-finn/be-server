@@ -39,7 +39,8 @@ interface PredictionRepository {
         size: Int,
         sort: String,
         isOpened: Boolean,
-        userId: UUID?
+        userId: UUID?,
+        filter: String? = null
     ): PageResponse<PredictionQueryDto>
 
     fun getPredictionDetail(userId: UUID?, tickerId: UUID): PredictionDetailQueryDto

@@ -35,7 +35,8 @@ class PredictionQueryService(
             pageRequest.size,
             pageRequest.sort,
             isOpened,
-            userId
+            userId,
+            pageRequest.filtering
         )
     }
 

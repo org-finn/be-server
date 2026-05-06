@@ -24,7 +24,7 @@ data class ArticlePageRequest(
     )
     @field:Pattern(
         regexp = "^(positive|negative)$",
-        message = "sentiment 값은 ''positive', 'negative' 중 하나여야 합니다."
+        message = "sentiment 값은 'positive', 'negative' 중 하나여야 합니다."
     )
     val sentiment: String? = null,
     @field:Schema(
@@ -36,5 +36,11 @@ data class ArticlePageRequest(
         regexp = "^(recent)$",
         message = "sort 값은 recent만 허용합니다."
     )
-    val sort: String
+    val sort: String,
+    @field:Schema(
+        description = "필터링 (titleKr prefix 조건, 없으면 title 기준)",
+        required = false,
+        example = "Ap"
+    )
+    val filtering: String? = null
 ) : PageRequest

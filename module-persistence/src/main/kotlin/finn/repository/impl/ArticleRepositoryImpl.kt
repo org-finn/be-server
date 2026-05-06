@@ -23,10 +23,11 @@ class ArticleRepositoryImpl(
         size: Int,
         tickerCodes: List<String>?,
         sentiment: String?,
-        sort: String
+        sort: String,
+        filter: String?
     ): PageResponse<ArticleDataQueryDto> {
         val articleExposedList =
-            articleExposedRepository.findAllArticleList(userId, tickerCodes, sentiment, page, size)
+            articleExposedRepository.findAllArticleList(userId, tickerCodes, sentiment, page, size, filter)
         return PageResponse(
             articleExposedList.content, page, size, articleExposedList.hasNext
         )
@@ -36,7 +37,7 @@ class ArticleRepositoryImpl(
         return articleExposedRepository.findArticleDetailById(userId, articleId)
     }
 
-    override fun findArticleListByKeyword(keyword: String): List<ArticleDataQueryDto> {
-        return articleExposedRepository.findArticleListByKeyword(keyword)
+    override fun findArticleListByKeyword(keyword: String, limit: Int): List<ArticleDataQueryDto> {
+        return articleExposedRepository.findArticleListByKeyword(keyword, limit)
     }
 }

@@ -15,9 +15,10 @@ class TickerQueryService(
     private val tickerSearchFilter: TickerSearchFilter
 ) {
 
-    fun getTickerSearchList(keyword: String): List<TickerQueryDto> {
+    fun getTickerSearchList(keyword: String, limit: Int? = null): List<TickerQueryDto> {
         val tickerList = tickerRepository.findAll()
-        return tickerSearchFilter.filterByKeyword(tickerList, keyword)
+        val filteredList = tickerSearchFilter.filterByKeyword(tickerList, keyword)
+        return if (limit != null) filteredList.take(limit) else filteredList
     }
 
     fun getAllTickerList(): List<TickerQueryDto> {
