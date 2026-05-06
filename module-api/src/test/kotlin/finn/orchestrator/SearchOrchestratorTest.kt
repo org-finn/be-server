@@ -3,6 +3,7 @@ package finn.orchestrator
 import finn.exception.DomainPolicyViolationException
 import finn.mapper.SearchDtoMapper
 import finn.queryDto.TickerQueryDto
+import finn.service.ArticleQueryService
 import finn.service.TickerQueryService
 import finn.validator.checkKeywordValid
 import io.kotest.assertions.throwables.shouldThrow
@@ -17,9 +18,10 @@ import java.util.*
 internal class SearchOrchestratorTest : BehaviorSpec({
     // 1. 의존성 Mocking
     val tickerQueryService = mockk<TickerQueryService>()
+    val articleQueryService = mockk< ArticleQueryService>()
 
     // 테스트 대상 클래스 인스턴스 생성
-    val searchOrchestrator = SearchOrchestrator(tickerQueryService)
+    val searchOrchestrator = SearchOrchestrator(tickerQueryService, articleQueryService)
 
     Given("유효한 검색 키워드가 주어졌을 때") {
         val keyword = "ap"
