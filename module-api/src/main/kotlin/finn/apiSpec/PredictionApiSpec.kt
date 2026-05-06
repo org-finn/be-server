@@ -25,7 +25,7 @@ import java.util.*
 @ResponseStatus(HttpStatus.OK)
 interface PredictionApiSpec {
     @Operation(
-        summary = "정렬된 종목 예측 리스트 조회", description = "정렬 옵션과 페이징을 적용하여 종목 예측 리스트를 조회합니다."
+        summary = "정렬된 종목 예측 리스트 조회", description = "정렬 옵션, 필터링 및 페이징을 적용하여 종목 예측 리스트를 조회합니다."
     )
     @ApiResponses(
         value = [ApiResponse(

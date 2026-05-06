@@ -56,7 +56,7 @@ class PredictionRepositoryImpl(
         sort: String,
         userId: UUID?
     ): PageResponse<PredictionQueryDto> {
-        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
+        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort, null)
         if (userId != null) {
             setFavoriteTicker(
                 userId,
@@ -77,9 +77,10 @@ class PredictionRepositoryImpl(
         size: Int,
         sort: String,
         isOpened: Boolean,
-        userId: UUID?
+        userId: UUID?,
+        filter: String?
     ): PageResponse<PredictionQueryDto> {
-        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
+        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort, filter)
 
         if (!isOpened) {
             setPredictionDataForParam(

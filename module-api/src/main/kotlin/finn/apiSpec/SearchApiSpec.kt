@@ -3,6 +3,7 @@ package finn.apiSpec
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
 import finn.response.search.TickerSearchPreviewListResponse
+import finn.response.search.ArticleSearchListResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -14,16 +15,20 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 
-@Tag(name = "종목 검색 API", description = "종목 검색(자동 완성) 관련 API")
+@Tag(name = "검색 API", description = "검색(자동 완성) 관련 API")
 @RequestMapping("/api/v1")
 interface SearchApiSpec {
+
     @Operation(summary = "종목 검색(자동 완성)", description = "키워드를 기반으로 종목을 검색하여 자동 완성 목록을 제공합니다.")
     @ApiResponses(
-        value = [ApiResponse(responseCode = "200", description = "종목 검색 결과를 성공적으로 조회하였습니다."), ApiResponse(
-            responseCode = "400",
-            description = "키워드는 2글자 이상만 요청할 수 있습니다.",
-            content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-        )]
+        value = [
+            ApiResponse(responseCode = "200", description = "종목 검색 결과를 성공적으로 조회하였습니다."),
+            ApiResponse(
+                responseCode = "400",
+                description = "키워드는 2글자 이상만 요청할 수 있습니다.",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            )
+        ]
     )
     @GetMapping("/search-preview/ticker")
     fun searchStocks(
@@ -33,4 +38,44 @@ interface SearchApiSpec {
             example = "Ap"
         ) @RequestParam keyword: String?
     ): SuccessResponse<TickerSearchPreviewListResponse>
+    
+    @Operation(summary = "통합 검색 - 종목 검색 결과", description = "키워드를 기반으로 종목 검색 결과를 최대 3개까지 제공합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "종목 검색 결과를 성공적으로 조회하였습니다."),
+            ApiResponse(
+                responseCode = "400",
+                description = "키워드는 2글자 이상만 요청할 수 있습니다.",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            )
+        ]
+    )
+    @GetMapping("/search/ticker")
+    fun searchTickerList(
+        @Parameter(
+            description = "검색 키워드 (2글자 이상)",
+            required = true,
+            example = "Ap"
+        ) @RequestParam keyword: String?
+    ): SuccessResponse<TickerSearchPreviewListResponse>
+    
+    @Operation(summary = "통합 검색 - 아티클 검색 결과", description = "키워드를 기반으로 아티클 검색 결과를 최대 3개까지 제공합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "아티클 검색 결과 조회 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = "키워드는 2글자 이상만 요청할 수 있습니다.",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            )
+        ]
+    )
+    @GetMapping("/search/article")
+    fun searchArticleList(
+        @Parameter(
+            description = "검색 키워드 (2글자 이상)",
+            required = true,
+            example = "Ap"
+        ) @RequestParam keyword: String?
+    ): SuccessResponse<ArticleSearchListResponse>
 }

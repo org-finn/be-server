@@ -12,5 +12,11 @@ data class PredictionPageRequest(
         defaultValue = "popular",
         allowableValues = ["popular", "upward", "downward", "volatility"]
     )
-    val sort: String
+    val sort: String,
+    @field:Schema(
+        description = "필터링 (shortCompanyName prefix 조건, 한글일 경우 shortCompanyNameKr 기준)",
+        required = false,
+        example = "Ap"
+    )
+    val filtering: String? = null
 ) : PageRequest

@@ -51,7 +51,8 @@ class ArticleExposedRepository {
         tickerCodes: List<String>?,
         sentiment: String?,
         page: Int,
-        size: Int
+        size: Int,
+        filter: String?
     ): PageResponse<ArticleDataQueryDto> {
 
         // 1. Join 테이블 구성: userId가 있으면 북마크 여부 조회를 위해 UserArticleTable과 Left Join
@@ -85,6 +86,13 @@ class ArticleExposedRepository {
             }
 
             query.andWhere { exists(subQuery) }
+        }
+        
+        // title, titleKr 필터
+        if (!filter.isNullOrBlank()) {
+            query.andWhere {
+                (ArticleTable.titleKr like "%$filter%") or (ArticleTable.title like "%$filter%")
+            }
         }
 
         // 3. 페이징 설정
@@ -169,14 +177,14 @@ class ArticleExposedRepository {
         } ?: throw NotFoundDataException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
     }
 
-    fun findArticleListByKeyword(keyword: String): List<ArticleDataQueryDto> {
+    fun findArticleListByKeyword(keyword: String, limit: Int = 3): List<ArticleDataQueryDto> {
         val searchResults = mutableListOf<ArticleDataQueryDto>()
 
         // title에서 찾기
         searchResults.addAll(
             ArticleTable.selectAll()
                 .where { (ArticleTable.title like "%$keyword%") or (ArticleTable.titleKr like "%$keyword%") }
-                .limit(30)
+                .limit(limit)
                 .map { row ->
                     ArticleDataQueryDto.create(
                         id = row[ArticleTable.id].value,
@@ -191,26 +199,32 @@ class ArticleExposedRepository {
                     )
                 }.toList()
         )
+        
+        // If we already have enough results from titles, we might not need to query descriptions.
+        // Or if we still want to get up to `limit` in total:
+        val remaining = limit - searchResults.size
 
-        // description에서 찾기
-        searchResults.addAll(
-            ArticleTable.selectAll()
-                .where { (ArticleTable.description like "%$keyword%") or (ArticleTable.descriptionKr like "%$keyword%") }
-                .limit(30)
-                .map { row ->
-                    ArticleDataQueryDto.create(
-                        id = row[ArticleTable.id].value,
-                        title = row[ArticleTable.titleKr] ?: row[ArticleTable.title],
-                        description = row[ArticleTable.description],
-                        thumbnailUrl = row[ArticleTable.thumbnailUrl],
-                        contentUrl = row[ArticleTable.articleUrl],
-                        publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")),
-                        source = row[ArticleTable.author],
-                        tickers = row[ArticleTable.tickers],
-                        isFavorite = false
-                    )
-                }.toList()
-        )
+        if (remaining > 0) {
+            // description에서 찾기
+            searchResults.addAll(
+                ArticleTable.selectAll()
+                    .where { (ArticleTable.description like "%$keyword%") or (ArticleTable.descriptionKr like "%$keyword%") }
+                    .limit(remaining)
+                    .map { row ->
+                        ArticleDataQueryDto.create(
+                            id = row[ArticleTable.id].value,
+                            title = row[ArticleTable.titleKr] ?: row[ArticleTable.title],
+                            description = row[ArticleTable.description],
+                            thumbnailUrl = row[ArticleTable.thumbnailUrl],
+                            contentUrl = row[ArticleTable.articleUrl],
+                            publishedDate = row[ArticleTable.publishedDate].atZone(ZoneId.of("Asia/Seoul")),
+                            source = row[ArticleTable.author],
+                            tickers = row[ArticleTable.tickers],
+                            isFavorite = false
+                        )
+                    }.toList()
+            )
+        }
 
         return searchResults
     }
