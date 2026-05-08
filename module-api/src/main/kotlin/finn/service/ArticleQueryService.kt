@@ -27,7 +27,8 @@ class ArticleQueryService(private val articleRepository: ArticleRepository) {
             pageRequest.size,
             pageRequest.tickerCode,
             pageRequest.sentiment,
-            pageRequest.sort
+            pageRequest.sort,
+            pageRequest.filtering
         )
 
         return applyPageLimitPolicyForArticle(pageResponse)
@@ -37,7 +38,7 @@ class ArticleQueryService(private val articleRepository: ArticleRepository) {
         return articleRepository.getArticle(userId, articleId)
     }
 
-    fun searchArticles(keyword: String) : List<ArticleDataQueryDto> {
-        return articleRepository.findArticleListByKeyword(keyword)
+    fun searchArticles(keyword: String, limit: Int = 3) : List<ArticleDataQueryDto> {
+        return articleRepository.findArticleListByKeyword(keyword, limit)
     }
 }

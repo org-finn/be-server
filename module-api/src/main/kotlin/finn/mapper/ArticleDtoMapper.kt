@@ -6,7 +6,7 @@ import finn.queryDto.ArticleDataQueryDto
 import finn.queryDto.ArticleDetailQueryDto
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
-import finn.response.article.ArticleSearchListResponse
+import finn.response.search.ArticleSearchListResponse
 import java.time.format.DateTimeFormatter
 
 class ArticleDtoMapper {

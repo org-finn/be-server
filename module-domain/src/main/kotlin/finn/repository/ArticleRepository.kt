@@ -16,11 +16,12 @@ interface ArticleRepository {
         size: Int,
         tickerCodes: List<String>?,
         sentiment: String?,
-        sort: String
+        sort: String,
+        filter: String? = null
     ): PageResponse<ArticleDataQueryDto>
 
     fun getArticle(userId: UUID?, articleId: UUID): ArticleDetailQueryDto
 
-    fun findArticleListByKeyword(keyword: String): List<ArticleDataQueryDto>
+    fun findArticleListByKeyword(keyword: String, limit: Int = 3): List<ArticleDataQueryDto>
 
 }

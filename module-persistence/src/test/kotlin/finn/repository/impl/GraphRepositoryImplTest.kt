@@ -190,6 +190,7 @@ internal class GraphRepositoryImplTest(
                     it[volatility] = BigDecimal.ZERO
                     it[tickerCode] = ""
                     it[shortCompanyName] = ""
+                    it[shortCompanyNameKr] = ""
                     it[createdAt] = LocalDateTime.now()
                 }
                 graphRepository.getTickerGraph(

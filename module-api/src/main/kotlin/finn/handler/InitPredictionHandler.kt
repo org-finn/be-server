@@ -91,6 +91,7 @@ class InitPredictionHandler(
                         tickerId = tickerId,
                         tickerCode = task.payload.tickerCode,
                         shortCompanyName = task.payload.shortCompanyName,
+                        shortCompanyNameKr = task.payload.shortCompanyNameKr,
                         score = score,
                         volatility = volatility,
                         predictionDate = task.payload.predictionDate.toLocalDateTime(),

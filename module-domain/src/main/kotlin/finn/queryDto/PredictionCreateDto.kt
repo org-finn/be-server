@@ -9,6 +9,7 @@ data class PredictionCreateDto(
     val tickerId: UUID,
     val tickerCode: String,
     val shortCompanyName: String,
+    val shortCompanyNameKr: String,
     val score: Int,
     val volatility: BigDecimal,
     val predictionDate: LocalDateTime,

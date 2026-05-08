@@ -26,7 +26,8 @@ class JwtAuthenticationFilter(
         "/api/v1/article-summary/**",    // 뉴스 요약 관련 (전체 허용)
         "/api/v1/article",
         "/api/v1/article/**",            // 아티클 조회 및 티커 리스트 (전체 허용)
-        "/api/v1/search-preview/**",      // 종목 검색 자동완성
+        "/api/v1/search-preview",        // 통합 검색 자동완성
+        "/api/v1/search/**",             // 검색 결과
         "/api/v1/market-status/**",       // 금일 장 정보
         "/api/v1/exchange-rate/**",       // 실시간 환율
         "/api/v1/join/**",                // 회원 가입 시 필요한 종목 리스트 (추가됨)

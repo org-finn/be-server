@@ -27,7 +27,6 @@ import java.sql.PreparedStatement
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 
 @Repository
@@ -38,38 +37,13 @@ class PredictionExposedRepository(
         private val log = KotlinLogging.logger {}
     }
 
-    suspend fun save(
-        tickerId: UUID,
-        tickerCode: String,
-        shortCompanyName: String,
-        sentiment: Int,
-        strategy: String,
-        score: Int,
-        volatility: BigDecimal,
-        predictionDate: LocalDateTime
-    ): PredictionExposed {
-        return PredictionExposed.new {
-            this.predictionDate = predictionDate
-            this.positiveArticleCount = 0L
-            this.negativeArticleCount = 0L
-            this.neutralArticleCount = 0L
-            this.sentiment = sentiment
-            this.strategy = strategy
-            this.score = score
-            this.volatility = volatility
-            this.tickerCode = tickerCode
-            this.shortCompanyName = shortCompanyName
-            this.tickerId = tickerId
-            this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
-        }
-    }
-
     fun batchInsertPredictions(predictions: List<PredictionCreateDto>) {
         PredictionTable.batchInsert(predictions) { dto ->
             this[PredictionTable.tickerId] = dto.tickerId
             this[PredictionTable.predictionDate] = dto.predictionDate
             this[PredictionTable.tickerCode] = dto.tickerCode
             this[PredictionTable.shortCompanyName] = dto.shortCompanyName
+            this[PredictionTable.shortCompanyNameKr] = dto.shortCompanyNameKr
             this[PredictionTable.score] = dto.score
             this[PredictionTable.volatility] = dto.volatility
             this[PredictionTable.positiveArticleCount] = dto.positiveCount
@@ -84,30 +58,35 @@ class PredictionExposedRepository(
     fun findAllPrediction(
         page: Int,
         size: Int,
-        sort: String
+        sort: String,
+        filter: String?
     ): PageResponse<PredictionQueryDto> {
 
         val predictionExposedList = when (sort) {
             "popular" -> findAllPredictionByPopular(
                 page,
-                size
+                size,
+                filter
             )
 
             "upward" -> findAllPredictionBySentimentScore(
                 page,
                 size,
-                false
+                false,
+                filter
             )
 
             "downward" -> findAllPredictionBySentimentScore(
                 page,
                 size,
-                true
+                true,
+                filter
             )
 
             "volatility" -> findAllPredictionByVolatility(
                 page,
-                size
+                size,
+                filter
             )
 
             else -> throw CriticalDataPollutedException("Sort: $sort, 지원하지 않는 옵션입니다.")
@@ -119,6 +98,7 @@ class PredictionExposedRepository(
     private fun findAllPredictionByPopular(
         page: Int,
         size: Int,
+        filter: String?
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -144,9 +124,15 @@ class PredictionExposedRepository(
                 TickerTable.marketCap to SortOrder.DESC,
                 PredictionTable.tickerCode to SortOrder.ASC
             )
-            .limit(n = itemsToFetch, offset = offset)
 
-        val results = query.map { row ->
+        if (!filter.isNullOrBlank()) {
+            query.andWhere {
+
+                PredictionTable.shortCompanyName like "$filter%"
+            }
+        }
+
+        val results = query.limit(n = itemsToFetch, offset = offset).map { row ->
             val articleCount = when (row[PredictionTable.sentiment]) {
                 1 -> row[PredictionTable.positiveArticleCount]
                 -1 -> row[PredictionTable.negativeArticleCount]
@@ -185,6 +171,7 @@ class PredictionExposedRepository(
         page: Int,
         size: Int,
         isDownward: Boolean,
+        filter: String?
     ): PageResponse<PredictionQueryDto> {
 
         val maxDateExpression = PredictionTable.predictionDate.max()
@@ -207,9 +194,14 @@ class PredictionExposedRepository(
                 PredictionTable.score to sortOrder,
                 PredictionTable.tickerCode to SortOrder.ASC
             )
-            .limit(n = itemsToFetch, offset = offset)
 
-        val results = query.map { row ->
+        if (!filter.isNullOrBlank()) {
+            query.andWhere {
+                PredictionTable.shortCompanyName like "$filter%"
+            }
+        }
+
+        val results = query.limit(n = itemsToFetch, offset = offset).map { row ->
             val articleCount = when (row[PredictionTable.sentiment]) {
                 1 -> row[PredictionTable.positiveArticleCount]
                 -1 -> row[PredictionTable.negativeArticleCount]
@@ -246,6 +238,7 @@ class PredictionExposedRepository(
     private fun findAllPredictionByVolatility(
         page: Int,
         size: Int,
+        filter: String?
     ): PageResponse<PredictionQueryDto> {
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
@@ -265,9 +258,14 @@ class PredictionExposedRepository(
                 PredictionTable.volatility to SortOrder.DESC,
                 PredictionTable.tickerCode to SortOrder.ASC
             )
-            .limit(n = itemsToFetch, offset = offset)
 
-        val results = query.map { row ->
+        if (!filter.isNullOrBlank()) {
+            query.andWhere {
+                PredictionTable.shortCompanyName like "$filter%"
+            }
+        }
+
+        val results = query.limit(n = itemsToFetch, offset = offset).map { row ->
             val articleCount = when (row[PredictionTable.sentiment]) {
                 1 -> row[PredictionTable.positiveArticleCount]
                 -1 -> row[PredictionTable.negativeArticleCount]
@@ -594,6 +592,53 @@ class PredictionExposedRepository(
             .associate { row ->
                 row[PredictionTable.tickerId] to row[PredictionTable.volatility]
             }
+    }
+
+    fun findByKeyword(keyword: String, limit: Int = 3): List<PredictionQueryDto> {
+        val maxDateExpression = PredictionTable.predictionDate.max()
+        val latestDate = PredictionTable
+            .select(maxDateExpression)
+            .firstOrNull()
+            ?.get(maxDateExpression)
+            ?: throw CriticalDataOmittedException("치명적 오류: 주가 정보가 존재하지 않습니다.")
+
+        val query = PredictionTable
+            .selectAll()
+            .where(PredictionTable.predictionDate eq latestDate)
+            .orderBy(
+                PredictionTable.volatility to SortOrder.DESC,
+                PredictionTable.tickerCode to SortOrder.ASC
+            )
+
+        if (keyword.isNotBlank()) {
+            query.andWhere {
+                (PredictionTable.shortCompanyName like "$keyword%") or (PredictionTable.shortCompanyNameKr like "$keyword%")
+            }
+        }
+
+        val results = query.limit(limit).map { row ->
+            val articleCount = when (row[PredictionTable.sentiment]) {
+                1 -> row[PredictionTable.positiveArticleCount]
+                -1 -> row[PredictionTable.negativeArticleCount]
+                else -> row[PredictionTable.neutralArticleCount] // 0
+            }
+
+            PredictionQueryDto(
+                predictionDate = row[PredictionTable.predictionDate],
+                tickerId = row[PredictionTable.tickerId],
+                shortCompanyName = row[PredictionTable.shortCompanyName],
+                tickerCode = row[PredictionTable.tickerCode],
+                predictionStrategy = row[PredictionTable.strategy],
+                sentiment = row[PredictionTable.sentiment],
+                articleCount = articleCount,
+                positiveKeywords = null,
+                negativeKeywords = null,
+                isFavorite = null,
+                articleTitles = null,
+                graphData = null
+            )
+        }
+        return results
     }
 
 }

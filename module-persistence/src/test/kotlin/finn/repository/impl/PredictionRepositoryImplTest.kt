@@ -80,6 +80,7 @@ internal class PredictionRepositoryImplTest(
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
+                it[shortCompanyNameKr] = "A 회사"
                 it[createdAt] = LocalDateTime.now()
             }
             PredictionTable.insert {
@@ -95,6 +96,7 @@ internal class PredictionRepositoryImplTest(
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "AAAA"
                 it[shortCompanyName] = "Company A"
+                it[shortCompanyNameKr] = "A 회사"
                 it[createdAt] = LocalDateTime.now()
             }
 
@@ -111,6 +113,7 @@ internal class PredictionRepositoryImplTest(
                 it[strategy] = "강한 호재"
                 it[tickerCode] = "BBBB"
                 it[shortCompanyName] = "Company B"
+                it[shortCompanyNameKr] = "B 회사"
                 it[createdAt] = LocalDateTime.now()
             }
 

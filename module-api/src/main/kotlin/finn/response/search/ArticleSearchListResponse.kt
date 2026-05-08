@@ -1,4 +1,4 @@
-package finn.response.article
+package finn.response.search
 
 import finn.response.article.ArticleListResponse.ArticleDataResponse
 

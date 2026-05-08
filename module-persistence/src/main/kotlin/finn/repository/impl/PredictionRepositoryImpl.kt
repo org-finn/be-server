@@ -2,7 +2,6 @@ package finn.repository.impl
 
 import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
-import finn.entity.query.PredictionStrategy
 import finn.mapper.toDomain
 import finn.paging.PageResponse
 import finn.queryDto.*
@@ -24,28 +23,6 @@ class PredictionRepositoryImpl(
     private val tickerPriceRealTimeDynamoDbRepository: TickerPriceRealTimeDynamoDbRepository
 ) : PredictionRepository {
 
-    override suspend fun save(
-        tickerId: UUID,
-        tickerCode: String,
-        shortCompanyName: String,
-        sentiment: Int,
-        strategy: PredictionStrategy,
-        score: Int,
-        volatility: BigDecimal,
-        predictionDate: LocalDateTime
-    ) {
-        predictionExposedRepository.save(
-            tickerId,
-            tickerCode,
-            shortCompanyName,
-            sentiment,
-            strategy.strategy,
-            score,
-            volatility,
-            predictionDate
-        )
-    }
-
     override suspend fun saveAll(predictions: List<PredictionCreateDto>) {
         predictionExposedRepository.batchInsertPredictions(predictions)
     }
@@ -56,7 +33,8 @@ class PredictionRepositoryImpl(
         sort: String,
         userId: UUID?
     ): PageResponse<PredictionQueryDto> {
-        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
+        val predictionExposedList =
+            predictionExposedRepository.findAllPrediction(page, size, sort, null)
         if (userId != null) {
             setFavoriteTicker(
                 userId,
@@ -77,9 +55,11 @@ class PredictionRepositoryImpl(
         size: Int,
         sort: String,
         isOpened: Boolean,
-        userId: UUID?
+        userId: UUID?,
+        filter: String?
     ): PageResponse<PredictionQueryDto> {
-        val predictionExposedList = predictionExposedRepository.findAllPrediction(page, size, sort)
+        val predictionExposedList =
+            predictionExposedRepository.findAllPrediction(page, size, sort, filter)
 
         if (!isOpened) {
             setPredictionDataForParam(
@@ -200,5 +180,9 @@ class PredictionRepositoryImpl(
 
     override suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
         return predictionExposedRepository.findYesterdayVolatilities(tickerIds)
+    }
+
+    override fun findByKeyword(keyword: String): List<PredictionQueryDto> {
+        return predictionExposedRepository.findByKeyword(keyword)
     }
 }
