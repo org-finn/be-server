@@ -7,8 +7,8 @@ import finn.response.ErrorResponse
 import finn.response.SuccessResponse
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
-import finn.response.article.ArticleSearchListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
+import finn.response.search.ArticleSearchListResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content

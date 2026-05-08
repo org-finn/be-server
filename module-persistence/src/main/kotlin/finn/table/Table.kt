@@ -75,6 +75,7 @@ object PredictionTable : UUIDTable("predictions") {
     val volatility = decimal("volatility", 10, 4)
     val tickerCode = varchar("ticker_code", 20)
     val shortCompanyName = varchar("short_company_name", 100)
+    val shortCompanyNameKr = varchar("short_company_name_kr", 100)
     val tickerId = uuid("ticker_id")
     val createdAt = datetime("created_at")
 

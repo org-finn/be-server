@@ -6,8 +6,8 @@ import finn.paging.ArticlePageRequest
 import finn.response.SuccessResponse
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
-import finn.response.article.ArticleSearchListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
+import finn.response.search.ArticleSearchListResponse
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 

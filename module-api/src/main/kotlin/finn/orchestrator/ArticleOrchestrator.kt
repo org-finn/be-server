@@ -5,8 +5,8 @@ import finn.mapper.TickerDtoMapper.Companion.toDto
 import finn.paging.ArticlePageRequest
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
-import finn.response.article.ArticleSearchListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
+import finn.response.search.ArticleSearchListResponse
 import finn.service.ArticleQueryService
 import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
