@@ -211,6 +211,7 @@ internal class UserInfoRepositoryImplTest(
                         it[volatility] = BigDecimal.ZERO
                         it[tickerCode] = "AAPL"
                         it[shortCompanyName] = "Apple"
+                        it[shortCompanyNameKr] = "애플"
                         it[tickerId] = aaplId
                         it[createdAt] = LocalDateTime.now()
                     }
@@ -226,6 +227,7 @@ internal class UserInfoRepositoryImplTest(
                         it[volatility] = BigDecimal.ZERO
                         it[tickerCode] = "TSLA"
                         it[shortCompanyName] = "Tesla"
+                        it[shortCompanyNameKr] = "테슬라"
                         it[tickerId] = tslaId
                         it[createdAt] = LocalDateTime.now()
                     }
