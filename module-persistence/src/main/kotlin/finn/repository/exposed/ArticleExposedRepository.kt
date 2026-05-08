@@ -87,7 +87,7 @@ class ArticleExposedRepository {
 
             query.andWhere { exists(subQuery) }
         }
-        
+
         // title, titleKr 필터
         if (!filter.isNullOrBlank()) {
             query.andWhere {
@@ -183,7 +183,7 @@ class ArticleExposedRepository {
         // title에서 찾기
         searchResults.addAll(
             ArticleTable.selectAll()
-                .where { (ArticleTable.title like "%$keyword%") or (ArticleTable.titleKr like "%$keyword%") }
+                .where { (ArticleTable.title.lowerCase() like "%${keyword.lowercase()}%") or (ArticleTable.titleKr like "%$keyword%") }
                 .limit(limit)
                 .map { row ->
                     ArticleDataQueryDto.create(
@@ -199,7 +199,7 @@ class ArticleExposedRepository {
                     )
                 }.toList()
         )
-        
+
         // If we already have enough results from titles, we might not need to query descriptions.
         // Or if we still want to get up to `limit` in total:
         val remaining = limit - searchResults.size

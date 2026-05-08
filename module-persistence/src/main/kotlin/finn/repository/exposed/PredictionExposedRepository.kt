@@ -612,7 +612,7 @@ class PredictionExposedRepository(
 
         if (keyword.isNotBlank()) {
             query.andWhere {
-                (PredictionTable.shortCompanyName like "$keyword%") or (PredictionTable.shortCompanyNameKr like "$keyword%")
+                (PredictionTable.shortCompanyName.lowerCase() like "${keyword.lowercase()}%") or (PredictionTable.shortCompanyNameKr like "$keyword%")
             }
         }
 
