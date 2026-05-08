@@ -46,6 +46,7 @@ class PredictionConcurrencyTest(
                     it[tickerId] = targetTickerId
                     it[tickerCode] = ""
                     it[shortCompanyName] = ""
+                    it[shortCompanyNameKr] = ""
                     it[predictionDate] = targetDate.atStartOfDay() // 00:00:00 고정
                     it[volatility] = BigDecimal.ZERO
                     it[score] = 50

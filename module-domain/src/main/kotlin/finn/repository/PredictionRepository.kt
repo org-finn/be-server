@@ -2,7 +2,6 @@ package finn.repository
 
 import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
-import finn.entity.query.PredictionStrategy
 import finn.paging.PageResponse
 import finn.queryDto.PredictionCreateDto
 import finn.queryDto.PredictionDetailQueryDto
@@ -13,17 +12,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 interface PredictionRepository {
-
-    suspend fun save(
-        tickerId: UUID,
-        tickerCode: String,
-        shortCompanyName: String,
-        sentiment: Int,
-        strategy: PredictionStrategy,
-        score: Int,
-        volatility: BigDecimal,
-        predictionDate: LocalDateTime
-    )
 
     suspend fun saveAll(predictions: List<PredictionCreateDto>)
 
@@ -76,4 +64,6 @@ interface PredictionRepository {
     suspend fun getYesterdayVolatilityByTickerId(tickerId: UUID): BigDecimal
 
     suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal>
+
+    fun findByKeyword(keyword: String): List<PredictionQueryDto>
 }

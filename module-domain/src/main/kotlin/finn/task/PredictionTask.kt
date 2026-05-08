@@ -50,6 +50,7 @@ data class InitPredictionTask(
     data class InitPayload(
         val tickerCode: String,
         val shortCompanyName: String,
+        val shortCompanyNameKr: String,
         val predictionDate: OffsetDateTime,
         val todayMacd: Map<String, Double>,
         val yesterdayMacd: Map<String, Double>,

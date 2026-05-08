@@ -1,39 +1,78 @@
 package finn.mapper
 
+import finn.converter.getAbstractDateBefore
 import finn.queryDto.ArticleDataQueryDto
+import finn.queryDto.PredictionQueryDto
 import finn.queryDto.TickerQueryDto
-import finn.response.search.TickerSearchPreviewListResponse
+import finn.response.article.ArticleListResponse
+import finn.response.prediciton.PredictionListResponse
+import finn.response.prediciton.PredictionListResponse.PredictionDataResponse
 import finn.response.search.ArticleSearchListResponse
+import finn.response.search.SearchPreviewResponse
+import finn.response.search.TickerSearchListResponse
 
 class SearchDtoMapper {
     companion object {
-        fun toDto(tickerDto: List<TickerQueryDto>): TickerSearchPreviewListResponse {
+        fun toSearchPreviewDto(
+            tickerDto: List<TickerQueryDto>,
+            articleDto: List<ArticleDataQueryDto>
+        ): SearchPreviewResponse {
             val tickerList = tickerDto.map {
-                TickerSearchPreviewListResponse.TickerSearchPreviewResponse(
+                SearchPreviewResponse.TickerSearchPreviewResponse(
                     it.tickerId, it.tickerCode, it.shortCompanyName,
                     it.fullCompanyName
                 )
             }.toList()
-            return TickerSearchPreviewListResponse(tickerList)
-        }
 
-        fun toDto(tickerDto: List<TickerQueryDto>, isKorean: Boolean): TickerSearchPreviewListResponse {
-            val tickerList = tickerDto.map {
-                TickerSearchPreviewListResponse.TickerSearchPreviewResponse(
-                    it.tickerId, 
-                    it.tickerCode, 
-                    if (isKorean) it.shortCompanyNameKr else it.shortCompanyName,
-                    it.fullCompanyName
-                )
-            }.toList()
-            return TickerSearchPreviewListResponse(tickerList)
-        }
-        
-        fun toArticleSearchDto(articleDto: List<ArticleDataQueryDto>): ArticleSearchListResponse {
             val articleList = articleDto.map {
-                ArticleSearchListResponse.ArticleSearchResponse(
+                SearchPreviewResponse.ArticleSearchPreviewResponse(
                     it.id,
                     it.title
+                )
+            }.toList()
+
+            return SearchPreviewResponse(tickerList, articleList)
+        }
+
+        fun toSearchListDto(
+            tickerDto: List<PredictionQueryDto>
+        ): TickerSearchListResponse {
+            val tickerList = tickerDto.map {
+                PredictionDataResponse(
+                    it.tickerId,
+                    it.shortCompanyName,
+                    it.tickerCode,
+                    it.predictionStrategy,
+                    it.sentiment,
+                    it.articleCount,
+                    it.positiveKeywords,
+                    it.negativeKeywords,
+                    it.isFavorite,
+                    it.articleTitles?.map {
+                        PredictionListResponse.ArticleTitleResponse(it.articleId, it.title)
+                    },
+                    it.graphData?.let {
+                        PredictionListResponse.PredictionListGraphDataResponse(
+                            it.marketOpen,
+                            it.priceData
+                        )
+                    }
+                )
+            }.toList()
+            return TickerSearchListResponse(tickerList)
+        }
+
+        fun toSearchListDto(articleDto: List<ArticleDataQueryDto>): ArticleSearchListResponse {
+            val articleList = articleDto.map {
+                ArticleListResponse.ArticleDataResponse(
+                    it.id,
+                    it.title,
+                    it.description,
+                    it.tickers,
+                    it.thumbnailUrl,
+                    it.contentUrl,
+                    getAbstractDateBefore(it.publishedDate),
+                    it.source, it.isFavorite
                 )
             }.toList()
             return ArticleSearchListResponse(articleList)

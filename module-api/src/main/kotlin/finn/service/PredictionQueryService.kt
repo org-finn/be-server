@@ -60,4 +60,8 @@ class PredictionQueryService(
     suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal> {
         return predictionRepository.findYesterdayVolatilityMap(tickerIds)
     }
+
+    fun searchTickers(keyword: String): List<PredictionQueryDto> {
+        return predictionRepository.findByKeyword(keyword)
+    }
 }
