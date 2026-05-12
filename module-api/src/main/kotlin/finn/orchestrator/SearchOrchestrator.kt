@@ -35,7 +35,7 @@ class SearchOrchestrator(
 
     fun getSearchArticleList(keyword: String?): ArticleSearchListResponse {
         checkKeywordValid(keyword)
-        val articleDto = articleQueryService.searchArticles(keyword!!, limit = 3)
+        val articleDto = articleQueryService.searchArticles(keyword!!)
         return toSearchListDto(articleDto)
     }
 }

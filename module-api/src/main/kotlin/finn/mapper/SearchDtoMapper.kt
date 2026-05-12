@@ -58,8 +58,8 @@ class SearchDtoMapper {
                         )
                     }
                 )
-            }.toList().take(3)
-            return TickerSearchListResponse(tickerList, tickerDto.size > 3)
+            }.toList()
+            return TickerSearchListResponse(tickerList.take(3), tickerList.size > 3)
         }
 
         fun toSearchListDto(articleDto: List<ArticleDataQueryDto>): ArticleSearchListResponse {
@@ -74,8 +74,8 @@ class SearchDtoMapper {
                     getAbstractDateBefore(it.publishedDate),
                     it.source, it.isFavorite
                 )
-            }.toList().take(3)
-            return ArticleSearchListResponse(articleList, articleDto.size > 3)
+            }.toList()
+            return ArticleSearchListResponse(articleList.take(3), articleList.size > 3)
         }
     }
 }
