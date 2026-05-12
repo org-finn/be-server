@@ -38,7 +38,7 @@ class ArticleQueryService(private val articleRepository: ArticleRepository) {
         return articleRepository.getArticle(userId, articleId)
     }
 
-    fun searchArticles(keyword: String, limit: Int = 3) : List<ArticleDataQueryDto> {
-        return articleRepository.findArticleListByKeyword(keyword, limit)
+    fun searchArticles(keyword: String) : List<ArticleDataQueryDto> {
+        return articleRepository.findArticleListByKeyword(keyword)
     }
 }
