@@ -8,7 +8,6 @@ import finn.response.SuccessResponse
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
-import finn.response.search.ArticleSearchListResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -20,7 +19,6 @@ import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import java.util.*
 
 @Tag(name = "뉴스 조회 API", description = "뉴스 데이터 조회 관련 API")
@@ -82,27 +80,4 @@ interface ArticleApiSpec {
             example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         ) @PathVariable articleId: UUID
     ): SuccessResponse<ArticleDetailResponse>
-
-
-    @Operation(
-        summary = "아티클 검색", description = "아티클을 검색합니다."
-    )
-    @ApiResponses(
-        value = [ApiResponse(
-            responseCode = "200",
-            description = "아티클 검색 결과를 성공적으로 조회하였습니다."
-        ), ApiResponse(
-            responseCode = "400",
-            description = "유효하지 않은 조회 조건입니다.",
-            content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-        )]
-    )
-    @GetMapping("/search")
-    fun searchArticle(
-        @Parameter(
-            description = "검색 키워드",
-            required = true,
-            example = "엔비디아"
-        ) @RequestParam(required = true) keyword: String
-    ): SuccessResponse<ArticleSearchListResponse>
 }

@@ -177,7 +177,7 @@ class ArticleExposedRepository {
         } ?: throw NotFoundDataException("해당 articleId에 해당하는 아티클이 존재하지 않습니다.")
     }
 
-    fun findArticleListByKeyword(keyword: String, limit: Int = 3): List<ArticleDataQueryDto> {
+    fun findArticleListByKeyword(keyword: String, limit: Int = 4): List<ArticleDataQueryDto> {
         val searchResults = mutableListOf<ArticleDataQueryDto>()
 
         // title에서 찾기

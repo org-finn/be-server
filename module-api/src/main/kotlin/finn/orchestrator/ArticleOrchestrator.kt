@@ -6,7 +6,6 @@ import finn.paging.ArticlePageRequest
 import finn.response.article.ArticleDetailResponse
 import finn.response.article.ArticleListResponse
 import finn.response.article.ArticleTickerFilteringListResponse
-import finn.response.search.ArticleSearchListResponse
 import finn.service.ArticleQueryService
 import finn.service.TickerQueryService
 import finn.transaction.ExposedTransactional
@@ -33,10 +32,5 @@ class ArticleOrchestrator(
     fun getArticle(userId: UUID?, articleId: UUID): ArticleDetailResponse {
         val article = articleQueryService.getArticle(userId, articleId)
         return toDto(article)
-    }
-
-    fun searchArticles(keyword: String) : ArticleSearchListResponse {
-        val articleList = articleQueryService.searchArticles(keyword)
-        return toDto(articleList)
     }
 }

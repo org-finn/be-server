@@ -594,7 +594,7 @@ class PredictionExposedRepository(
             }
     }
 
-    fun findByKeyword(keyword: String, limit: Int = 3): List<PredictionQueryDto> {
+    fun findByKeyword(keyword: String, limit: Int = 4): List<PredictionQueryDto> {
         val maxDateExpression = PredictionTable.predictionDate.max()
         val latestDate = PredictionTable
             .select(maxDateExpression)

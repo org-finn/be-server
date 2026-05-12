@@ -62,6 +62,10 @@ class PredictionQueryService(
     }
 
     fun searchTickers(keyword: String): List<PredictionQueryDto> {
-        return predictionRepository.findByKeyword(keyword)
+        val marketStatus =
+            marketStatusRepository.getOptionalMarketStatus(LocalDate.now(clock))
+        val isOpened =
+            MarketStatus.checkIsOpened(marketStatus, clock)
+        return predictionRepository.findByKeyword(keyword, isOpened)
     }
 }
