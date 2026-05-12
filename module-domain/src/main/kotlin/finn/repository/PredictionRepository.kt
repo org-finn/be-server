@@ -65,5 +65,5 @@ interface PredictionRepository {
 
     suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal>
 
-    fun findByKeyword(keyword: String): List<PredictionQueryDto>
+    fun findByKeyword(keyword: String, isOpened: Boolean): List<PredictionQueryDto>
 }

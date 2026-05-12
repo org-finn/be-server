@@ -182,7 +182,21 @@ class PredictionRepositoryImpl(
         return predictionExposedRepository.findYesterdayVolatilities(tickerIds)
     }
 
-    override fun findByKeyword(keyword: String): List<PredictionQueryDto> {
-        return predictionExposedRepository.findByKeyword(keyword)
+    override fun findByKeyword(
+        keyword: String,
+        isOpened: Boolean,
+    ): List<PredictionQueryDto> {
+        val predictionExposedList = predictionExposedRepository.findByKeyword(keyword)
+
+        if (!isOpened) {
+            setPredictionDataForParam(
+                predictionExposedList
+            )
+        } else {
+            predictionExposedList.forEach {
+                tickerPriceRealTimeDynamoDbRepository.setLatestRealTimeDataForPrediction(it)
+            }
+        }
+        return predictionExposedList
     }
 }
