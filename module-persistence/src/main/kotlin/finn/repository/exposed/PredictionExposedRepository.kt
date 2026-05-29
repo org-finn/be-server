@@ -6,14 +6,8 @@ import finn.exception.CriticalDataOmittedException
 import finn.exception.CriticalDataPollutedException
 import finn.exception.NotFoundDataException
 import finn.paging.PageResponse
-import finn.queryDto.PredictionCreateDto
-import finn.queryDto.PredictionDetailQueryDto
-import finn.queryDto.PredictionQueryDto
-import finn.queryDto.PredictionUpdateDto
-import finn.table.PredictionTable
-import finn.table.TickerPriceTable
-import finn.table.TickerTable
-import finn.table.UserInfoTable
+import finn.queryDto.*
+import finn.table.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -27,6 +21,7 @@ import java.sql.PreparedStatement
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Repository
@@ -639,6 +634,32 @@ class PredictionExposedRepository(
             )
         }
         return results
+    }
+
+    fun findKeywordsWithArticles(
+        tickerId: UUID,
+        date: String
+    ): List<KeywordsWithArticlesQueryDto> {
+        val date = runCatching {
+            LocalDate.parse(date)
+        }.getOrElse { throw CriticalDataPollutedException("날짜 형식이 올바르지 않습니다. 올바른 형식은 YYYY-MM-DD 입니다.") }
+
+        return ArticlesWithKeywordTable.selectAll()
+            .where {
+                (ArticlesWithKeywordTable.tickerId eq tickerId) and
+                        (ArticlesWithKeywordTable.date.date() eq date)
+            }.map { row ->
+                KeywordsWithArticlesQueryDto(
+                    keyword = row[ArticlesWithKeywordTable.keyword],
+                    articles = row[ArticlesWithKeywordTable.articles]?.split(",")
+                        ?.mapNotNull { uuidStr ->
+                            runCatching { UUID.fromString(uuidStr.trim()) }.getOrNull()
+                        } ?: emptyList(),
+                    sentiment = row[ArticlesWithKeywordTable.sentiment],
+                    date = LocalDate.ofInstant(row[ArticlesWithKeywordTable.date], ZoneId.of("UTC"))
+
+                )
+            }
     }
 
 }

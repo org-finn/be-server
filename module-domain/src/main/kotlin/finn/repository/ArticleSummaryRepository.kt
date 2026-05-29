@@ -8,5 +8,5 @@ interface ArticleSummaryRepository {
 
     fun findSummaryAll(): ArticleSummaryAll
 
-    fun findSummaryByTickerId(tickerId: UUID): ArticleSummary
+    fun findSummaryByTickerIdAndDate(tickerId: UUID, date: String): ArticleSummary
 }
