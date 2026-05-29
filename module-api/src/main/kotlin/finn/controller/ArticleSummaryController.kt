@@ -18,8 +18,11 @@ class ArticleSummaryController(
         return SuccessResponse("200 OK", "종합 뉴스 요약 데이터 조회에 성공하였습니다.", response)
     }
 
-    override fun getArticleSummaryForTicker(tickerId: UUID): SuccessResponse<ArticleSummaryTickerResponse> {
-        val response = articleSummaryOrchestrator.getArticleSummaryForTicker(tickerId)
+    override fun getArticleSummaryForTicker(
+        tickerId: UUID,
+        date: String
+    ): SuccessResponse<ArticleSummaryTickerResponse> {
+        val response = articleSummaryOrchestrator.getArticleSummaryForTicker(tickerId, date)
         return SuccessResponse("200 OK", "종목 뉴스 요약 데이터 조회에 성공하였습니다.", response)
     }
 }

@@ -17,7 +17,7 @@ class ArticleSummaryRepositoryImpl(
         return toDomain(articleSummaryExposedRepository.findSummaryAll())
     }
 
-    override fun findSummaryByTickerId(tickerId: UUID): ArticleSummary {
-        return toDomain(articleSummaryExposedRepository.findByTickerId(tickerId))
+    override fun findSummaryByTickerIdAndDate(tickerId: UUID, date: String): ArticleSummary {
+        return toDomain(articleSummaryExposedRepository.findByTickerIdAndDate(tickerId, date))
     }
 }

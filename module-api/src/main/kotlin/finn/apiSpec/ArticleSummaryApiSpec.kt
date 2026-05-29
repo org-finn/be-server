@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import java.util.*
 
 @Tag(name = "뉴스 요약 API", description = "뉴스 요약 데이터 관련 API")
@@ -51,6 +52,11 @@ interface ArticleSummaryApiSpec {
             required = true,
             example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         )
-        @PathVariable tickerId: UUID
+        @PathVariable tickerId: UUID,
+        @Parameter(
+            description = "날짜",
+            required = true,
+            example = "2026-01-01"
+        ) @RequestParam date: String
     ): SuccessResponse<ArticleSummaryTickerResponse>
 }

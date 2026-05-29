@@ -199,4 +199,11 @@ class PredictionRepositoryImpl(
         }
         return predictionExposedList
     }
+
+    override fun findKeywordsWithArticles(
+        tickerId: UUID,
+        date: String
+    ): List<KeywordsWithArticlesQueryDto> {
+        return predictionExposedRepository.findKeywordsWithArticles(tickerId, date)
+    }
 }

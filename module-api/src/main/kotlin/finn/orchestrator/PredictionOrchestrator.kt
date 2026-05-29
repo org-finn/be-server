@@ -3,6 +3,7 @@ package finn.orchestrator
 import finn.handler.PredictionHandlerFactory
 import finn.mapper.toDto
 import finn.paging.PredictionPageRequest
+import finn.response.prediciton.KeywordsWithArticleListResponse
 import finn.response.prediciton.PredictionDetailResponse
 import finn.response.prediciton.PredictionListResponse
 import finn.service.ArticleQueryService
@@ -61,4 +62,11 @@ class PredictionOrchestrator(
         val articleList = articleQueryService.getArticleDataForPredictionDetail(tickerId)
         return toDto(predictionDetail, articleList)
     }
+
+    fun getKeywordsWithArticles(tickerId: UUID, date: String): KeywordsWithArticleListResponse {
+        val keywordsWithArticles = predictionQueryService.getKeywordsWithArticles(tickerId, date)
+        return toDto(keywordsWithArticles)
+    }
+
+
 }

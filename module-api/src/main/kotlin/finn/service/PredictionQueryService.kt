@@ -4,6 +4,7 @@ import finn.entity.query.MarketStatus
 import finn.entity.query.PredictionQ
 import finn.paging.PageResponse
 import finn.paging.PredictionPageRequest
+import finn.queryDto.KeywordsWithArticlesQueryDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
 import finn.repository.MarketStatusRepository
@@ -67,5 +68,9 @@ class PredictionQueryService(
         val isOpened =
             MarketStatus.checkIsOpened(marketStatus, clock)
         return predictionRepository.findByKeyword(keyword, isOpened)
+    }
+
+    fun getKeywordsWithArticles(tickerId: UUID, date: String): List<KeywordsWithArticlesQueryDto> {
+        return predictionRepository.findKeywordsWithArticles(tickerId, date)
     }
 }
