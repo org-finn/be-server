@@ -15,7 +15,7 @@ class ArticleSummaryService(
         return articleSummaryRepository.findSummaryAll()
     }
 
-    fun getArticleSummaryForTicker(tickerId: UUID): ArticleSummary {
-        return articleSummaryRepository.findSummaryByTickerId(tickerId)
+    fun getArticleSummaryForTicker(tickerId: UUID, date: String): ArticleSummary {
+        return articleSummaryRepository.findSummaryByTickerIdAndDate(tickerId, date)
     }
 }
