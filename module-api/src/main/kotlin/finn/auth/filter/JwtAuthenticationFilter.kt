@@ -23,7 +23,7 @@ class JwtAuthenticationFilter(
         "/swagger-ui/**",                // API 문서
         "/v3/api-docs/**",               // API 문서
         "/api/v1/prediction/**",         // 종목 예측 관련 (전체 허용)
-        "/api/v1/article-summary/**",    // 뉴스 요약 관련 (전체 허용)
+        "/api/v1/article-summary/all",   // 뉴스 요약 - 전체
         "/api/v1/article",
         "/api/v1/article/**",            // 아티클 조회 및 티커 리스트 (전체 허용)
         "/api/v1/search-preview",        // 통합 검색 자동완성
