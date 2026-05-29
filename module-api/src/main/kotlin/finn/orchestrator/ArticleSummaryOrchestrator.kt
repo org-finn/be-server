@@ -19,8 +19,8 @@ class ArticleSummaryOrchestrator(
         return toDto(articleSummaryAll)
     }
 
-    fun getArticleSummaryForTicker(tickerId: UUID): ArticleSummaryTickerResponse {
-        val articleSummary = articleSummaryService.getArticleSummaryForTicker(tickerId)
+    fun getArticleSummaryForTicker(tickerId: UUID, date: String): ArticleSummaryTickerResponse {
+        val articleSummary = articleSummaryService.getArticleSummaryForTicker(tickerId, date)
         return toDto(articleSummary)
     }
 }

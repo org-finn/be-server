@@ -3,10 +3,7 @@ package finn.repository
 import finn.entity.TickerScore
 import finn.entity.query.PredictionQ
 import finn.paging.PageResponse
-import finn.queryDto.PredictionCreateDto
-import finn.queryDto.PredictionDetailQueryDto
-import finn.queryDto.PredictionQueryDto
-import finn.queryDto.PredictionUpdateDto
+import finn.queryDto.*
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -66,4 +63,6 @@ interface PredictionRepository {
     suspend fun findYesterdayVolatilityMap(tickerIds: List<UUID>): Map<UUID, BigDecimal>
 
     fun findByKeyword(keyword: String, isOpened: Boolean): List<PredictionQueryDto>
+
+    fun findKeywordsWithArticles(tickerId: UUID, date: String): List<KeywordsWithArticlesQueryDto>
 }

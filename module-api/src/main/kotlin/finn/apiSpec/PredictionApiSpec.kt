@@ -5,6 +5,7 @@ import finn.auth.UserId
 import finn.paging.PredictionPageRequest
 import finn.response.ErrorResponse
 import finn.response.SuccessResponse
+import finn.response.prediciton.KeywordsWithArticleListResponse
 import finn.response.prediciton.PredictionDetailResponse
 import finn.response.prediciton.PredictionListResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -64,5 +65,31 @@ interface PredictionApiSpec {
             example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         ) @PathVariable tickerId: UUID
     ): SuccessResponse<PredictionDetailResponse>
+
+    @Operation(summary = "종목 키워드/연관 뉴스 조회", description = "종목의 핵심 키워드와 해당 키워드와 연관된 뉴스들을 조회합니다.")
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "종목 예측 상세 정보를 성공적으로 조회하였습니다."
+        ), ApiResponse(
+            responseCode = "404",
+            description = "존재하지 않는 종목 Id 값입니다.",
+            content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+        )]
+    )
+    @GetMapping("/ticker/{tickerId}/keywords")
+    @OptionalAuth
+    fun getTickerKeywordsWithArticles(
+        @Parameter(
+            description = "종목 ID (UUID)",
+            required = true,
+            example = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        ) @PathVariable tickerId: UUID,
+        @Parameter(
+            description = "날짜",
+            required = true,
+            example = "2026-01-01"
+        ) @RequestParam date: String
+    ): SuccessResponse<KeywordsWithArticleListResponse>
 
 }
