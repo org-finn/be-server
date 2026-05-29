@@ -5,6 +5,7 @@ import finn.auth.OptionalAuth
 import finn.orchestrator.PredictionOrchestrator
 import finn.paging.PredictionPageRequest
 import finn.response.SuccessResponse
+import finn.response.prediciton.KeywordsWithArticleListResponse
 import finn.response.prediciton.PredictionDetailResponse
 import finn.response.prediciton.PredictionListResponse
 import org.springframework.web.bind.annotation.RestController
@@ -30,5 +31,13 @@ class PredictionController(
     ): SuccessResponse<PredictionDetailResponse> {
         val response = predictionOrchestrator.getPredictionDetail(userId, tickerId)
         return SuccessResponse("200 OK", "종목 예측 상세 정보를 성공적으로 조회하였습니다.", response)
+    }
+
+    override fun getTickerKeywordsWithArticles(
+        tickerId: UUID,
+        date: String
+    ): SuccessResponse<KeywordsWithArticleListResponse> {
+        val response = predictionOrchestrator.getKeywordsWithArticles(tickerId, date)
+        return SuccessResponse("200 OK", "키워드/관련 아티클 목록을 성공적으로 조회하였습니다.", response)
     }
 }

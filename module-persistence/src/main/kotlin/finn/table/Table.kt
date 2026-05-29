@@ -199,7 +199,8 @@ object UserArticleTable : UUIDTable("user_article") {
     }
 }
 
-object ArticlesWithKeyword: UUIDTable("articles_with_keyword") {
+object ArticlesWithKeywordTable : UUIDTable("articles_with_keyword") {
+    val tickerId = uuid("ticker_id").nullable()
     val keyword = varchar("keyword", 100)
     val articles = text("articles").nullable()
     val sentiment = integer("sentiment")

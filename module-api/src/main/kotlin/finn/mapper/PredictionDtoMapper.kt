@@ -1,9 +1,11 @@
 package finn.mapper
 
 import finn.paging.PageResponse
+import finn.queryDto.KeywordsWithArticlesQueryDto
 import finn.queryDto.PredictionArticleDataQueryDto
 import finn.queryDto.PredictionDetailQueryDto
 import finn.queryDto.PredictionQueryDto
+import finn.response.prediciton.KeywordsWithArticleListResponse
 import finn.response.prediciton.PredictionDetailResponse
 import finn.response.prediciton.PredictionListResponse
 
@@ -78,4 +80,17 @@ fun toDto(
         detailData = predictionDetailData,
         isFavorite = predictionDetail.isFavorite,
     )
+}
+
+fun toDto(
+    keywordsWithArticles: List<KeywordsWithArticlesQueryDto>
+): KeywordsWithArticleListResponse {
+    return KeywordsWithArticleListResponse(keywordsWithArticles.map {
+        KeywordsWithArticleListResponse.KeywordsWithArticleResponse(
+            keyword = it.keyword,
+            articles = it.articles,
+            sentiment = it.sentiment,
+            date = it.date.toString()
+        )
+    }.toList())
 }
