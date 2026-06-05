@@ -1,11 +1,14 @@
 package finn.table
 
+import finn.queryDto.ArticleIdAndTitleQueryDto
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Index
 import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.sql.json.jsonb
 
 // Table 객체 정의
 object TickerTable : UUIDTable("ticker") {
@@ -202,7 +205,7 @@ object UserArticleTable : UUIDTable("user_article") {
 object ArticlesWithKeywordTable : UUIDTable("articles_with_keyword") {
     val tickerId = uuid("ticker_id").nullable()
     val keyword = varchar("keyword", 100)
-    val articles = text("articles").nullable()
+    val articles = jsonb<List<ArticleIdAndTitleQueryDto>>("articles", Json.Default).nullable()
     val sentiment = integer("sentiment")
     val date = timestamp("date")
     val createdAt = datetime("created_at")

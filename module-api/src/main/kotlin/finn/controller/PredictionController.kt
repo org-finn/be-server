@@ -35,9 +35,12 @@ class PredictionController(
 
     override fun getTickerKeywordsWithArticles(
         tickerId: UUID,
-        date: String
+        date: String,
+        keywordCount: Int,
+        articleCount: Int,
+        titleLength: Int
     ): SuccessResponse<KeywordsWithArticleListResponse> {
-        val response = predictionOrchestrator.getKeywordsWithArticles(tickerId, date)
+        val response = predictionOrchestrator.getKeywordsWithArticles(tickerId, date, keywordCount, articleCount, titleLength)
         return SuccessResponse("200 OK", "키워드/관련 아티클 목록을 성공적으로 조회하였습니다.", response)
     }
 }

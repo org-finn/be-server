@@ -63,9 +63,19 @@ class PredictionOrchestrator(
         return toDto(predictionDetail, articleList)
     }
 
-    fun getKeywordsWithArticles(tickerId: UUID, date: String): KeywordsWithArticleListResponse {
-        val keywordsWithArticles = predictionQueryService.getKeywordsWithArticles(tickerId, date)
-        return toDto(keywordsWithArticles)
+    fun getKeywordsWithArticles(
+        tickerId: UUID, date: String,
+        keywordCount: Int,
+        articleCount: Int,
+        titleLength: Int
+    ): KeywordsWithArticleListResponse {
+        val keywordsWithArticles = predictionQueryService.getKeywordsWithArticles(
+            tickerId,
+            date,
+            keywordCount,
+            articleCount,
+        )
+        return toDto(keywordsWithArticles, titleLength)
     }
 
 
