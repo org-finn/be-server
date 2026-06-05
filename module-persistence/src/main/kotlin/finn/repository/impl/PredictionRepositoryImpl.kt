@@ -202,8 +202,15 @@ class PredictionRepositoryImpl(
 
     override fun findKeywordsWithArticles(
         tickerId: UUID,
-        date: String
+        date: String,
+        keywordCount: Int,
+        articleCount: Int,
     ): List<KeywordsWithArticlesQueryDto> {
-        return predictionExposedRepository.findKeywordsWithArticles(tickerId, date)
+        return predictionExposedRepository.findKeywordsWithArticles(
+            tickerId,
+            date,
+            keywordCount,
+            articleCount,
+        )
     }
 }

@@ -83,7 +83,8 @@ fun toDto(
 }
 
 fun toDto(
-    keywordsWithArticles: List<KeywordsWithArticlesQueryDto>
+    keywordsWithArticles: List<KeywordsWithArticlesQueryDto>,
+    titleLength: Int
 ): KeywordsWithArticleListResponse {
     return KeywordsWithArticleListResponse(keywordsWithArticles.map {
         KeywordsWithArticleListResponse.KeywordsWithArticleResponse(
@@ -91,7 +92,11 @@ fun toDto(
             articles = it.articles.map {
                 KeywordsWithArticleListResponse.ArticleIdAndTitleResponse(
                     it.articleId,
-                    it.title
+                    if (it.title.length > titleLength) {
+                        "${it.title.take(titleLength)}..."
+                    } else {
+                        it.title
+                    }
                 )
             },
             sentiment = it.sentiment,

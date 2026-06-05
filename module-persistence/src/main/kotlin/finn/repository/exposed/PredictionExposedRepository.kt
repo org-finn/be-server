@@ -638,7 +638,9 @@ class PredictionExposedRepository(
 
     fun findKeywordsWithArticles(
         tickerId: UUID,
-        date: String
+        date: String,
+        keywordCount: Int,
+        articleCount: Int,
     ): List<KeywordsWithArticlesQueryDto> {
         val date = runCatching {
             LocalDate.parse(date)
@@ -647,11 +649,14 @@ class PredictionExposedRepository(
         return ArticlesWithKeywordTable.selectAll()
             .where {
                 (ArticlesWithKeywordTable.tickerId eq tickerId) and
+                        (ArticlesWithKeywordTable.sentiment neq 0) and
                         (ArticlesWithKeywordTable.date.date() eq date)
-            }.map { row ->
+            }.limit(keywordCount)
+            .map { row ->
                 KeywordsWithArticlesQueryDto(
                     keyword = row[ArticlesWithKeywordTable.keyword],
-                    articles = row[ArticlesWithKeywordTable.articles] ?: emptyList(),
+                    articles = row[ArticlesWithKeywordTable.articles]?.take(articleCount)
+                        ?: emptyList(),
                     sentiment = row[ArticlesWithKeywordTable.sentiment],
                     date = LocalDate.ofInstant(row[ArticlesWithKeywordTable.date], ZoneId.of("UTC"))
 
