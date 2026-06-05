@@ -88,7 +88,12 @@ fun toDto(
     return KeywordsWithArticleListResponse(keywordsWithArticles.map {
         KeywordsWithArticleListResponse.KeywordsWithArticleResponse(
             keyword = it.keyword,
-            articles = it.articles,
+            articles = it.articles.map {
+                KeywordsWithArticleListResponse.ArticleIdAndTitleResponse(
+                    it.articleId,
+                    it.title
+                )
+            },
             sentiment = it.sentiment,
             date = it.date.toString()
         )

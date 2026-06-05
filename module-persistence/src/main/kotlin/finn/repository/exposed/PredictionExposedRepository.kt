@@ -651,10 +651,7 @@ class PredictionExposedRepository(
             }.map { row ->
                 KeywordsWithArticlesQueryDto(
                     keyword = row[ArticlesWithKeywordTable.keyword],
-                    articles = row[ArticlesWithKeywordTable.articles]?.split(",")
-                        ?.mapNotNull { uuidStr ->
-                            runCatching { UUID.fromString(uuidStr.trim()) }.getOrNull()
-                        } ?: emptyList(),
+                    articles = row[ArticlesWithKeywordTable.articles] ?: emptyList(),
                     sentiment = row[ArticlesWithKeywordTable.sentiment],
                     date = LocalDate.ofInstant(row[ArticlesWithKeywordTable.date], ZoneId.of("UTC"))
 
