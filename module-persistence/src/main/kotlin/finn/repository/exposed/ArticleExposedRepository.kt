@@ -225,6 +225,7 @@ class ArticleExposedRepository {
                     }.toList()
             )
         }
+        searchResults.sortByDescending { it.publishedDate }
 
         return searchResults
     }
