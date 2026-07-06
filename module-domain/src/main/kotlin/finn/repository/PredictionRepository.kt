@@ -64,5 +64,8 @@ interface PredictionRepository {
 
     fun findByKeyword(keyword: String, isOpened: Boolean): List<PredictionQueryDto>
 
-    fun findKeywordsWithArticles(tickerId: UUID, date: String): List<KeywordsWithArticlesQueryDto>
+    fun findKeywordsWithArticles(
+        tickerId: UUID, date: String, keywordCount: Int,
+        articleCount: Int
+    ): List<KeywordsWithArticlesQueryDto>
 }

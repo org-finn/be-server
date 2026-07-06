@@ -89,7 +89,24 @@ interface PredictionApiSpec {
             description = "날짜",
             required = true,
             example = "2026-01-01"
-        ) @RequestParam date: String
-    ): SuccessResponse<KeywordsWithArticleListResponse>
+        ) @RequestParam date: String,
+        @Parameter(
+            description = "키워드 최대 개수",
+            required = true,
+            example = "5"
+        ) @RequestParam keywordCount: Int,
+        @Parameter(
+            description = "뉴스 최대 개수",
+            required = true,
+            example = "5",
+        ) @RequestParam articleCount: Int,
+        @Parameter(
+            description = "뉴스 타이틀 최대 길이",
+            required = true,
+            example = "50"
+        ) @RequestParam titleLength: Int,
+
+
+        ): SuccessResponse<KeywordsWithArticleListResponse>
 
 }

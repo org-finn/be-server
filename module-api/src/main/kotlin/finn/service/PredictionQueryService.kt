@@ -70,7 +70,16 @@ class PredictionQueryService(
         return predictionRepository.findByKeyword(keyword, isOpened)
     }
 
-    fun getKeywordsWithArticles(tickerId: UUID, date: String): List<KeywordsWithArticlesQueryDto> {
-        return predictionRepository.findKeywordsWithArticles(tickerId, date)
+    fun getKeywordsWithArticles(
+        tickerId: UUID, date: String,
+        keywordCount: Int,
+        articleCount: Int,
+    ): List<KeywordsWithArticlesQueryDto> {
+        return predictionRepository.findKeywordsWithArticles(
+            tickerId,
+            date,
+            keywordCount,
+            articleCount
+        )
     }
 }
